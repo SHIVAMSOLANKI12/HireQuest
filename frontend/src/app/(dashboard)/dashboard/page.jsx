@@ -1,6 +1,9 @@
 import {
   DashboardHeader,
   StatsGrid,
+  RecentAssessments,
+  RecentCandidates,
+  ActivityChart,
 } from "@/features/dashboard";
 
 export default function DashboardPage() {
@@ -9,6 +12,13 @@ export default function DashboardPage() {
       <DashboardHeader />
 
       <StatsGrid />
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <RecentCandidates />
+        <ActivityChart />
+      </div>
+
+      <RecentAssessments />
     </div>
   );
 }

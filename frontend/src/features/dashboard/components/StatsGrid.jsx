@@ -1,10 +1,14 @@
 import StatsCard from "./StatsCard";
-import { dashboardStats } from "../data/dashboard-data";
+import useDashboardStats from "../hooks/useDashboardStats";
 
 const StatsGrid = () => {
+  const { data: stats, isLoading } = useDashboardStats();
+
+  if (isLoading) return null;
+
   return (
     <section className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-      {dashboardStats.map((stat) => (
+      {stats?.map((stat) => (
         <StatsCard
           key={stat.id}
           title={stat.title}
