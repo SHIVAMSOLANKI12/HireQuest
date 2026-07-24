@@ -6,11 +6,18 @@ import {
   PageHeader,
   PageToolbar,
   SearchInput,
-  StatusBadge,
 } from "@/components/common";
+
+import { GameGrid } from "../components";
+import { games } from "../data";
 
 const GameList = () => {
   const [search, setSearch] = useState("");
+
+  const filteredGames = games.filter((game) =>
+    game.title.toLowerCase().includes(search.toLowerCase()) ||
+    game.category.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div className="space-y-6">
@@ -30,15 +37,13 @@ const GameList = () => {
           />
         }
         rightContent={
-          <div className="flex items-center gap-2">
-            <StatusBadge status="Active" />
-
-            <Button variant="outline">
-              Export
-            </Button>
-          </div>
+          <Button variant="outline">
+            Export
+          </Button>
         }
       />
+
+      <GameGrid games={filteredGames} />
     </div>
   );
 };
