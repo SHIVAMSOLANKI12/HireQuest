@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { ROUTES } from "@/constants";
 
 const DashboardHeader = () => {
@@ -26,12 +26,13 @@ const DashboardHeader = () => {
         </p>
       </div>
 
-      <Button asChild>
-        <Link href={ROUTES.ASSESSMENTS}>
-          <Plus className="mr-2 h-4 w-4" />
-          Create Assessment
-        </Link>
-      </Button>
+      <Link
+        href={ROUTES.ASSESSMENTS}
+        className={buttonVariants({ variant: "default" })}
+      >
+        <Plus className="mr-2 h-4 w-4" />
+        Create Assessment
+      </Link>
     </section>
   );
 };

@@ -3,7 +3,7 @@ import { Sidebar } from "./sidebar";
 
 const DashboardLayout = ({ children }) => {
   return (
-    <div className="flex min-h-screen bg-muted/30">
+    <div className="flex min-h-screen bg-zinc-50 text-slate-900">
       <Sidebar />
 
       <div className="flex flex-1 flex-col">
