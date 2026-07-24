@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { PageHeader, PageToolbar, SearchInput } from "@/components/common";
+import {
+  PageHeader,
+  PageToolbar,
+  SearchInput,
+  StatusBadge,
+} from "@/components/common";
 
 const GameList = () => {
   const [search, setSearch] = useState("");
@@ -25,9 +30,13 @@ const GameList = () => {
           />
         }
         rightContent={
-          <Button variant="outline">
-            Export
-          </Button>
+          <div className="flex items-center gap-2">
+            <StatusBadge status="Active" />
+
+            <Button variant="outline">
+              Export
+            </Button>
+          </div>
         }
       />
     </div>
