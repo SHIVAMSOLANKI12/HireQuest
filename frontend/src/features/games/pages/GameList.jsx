@@ -8,7 +8,11 @@ import {
   SearchInput,
 } from "@/components/common";
 
-import { DifficultyFilter, GameGrid } from "../components";
+import {
+  DifficultyFilter,
+  GameGrid,
+  StatusFilter,
+} from "../components";
 import { useGames } from "../hooks";
 
 const GameList = () => {
@@ -18,6 +22,8 @@ const GameList = () => {
     setSearch,
     difficulty,
     setDifficulty,
+    status,
+    setStatus,
   } = useGames();
 
   return (
@@ -41,6 +47,10 @@ const GameList = () => {
               value={difficulty}
               onChange={setDifficulty}
             />
+            <StatusFilter
+              value={status}
+              onChange={setStatus}
+            />
           </div>
         }
         rightContent={
@@ -58,6 +68,7 @@ const GameList = () => {
           onAction={() => {
             setSearch("");
             setDifficulty("all");
+            setStatus("all");
           }}
         />
       ) : (

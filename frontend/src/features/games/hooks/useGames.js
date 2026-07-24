@@ -6,6 +6,7 @@ import { games as initialGames } from "../data";
 const useGames = () => {
   const [search, setSearch] = useState("");
   const [difficulty, setDifficulty] = useState("all");
+  const [status, setStatus] = useState("all");
 
   const filteredGames = useMemo(() => {
     return initialGames.filter((game) => {
@@ -16,9 +17,12 @@ const useGames = () => {
       const matchesDifficulty =
         difficulty === "all" || game.difficulty === difficulty;
 
-      return matchesSearch && matchesDifficulty;
+      const matchesStatus =
+        status === "all" || game.status === status;
+
+      return matchesSearch && matchesDifficulty && matchesStatus;
     });
-  }, [search, difficulty]);
+  }, [search, difficulty, status]);
 
   return {
     games: filteredGames,
@@ -26,6 +30,8 @@ const useGames = () => {
     setSearch,
     difficulty,
     setDifficulty,
+    status,
+    setStatus,
   };
 };
 
