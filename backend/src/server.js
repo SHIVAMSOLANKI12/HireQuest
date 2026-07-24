@@ -20,5 +20,15 @@ const shutdown = (signal) => {
   });
 };
 
-process.on("SIGINT", () => shutdown("SIGINT"));
-process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("uncaughtException", (error) => {
+  logger.fatal(error);
+  process.exit(1);
+});
+
+process.on("unhandledRejection", (reason) => {
+  logger.fatal(reason);
+
+  server.close(() => {
+    process.exit(1);
+  });
+});

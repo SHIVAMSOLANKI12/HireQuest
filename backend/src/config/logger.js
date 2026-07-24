@@ -3,6 +3,7 @@ const env = require("./env");
 
 const logger = pino({
   level: env.logger.level,
+
   transport:
     env.nodeEnv === "development"
       ? {
@@ -10,9 +11,14 @@ const logger = pino({
           options: {
             colorize: true,
             translateTime: "SYS:standard",
+            ignore: "pid,hostname",
           },
         }
       : undefined,
+
+  base: undefined,
+
+  timestamp: pino.stdTimeFunctions.isoTime,
 });
 
 module.exports = logger;

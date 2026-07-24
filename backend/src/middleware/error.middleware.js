@@ -1,22 +1,29 @@
-const ApiError = require('../utils/ApiError');
+const { StatusCodes } = require("http-status-codes");
+const ApiResponse = require("../utils/ApiResponse");
+const logger = require("../config/logger");
+const env = require("../config/env");
 
-const errorMiddleware = (err, req, res, next) => {
-  let error = err;
+const errorHandler = (err, req, res, next) => {
+  const statusCode = err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR;
 
-  if (!(error instanceof ApiError)) {
-    const statusCode = error.statusCode || 500;
-    const message = error.message || 'Internal Server Error';
-    error = new ApiError(statusCode, message, [], err.stack);
+  logger.error({
+    message: err.message,
+    statusCode,
+    stack: err.stack,
+    path: req.originalUrl,
+    method: req.method,
+  });
+
+  const response = new ApiResponse(
+    statusCode,
+    err.message || "Internal Server Error"
+  );
+
+  if (env.nodeEnv !== "production") {
+    response.stack = err.stack;
   }
 
-  const response = {
-    success: false,
-    message: error.message,
-    ...(error.errors?.length > 0 && { errors: error.errors }),
-    ...(process.env.NODE_ENV === 'development' && { stack: error.stack }),
-  };
-
-  res.status(error.statusCode).json(response);
+  return res.status(statusCode).json(response);
 };
 
-module.exports = errorMiddleware;
+module.exports = errorHandler;

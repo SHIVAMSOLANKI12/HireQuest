@@ -1,18 +1,40 @@
 const express = require("express");
 const cors = require("cors");
-const helmet = require("helmet");
-const compression = require("compression");
-const cookieParser = require("cookie-parser");
 
 const corsOptions = require("./config/cors");
+
+const securityMiddleware = require("./middleware/security.middleware");
+const requestId = require("./middleware/requestId.middleware");
+const requestLogger = require("./middleware/requestLogger.middleware");
+const { globalRateLimiter } = require("./middleware/rateLimit.middleware");
+const notFound = require("./middleware/notFound.middleware");
+const errorHandler = require("./middleware/error.middleware");
+
+
 const routes = require("./routes");
 
 const app = express();
 
 /**
+ * Request ID
+ */
+app.use(requestId);
+
+/**
+ * Request Logger
+ */
+app.use(requestLogger);
+
+/**
+ * Global Rate Limiter
+ */
+
+app.use(globalRateLimiter);
+
+/**
  * Security
  */
-app.use(helmet());
+securityMiddleware(app);
 
 /**
  * CORS
@@ -20,34 +42,20 @@ app.use(helmet());
 app.use(cors(corsOptions));
 
 /**
- * Compression
- */
-app.use(compression());
-
-/**
- * Body Parser
- */
-app.use(express.json({ limit: "10kb" }));
-app.use(express.urlencoded({ extended: true }));
-
-/**
- * Cookie Parser
- */
-app.use(cookieParser());
-
-/**
  * Routes
  */
 app.use("/api/v1", routes);
 
 /**
- * 404 Handler (Temporary)
+ * 404 Handler
  */
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "Route not found",
-  });
-});
+app.use(notFound);
+
+/**
+ * Global Error Handler
+ */
+app.use(errorHandler);
+
+
 
 module.exports = app;
