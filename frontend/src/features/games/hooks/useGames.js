@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { calculateTotalPages } from "@/lib/helpers";
 import { games as initialGames } from "../data";
 
 const useGames = () => {
@@ -53,7 +54,7 @@ const useGames = () => {
 
     // 3. Paginate
     const total = sorted.length;
-    const totalPagesCount = Math.ceil(total / pageSize);
+    const totalPagesCount = calculateTotalPages(total, pageSize);
     const sliced = sorted.slice(
       (currentPage - 1) * pageSize,
       currentPage * pageSize

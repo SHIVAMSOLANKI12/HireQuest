@@ -15,4 +15,7 @@ export const ROUTES = {
   RESULTS: "/results",
 
   SETTINGS: "/settings",
+
+  QUESTION_BANK: "/question-bank",
+  QUESTION_SET: "/question-set",
 };

@@ -16,14 +16,13 @@ import {
 } from "@/components/ui/card";
 
 import { StatusBadge } from "@/components/common";
+import { hoverCard } from "@/lib/animations";
+import { formatDuration } from "@/lib/formatters";
 
 const GameCard = ({ game }) => {
   return (
     <motion.div
-      whileHover={{
-        y: -8,
-        scale: 1.02,
-      }}
+      {...hoverCard}
       whileTap={{
         scale: 0.98,
       }}
@@ -55,7 +54,7 @@ const GameCard = ({ game }) => {
           <div className="grid grid-cols-2 gap-4">
             <div className="flex items-center gap-2">
               <Clock3 size={18} />
-              {game.duration} min
+              {formatDuration(game.duration)}
             </div>
 
             <div className="flex items-center gap-2">

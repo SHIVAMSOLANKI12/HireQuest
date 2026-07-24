@@ -7,6 +7,7 @@ export const questions = [
     type: "MCQ",
     status: "Active",
     usedIn: 8,
+    updatedAt: "2 days ago",
   },
   {
     id: 2,
@@ -16,5 +17,6 @@ export const questions = [
     type: "MCQ",
     status: "Draft",
     usedIn: 3,
+    updatedAt: "1 week ago",
   },
 ];

@@ -5,6 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { GAME_STATUS_OPTIONS } from "@/constants";
 
 const StatusFilter = ({ value, onChange }) => {
   return (
@@ -14,10 +15,11 @@ const StatusFilter = ({ value, onChange }) => {
       </SelectTrigger>
 
       <SelectContent>
-        <SelectItem value="all">All</SelectItem>
-        <SelectItem value="Active">Active</SelectItem>
-        <SelectItem value="Draft">Draft</SelectItem>
-        <SelectItem value="Archived">Archived</SelectItem>
+        {GAME_STATUS_OPTIONS.map((option) => (
+          <SelectItem key={option.value} value={option.value}>
+            {option.label}
+          </SelectItem>
+        ))}
       </SelectContent>
     </Select>
   );

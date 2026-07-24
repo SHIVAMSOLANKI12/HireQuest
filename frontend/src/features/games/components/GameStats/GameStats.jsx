@@ -4,22 +4,22 @@ import {
   Gamepad2,
   FileText,
 } from "lucide-react";
-
+import { GAME_STATUS } from "@/constants";
 import GameStatCard from "./GameStatCard";
 
 const GameStats = ({ games }) => {
   const total = games.length;
 
   const active = games.filter(
-    (game) => game.status === "Active"
+    (game) => game.status === GAME_STATUS.ACTIVE
   ).length;
 
   const draft = games.filter(
-    (game) => game.status === "Draft"
+    (game) => game.status === GAME_STATUS.DRAFT
   ).length;
 
   const archived = games.filter(
-    (game) => game.status === "Archived"
+    (game) => game.status === GAME_STATUS.ARCHIVED
   ).length;
 
   return (

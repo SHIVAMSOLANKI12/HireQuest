@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { GameCard } from "..";
+import { fadeInUp } from "@/lib/animations";
 
 const GameGrid = ({ games }) => {
   return (
@@ -7,11 +8,10 @@ const GameGrid = ({ games }) => {
       {games.map((game, index) => (
         <motion.div
           key={game.id}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          {...fadeInUp}
           transition={{
+            ...fadeInUp.transition,
             delay: index * 0.08,
-            duration: 0.3,
           }}
         >
           <GameCard game={game} />

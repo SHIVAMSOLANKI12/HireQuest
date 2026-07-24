@@ -5,6 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DIFFICULTY_OPTIONS } from "@/constants";
 
 const DifficultyFilter = ({ value, onChange }) => {
   return (
@@ -14,10 +15,11 @@ const DifficultyFilter = ({ value, onChange }) => {
       </SelectTrigger>
 
       <SelectContent>
-        <SelectItem value="all">All</SelectItem>
-        <SelectItem value="Easy">Easy</SelectItem>
-        <SelectItem value="Medium">Medium</SelectItem>
-        <SelectItem value="Hard">Hard</SelectItem>
+        {DIFFICULTY_OPTIONS.map((option) => (
+          <SelectItem key={option.value} value={option.value}>
+            {option.label}
+          </SelectItem>
+        ))}
       </SelectContent>
     </Select>
   );
