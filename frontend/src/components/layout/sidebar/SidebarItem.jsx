@@ -6,10 +6,12 @@ export default function SidebarItem({
   label,
   href,
   active = false,
+  onClick,
 }) {
   return (
     <Link
       href={href}
+      onClick={onClick}
       className={cn(
         "flex h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors duration-200",
         active

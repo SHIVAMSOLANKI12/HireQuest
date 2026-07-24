@@ -1,15 +1,29 @@
+"use client";
+
+import { useState } from "react";
 import { Navbar } from "./navbar";
 import { Sidebar } from "./sidebar";
 
 const DashboardLayout = ({ children }) => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
-    <div className="flex min-h-screen bg-zinc-50 text-slate-900">
-      <Sidebar />
+    <div className="flex min-h-screen bg-zinc-50 text-slate-900 overflow-x-hidden">
+      {/* Sidebar container */}
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div className="flex flex-1 flex-col">
-        <Navbar />
+      {/* Backdrop overlay for mobile sidebar */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
 
-        <main className="flex-1 p-6">
+      <div className="flex flex-1 flex-col min-w-0">
+        <Navbar onMenuClick={() => setSidebarOpen(true)} />
+
+        <main className="flex-1 p-4 md:p-6 min-w-0">
           {children}
         </main>
       </div>

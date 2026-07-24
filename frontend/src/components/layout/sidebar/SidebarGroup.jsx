@@ -4,6 +4,7 @@ export default function SidebarGroup({
   title,
   items,
   pathname,
+  onItemClick,
 }) {
   return (
     <div className="space-y-2">
@@ -19,6 +20,7 @@ export default function SidebarGroup({
             label={item.label}
             href={item.href}
             active={pathname === item.href}
+            onClick={onItemClick}
           />
         ))}
       </div>
