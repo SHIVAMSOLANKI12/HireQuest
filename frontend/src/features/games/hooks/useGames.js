@@ -9,6 +9,7 @@ const useGames = () => {
   const [status, setStatus] = useState("all");
   const [sortBy, setSortBy] = useState("name-asc");
   const [currentPage, setCurrentPage] = useState(1);
+  const [loading] = useState(false);
   const pageSize = 9;
 
   // Reset page when filters or search query changes
@@ -79,6 +80,7 @@ const useGames = () => {
     setCurrentPage,
     totalPages,
     totalGames,
+    loading,
   };
 };
 

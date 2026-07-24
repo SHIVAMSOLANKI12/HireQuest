@@ -7,6 +7,8 @@ import {
   PageToolbar,
   Pagination,
   SearchInput,
+  GameCardSkeleton,
+  StatsSkeleton,
 } from "@/components/common";
 
 import {
@@ -34,6 +36,7 @@ const GameList = () => {
     setCurrentPage,
     totalPages,
     totalGames,
+    loading,
   } = useGames();
 
   return (
@@ -45,7 +48,11 @@ const GameList = () => {
         <Button>Create Configuration</Button>
       </PageHeader>
 
-      <GameStats games={allGames} />
+      {loading ? (
+        <StatsSkeleton />
+      ) : (
+        <GameStats games={allGames} />
+      )}
 
       <PageToolbar
         leftContent={
@@ -76,7 +83,13 @@ const GameList = () => {
         }
       />
 
-      {games.length === 0 ? (
+      {loading ? (
+        <div className="grid gap-8 md:grid-cols-2 2xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <GameCardSkeleton key={index} />
+          ))}
+        </div>
+      ) : games.length === 0 ? (
         <EmptyState
           title="No games found"
           description="Try changing your search keyword or filters."
