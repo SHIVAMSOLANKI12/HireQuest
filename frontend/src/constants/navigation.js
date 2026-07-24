@@ -1,6 +1,7 @@
 import {
   LayoutDashboard,
   ClipboardList,
+  Gamepad2,
   Users,
   BarChart3,
   Settings,
@@ -21,6 +22,11 @@ export const NAVIGATION = [
         label: "Assessments",
         href: ROUTES.ASSESSMENTS,
         icon: ClipboardList,
+      },
+      {
+        label: "Games",
+        href: ROUTES.GAMES,
+        icon: Gamepad2,
       },
       {
         label: "Candidates",

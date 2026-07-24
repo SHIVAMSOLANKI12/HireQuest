@@ -7,6 +7,8 @@ export const ROUTES = {
   ASSESSMENTS: "/assessments",
   ASSESSMENT_DETAILS: "/assessments/:id",
 
+  GAMES: "/games",
+
   CANDIDATES: "/candidates",
   CANDIDATE_DETAILS: "/candidates/:id",
 
