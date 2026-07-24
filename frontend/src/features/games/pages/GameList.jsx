@@ -8,14 +8,16 @@ import {
   SearchInput,
 } from "@/components/common";
 
-import { GameGrid } from "../components";
+import { DifficultyFilter, GameGrid } from "../components";
 import { useGames } from "../hooks";
 
 const GameList = () => {
   const {
+    games,
     search,
     setSearch,
-    games,
+    difficulty,
+    setDifficulty,
   } = useGames();
 
   return (
@@ -29,11 +31,17 @@ const GameList = () => {
 
       <PageToolbar
         leftContent={
-          <SearchInput
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search games..."
-          />
+          <div className="flex gap-3">
+            <SearchInput
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search games..."
+            />
+            <DifficultyFilter
+              value={difficulty}
+              onChange={setDifficulty}
+            />
+          </div>
         }
         rightContent={
           <Button variant="outline">
@@ -45,9 +53,12 @@ const GameList = () => {
       {games.length === 0 ? (
         <EmptyState
           title="No games found"
-          description="Try changing your search keyword."
+          description="Try changing your search keyword or filters."
           actionLabel="Clear Search"
-          onAction={() => setSearch("")}
+          onAction={() => {
+            setSearch("");
+            setDifficulty("all");
+          }}
         />
       ) : (
         <GameGrid games={games} />

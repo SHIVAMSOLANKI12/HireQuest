@@ -1,24 +1,31 @@
 "use client";
 
 import { useMemo, useState } from "react";
-
 import { games as initialGames } from "../data";
 
 const useGames = () => {
   const [search, setSearch] = useState("");
+  const [difficulty, setDifficulty] = useState("all");
 
   const filteredGames = useMemo(() => {
-    if (!search.trim()) return initialGames;
+    return initialGames.filter((game) => {
+      const matchesSearch = game.title
+        .toLowerCase()
+        .includes(search.toLowerCase());
 
-    return initialGames.filter((game) =>
-      game.title.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [search]);
+      const matchesDifficulty =
+        difficulty === "all" || game.difficulty === difficulty;
+
+      return matchesSearch && matchesDifficulty;
+    });
+  }, [search, difficulty]);
 
   return {
+    games: filteredGames,
     search,
     setSearch,
-    games: filteredGames,
+    difficulty,
+    setDifficulty,
   };
 };
 
