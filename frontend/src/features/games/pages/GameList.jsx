@@ -12,10 +12,12 @@ import {
 import {
   DifficultyFilter,
   GameGrid,
+  GameStats,
   SortFilter,
   StatusFilter,
 } from "../components";
 import { useGames } from "../hooks";
+import { games as allGames } from "../data";
 
 const GameList = () => {
   const {
@@ -42,6 +44,8 @@ const GameList = () => {
       >
         <Button>Create Configuration</Button>
       </PageHeader>
+
+      <GameStats games={allGames} />
 
       <PageToolbar
         leftContent={
