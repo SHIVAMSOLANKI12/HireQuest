@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import {
+  EmptyState,
   PageHeader,
   PageToolbar,
   SearchInput,
@@ -41,7 +42,16 @@ const GameList = () => {
         }
       />
 
-      <GameGrid games={games} />
+      {games.length === 0 ? (
+        <EmptyState
+          title="No games found"
+          description="Try changing your search keyword."
+          actionLabel="Clear Search"
+          onAction={() => setSearch("")}
+        />
+      ) : (
+        <GameGrid games={games} />
+      )}
     </div>
   );
 };
