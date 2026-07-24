@@ -1,2 +1,1 @@
-// Games components barrel export placeholder
-export {};
+export { default as GameCard } from "./GameCard";
