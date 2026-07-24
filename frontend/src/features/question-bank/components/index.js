@@ -1,2 +1,1 @@
-// Question Bank components barrel export placeholder
-export {};
+export { default as QuestionStats } from "./QuestionStats";

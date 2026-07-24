@@ -1,13 +1,35 @@
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { PageHeader, PageToolbar, SearchInput } from "@/components/common";
+import { QuestionStats } from "../components";
+
 const QuestionList = () => {
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">
-        Question Bank
-      </h1>
+      <PageHeader
+        title="Question Bank"
+        description="Manage all MCQ questions used in assessments."
+      >
+        <Button>Add Question</Button>
+      </PageHeader>
 
-      <p className="text-muted-foreground">
-        Manage all MCQ questions used in assessments.
-      </p>
+      <QuestionStats />
+
+      <PageToolbar
+        leftContent={
+          <SearchInput
+            value=""
+            onChange={() => {}}
+            placeholder="Search questions..."
+          />
+        }
+        rightContent={
+          <Button variant="outline">
+            Export
+          </Button>
+        }
+      />
     </div>
   );
 };
