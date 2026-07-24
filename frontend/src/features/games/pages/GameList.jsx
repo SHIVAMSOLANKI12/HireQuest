@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   PageHeader,
@@ -9,15 +8,14 @@ import {
 } from "@/components/common";
 
 import { GameGrid } from "../components";
-import { games } from "../data";
+import { useGames } from "../hooks";
 
 const GameList = () => {
-  const [search, setSearch] = useState("");
-
-  const filteredGames = games.filter((game) =>
-    game.title.toLowerCase().includes(search.toLowerCase()) ||
-    game.category.toLowerCase().includes(search.toLowerCase())
-  );
+  const {
+    search,
+    setSearch,
+    games,
+  } = useGames();
 
   return (
     <div className="space-y-6">
@@ -43,7 +41,7 @@ const GameList = () => {
         }
       />
 
-      <GameGrid games={filteredGames} />
+      <GameGrid games={games} />
     </div>
   );
 };

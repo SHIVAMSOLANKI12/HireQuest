@@ -1,2 +1,1 @@
-// Games hooks barrel export placeholder
-export {};
+export { default as useGames } from "./useGames";
