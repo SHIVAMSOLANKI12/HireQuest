@@ -11,6 +11,7 @@ import {
 import {
   DifficultyFilter,
   GameGrid,
+  SortFilter,
   StatusFilter,
 } from "../components";
 import { useGames } from "../hooks";
@@ -24,6 +25,8 @@ const GameList = () => {
     setDifficulty,
     status,
     setStatus,
+    sortBy,
+    setSortBy,
   } = useGames();
 
   return (
@@ -37,7 +40,7 @@ const GameList = () => {
 
       <PageToolbar
         leftContent={
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <SearchInput
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -50,6 +53,10 @@ const GameList = () => {
             <StatusFilter
               value={status}
               onChange={setStatus}
+            />
+            <SortFilter
+              value={sortBy}
+              onChange={setSortBy}
             />
           </div>
         }
@@ -69,6 +76,7 @@ const GameList = () => {
             setSearch("");
             setDifficulty("all");
             setStatus("all");
+            setSortBy("name-asc");
           }}
         />
       ) : (
