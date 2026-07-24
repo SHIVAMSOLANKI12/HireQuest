@@ -5,6 +5,7 @@ import {
   EmptyState,
   PageHeader,
   PageToolbar,
+  Pagination,
   SearchInput,
 } from "@/components/common";
 
@@ -27,6 +28,10 @@ const GameList = () => {
     setStatus,
     sortBy,
     setSortBy,
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    totalGames,
   } = useGames();
 
   return (
@@ -80,7 +85,20 @@ const GameList = () => {
           }}
         />
       ) : (
-        <GameGrid games={games} />
+        <>
+          <GameGrid games={games} />
+
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              Showing {games.length} of {totalGames} games
+            </p>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div>
+        </>
       )}
     </div>
   );

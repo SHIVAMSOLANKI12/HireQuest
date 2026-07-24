@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { games as initialGames } from "../data";
 
 const useGames = () => {
@@ -8,8 +8,15 @@ const useGames = () => {
   const [difficulty, setDifficulty] = useState("all");
   const [status, setStatus] = useState("all");
   const [sortBy, setSortBy] = useState("name-asc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 9;
 
-  const filteredAndSortedGames = useMemo(() => {
+  // Reset page when filters or search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, difficulty, status, sortBy]);
+
+  const { paginatedGames, totalPages, totalGames } = useMemo(() => {
     // 1. Filter
     const filtered = initialGames.filter((game) => {
       const matchesSearch = game.title
@@ -26,7 +33,7 @@ const useGames = () => {
     });
 
     // 2. Sort
-    return [...filtered].sort((a, b) => {
+    const sorted = [...filtered].sort((a, b) => {
       switch (sortBy) {
         case "name-asc":
           return a.title.localeCompare(b.title);
@@ -42,10 +49,24 @@ const useGames = () => {
           return 0;
       }
     });
-  }, [search, difficulty, status, sortBy]);
+
+    // 3. Paginate
+    const total = sorted.length;
+    const totalPagesCount = Math.ceil(total / pageSize);
+    const sliced = sorted.slice(
+      (currentPage - 1) * pageSize,
+      currentPage * pageSize
+    );
+
+    return {
+      paginatedGames: sliced,
+      totalPages: totalPagesCount,
+      totalGames: total,
+    };
+  }, [search, difficulty, status, sortBy, currentPage]);
 
   return {
-    games: filteredAndSortedGames,
+    games: paginatedGames,
     search,
     setSearch,
     difficulty,
@@ -54,6 +75,10 @@ const useGames = () => {
     setStatus,
     sortBy,
     setSortBy,
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    totalGames,
   };
 };
 
