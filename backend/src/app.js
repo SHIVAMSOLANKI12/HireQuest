@@ -1,41 +1,53 @@
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const morgan = require('morgan');
-const cookieParser = require('cookie-parser');
-const routes = require('./routes');
-const errorHandler = require('./middleware/errorHandler');
+const express = require("express");
+const cors = require("cors");
+const helmet = require("helmet");
+const compression = require("compression");
+const cookieParser = require("cookie-parser");
+
+const corsOptions = require("./config/cors");
+const routes = require("./routes");
 
 const app = express();
 
-// Security HTTP headers
+/**
+ * Security
+ */
 app.use(helmet());
 
-// CORS configuration
-app.use(
-  cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
-    credentials: true,
-  })
-);
+/**
+ * CORS
+ */
+app.use(cors(corsOptions));
 
-// Request Logger
-if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
-}
+/**
+ * Compression
+ */
+app.use(compression());
 
-// Body parsers
-app.use(express.json());
+/**
+ * Body Parser
+ */
+app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true }));
+
+/**
+ * Cookie Parser
+ */
 app.use(cookieParser());
 
-// Static uploads directory
-app.use('/uploads', express.static('uploads'));
+/**
+ * Routes
+ */
+app.use("/api/v1", routes);
 
-// Base API Routes
-app.use('/api/v1', routes);
-
-// Global Error Handler
-app.use(errorHandler);
+/**
+ * 404 Handler (Temporary)
+ */
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Route not found",
+  });
+});
 
 module.exports = app;
