@@ -2,7 +2,7 @@ import { GameCard } from "..";
 
 const GameGrid = ({ games }) => {
   return (
-    <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+    <div className="grid gap-8 md:grid-cols-2 2xl:grid-cols-3">
       {games.map((game) => (
         <GameCard key={game.id} game={game} />
       ))}
