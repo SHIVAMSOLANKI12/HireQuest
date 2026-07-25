@@ -2,7 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import { PageHeader, PageToolbar, SearchInput } from "@/components/common";
-import { QuestionStats } from "../components";
+import { QuestionGrid, QuestionStats } from "../components";
+import { questions } from "../data";
 
 const QuestionList = () => {
   return (
@@ -30,6 +31,8 @@ const QuestionList = () => {
           </Button>
         }
       />
+
+      <QuestionGrid questions={questions} />
     </div>
   );
 };
