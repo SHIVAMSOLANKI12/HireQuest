@@ -9,6 +9,7 @@ import {
   SortFilter,
   QuestionGrid,
   QuestionStats,
+  AddQuestionDialog,
 } from "../components";
 import { useQuestions } from "../hooks";
 
@@ -37,7 +38,7 @@ const QuestionList = () => {
         title="Question Bank"
         description="Manage all MCQ questions used in assessments."
       >
-        <Button>Add Question</Button>
+        <AddQuestionDialog />
       </PageHeader>
 
       <QuestionStats />

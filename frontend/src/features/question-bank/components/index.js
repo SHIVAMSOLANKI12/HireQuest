@@ -5,3 +5,4 @@ export { default as CategoryFilter } from "./CategoryFilter";
 export { default as DifficultyFilter } from "./DifficultyFilter";
 export { default as StatusFilter } from "./StatusFilter";
 export { default as SortFilter } from "./SortFilter";
+export { default as AddQuestionDialog } from "./AddQuestionDialog";
