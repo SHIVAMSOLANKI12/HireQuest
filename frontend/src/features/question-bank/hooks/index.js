@@ -1,2 +1,1 @@
-// Question Bank hooks barrel export placeholder
-export {};
+export { default as useQuestions } from "./useQuestions";
