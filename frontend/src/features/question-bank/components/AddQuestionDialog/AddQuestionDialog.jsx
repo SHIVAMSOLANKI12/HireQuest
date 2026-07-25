@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -11,9 +10,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { QuestionForm } from "..";
 
 const AddQuestionDialog = () => {
   const [open, setOpen] = useState(false);
+
+  const handleSubmit = (data) => {
+    console.log("New Question Data Submitted:", data);
+    setOpen(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -29,64 +34,10 @@ const AddQuestionDialog = () => {
           <DialogTitle>Add New Question</DialogTitle>
         </DialogHeader>
 
-        <div className="grid gap-6 py-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">
-              Question
-            </label>
-            <Input
-              placeholder="Enter question"
-            />
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                Category
-              </label>
-              <Input
-                placeholder="JavaScript"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                Difficulty
-              </label>
-              <Input
-                placeholder="Easy"
-              />
-            </div>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <Input
-              placeholder="Option A"
-            />
-            <Input
-              placeholder="Option B"
-            />
-            <Input
-              placeholder="Option C"
-            />
-            <Input
-              placeholder="Option D"
-            />
-          </div>
-
-          <div className="flex justify-end gap-3">
-            <Button
-              variant="outline"
-              onClick={() => setOpen(false)}
-            >
-              Cancel
-            </Button>
-
-            <Button onClick={() => setOpen(false)}>
-              Save Question
-            </Button>
-          </div>
-        </div>
+        <QuestionForm
+          onSubmit={handleSubmit}
+          onCancel={() => setOpen(false)}
+        />
       </DialogContent>
     </Dialog>
   );
