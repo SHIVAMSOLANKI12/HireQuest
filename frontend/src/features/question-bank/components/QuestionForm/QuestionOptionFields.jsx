@@ -1,8 +1,9 @@
 import { useFormContext } from "react-hook-form";
+import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
 const QuestionOptionFields = () => {
-  const { register, formState: { errors } } = useFormContext();
+  const { control } = useFormContext();
 
   const options = [
     { key: "optionA", label: "Option A" },
@@ -14,17 +15,19 @@ const QuestionOptionFields = () => {
   return (
     <div className="grid gap-4 md:grid-cols-2">
       {options.map((option) => (
-        <div key={option.key} className="space-y-1">
-          <Input
-            {...register(option.key)}
-            placeholder={option.label}
-          />
-          {errors[option.key] && (
-            <p className="text-xs text-destructive">
-              {errors[option.key].message}
-            </p>
+        <FormField
+          key={option.key}
+          control={control}
+          name={option.key}
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input placeholder={option.label} {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
           )}
-        </div>
+        />
       ))}
     </div>
   );

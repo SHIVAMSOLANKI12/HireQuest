@@ -1,10 +1,11 @@
 "use client";
 
-import { FormProvider, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -12,6 +13,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { DIFFICULTY_OPTIONS, GAME_STATUS_OPTIONS } from "@/constants";
 import { questionSchema } from "../../validations/questionSchema";
 import { defaultQuestion } from "../../constants/defaultQuestion";
@@ -32,113 +41,134 @@ const QuestionForm = ({
   };
 
   return (
-    <FormProvider {...form}>
+    <Form {...form}>
       <form
         onSubmit={form.handleSubmit(submitHandler)}
         className="space-y-6"
       >
-        {/* Question Input */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Question</label>
-          <Input
-            {...form.register("question")}
-            placeholder="Enter question"
-          />
-          {form.formState.errors.question && (
-            <p className="text-xs text-destructive">
-              {form.formState.errors.question.message}
-            </p>
+        {/* Question Textarea */}
+        <FormField
+          control={form.control}
+          name="question"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Question</FormLabel>
+              <FormControl>
+                <Textarea
+                  rows={4}
+                  placeholder="Enter question..."
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
           )}
-        </div>
+        />
 
         {/* Category & Difficulty */}
         <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Category</label>
-            <Input
-              {...form.register("category")}
-              placeholder="e.g. JavaScript"
-            />
-            {form.formState.errors.category && (
-              <p className="text-xs text-destructive">
-                {form.formState.errors.category.message}
-              </p>
+          <FormField
+            control={form.control}
+            name="category"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Category</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="e.g. JavaScript"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-          </div>
+          />
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Difficulty</label>
-            <Select
-              value={form.watch("difficulty")}
-              onValueChange={(val) => form.setValue("difficulty", val, { shouldValidate: true })}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Difficulty" />
-              </SelectTrigger>
-              <SelectContent>
-                {DIFFICULTY_OPTIONS.filter(opt => opt.value !== "all").map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {form.formState.errors.difficulty && (
-              <p className="text-xs text-destructive">
-                {form.formState.errors.difficulty.message}
-              </p>
+          <FormField
+            control={form.control}
+            name="difficulty"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Difficulty</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Difficulty" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {DIFFICULTY_OPTIONS.filter(opt => opt.value !== "all").map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
             )}
-          </div>
+          />
         </div>
 
         {/* Status & Correct Answer */}
         <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Status</label>
-            <Select
-              value={form.watch("status")}
-              onValueChange={(val) => form.setValue("status", val, { shouldValidate: true })}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                {GAME_STATUS_OPTIONS.filter(opt => opt.value !== "all").map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {form.formState.errors.status && (
-              <p className="text-xs text-destructive">
-                {form.formState.errors.status.message}
-              </p>
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Status</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {GAME_STATUS_OPTIONS.filter(opt => opt.value !== "all").map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
             )}
-          </div>
+          />
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Correct Answer</label>
-            <Select
-              value={form.watch("correctAnswer")}
-              onValueChange={(val) => form.setValue("correctAnswer", val, { shouldValidate: true })}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select correct option" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="optionA">Option A</SelectItem>
-                <SelectItem value="optionB">Option B</SelectItem>
-                <SelectItem value="optionC">Option C</SelectItem>
-                <SelectItem value="optionD">Option D</SelectItem>
-              </SelectContent>
-            </Select>
-            {form.formState.errors.correctAnswer && (
-              <p className="text-xs text-destructive">
-                {form.formState.errors.correctAnswer.message}
-              </p>
+          <FormField
+            control={form.control}
+            name="correctAnswer"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Correct Answer</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select correct option" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="optionA">Option A</SelectItem>
+                    <SelectItem value="optionB">Option B</SelectItem>
+                    <SelectItem value="optionC">Option C</SelectItem>
+                    <SelectItem value="optionD">Option D</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
             )}
-          </div>
+          />
         </div>
 
         {/* Options grid */}
@@ -161,7 +191,7 @@ const QuestionForm = ({
           </Button>
         </div>
       </form>
-    </FormProvider>
+    </Form>
   );
 };
 
