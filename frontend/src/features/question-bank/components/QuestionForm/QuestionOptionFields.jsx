@@ -1,28 +1,28 @@
-import { useFormContext } from "react-hook-form";
 import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-const QuestionOptionFields = () => {
-  const { control } = useFormContext();
-
+const QuestionOptionFields = ({ form }) => {
   const options = [
-    { key: "optionA", label: "Option A" },
-    { key: "optionB", label: "Option B" },
-    { key: "optionC", label: "Option C" },
-    { key: "optionD", label: "Option D" },
+    { name: "optionA", label: "Option A" },
+    { name: "optionB", label: "Option B" },
+    { name: "optionC", label: "Option C" },
+    { name: "optionD", label: "Option D" },
   ];
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
       {options.map((option) => (
         <FormField
-          key={option.key}
-          control={control}
-          name={option.key}
+          key={option.name}
+          control={form.control}
+          name={option.name}
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input placeholder={option.label} {...field} />
+                <Input
+                  placeholder={option.label}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

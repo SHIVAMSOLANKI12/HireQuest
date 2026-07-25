@@ -21,7 +21,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { DIFFICULTY_OPTIONS, GAME_STATUS_OPTIONS } from "@/constants";
+import { GAME_STATUS_OPTIONS } from "@/constants";
 import { questionSchema } from "../../validations/questionSchema";
 import { defaultQuestion } from "../../constants/defaultQuestion";
 import QuestionOptionFields from "./QuestionOptionFields";
@@ -91,20 +91,18 @@ const QuestionForm = ({
               <FormItem>
                 <FormLabel>Difficulty</FormLabel>
                 <Select
+                  value={field.value}
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Difficulty" />
+                      <SelectValue />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {DIFFICULTY_OPTIONS.filter(opt => opt.value !== "all").map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="Easy">Easy</SelectItem>
+                    <SelectItem value="Medium">Medium</SelectItem>
+                    <SelectItem value="Hard">Hard</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -113,8 +111,33 @@ const QuestionForm = ({
           />
         </div>
 
-        {/* Status & Correct Answer */}
+        {/* Type & Status */}
         <div className="grid gap-4 md:grid-cols-2">
+          <FormField
+            control={form.control}
+            name="type"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Type</FormLabel>
+                <Select
+                  value={field.value}
+                  onValueChange={field.onChange}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="MCQ">MCQ</SelectItem>
+                    <SelectItem value="Coding">Coding</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <FormField
             control={form.control}
             name="status"
@@ -122,12 +145,12 @@ const QuestionForm = ({
               <FormItem>
                 <FormLabel>Status</FormLabel>
                 <Select
+                  value={field.value}
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Status" />
+                      <SelectValue />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -142,7 +165,10 @@ const QuestionForm = ({
               </FormItem>
             )}
           />
+        </div>
 
+        {/* Correct Answer */}
+        <div className="grid gap-4 md:grid-cols-2">
           <FormField
             control={form.control}
             name="correctAnswer"
@@ -150,8 +176,8 @@ const QuestionForm = ({
               <FormItem>
                 <FormLabel>Correct Answer</FormLabel>
                 <Select
+                  value={field.value}
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -174,7 +200,7 @@ const QuestionForm = ({
         {/* Options grid */}
         <div className="space-y-2">
           <label className="text-sm font-medium">Options</label>
-          <QuestionOptionFields />
+          <QuestionOptionFields form={form} />
         </div>
 
         {/* Form buttons */}
