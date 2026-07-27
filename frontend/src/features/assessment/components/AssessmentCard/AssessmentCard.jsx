@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   Clock,
   Gamepad2,
@@ -6,6 +7,7 @@ import {
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -64,12 +66,20 @@ const AssessmentCard = ({ assessment }) => {
         </div>
 
         <div className="mt-5 border-t pt-4">
-          <p className="text-sm text-muted-foreground">
-            Passing score{" "}
-            <span className="font-medium text-foreground">
-              {assessment.passingScore}%
-            </span>
-          </p>
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-sm text-muted-foreground">
+              Passing score{" "}
+              <span className="font-medium text-foreground">
+                {assessment.passingScore}%
+              </span>
+            </p>
+
+            <Link href={`/assessments/${assessment.id}`}>
+              <Button variant="outline" size="sm">
+                View Details
+              </Button>
+            </Link>
+          </div>
         </div>
       </CardContent>
     </Card>

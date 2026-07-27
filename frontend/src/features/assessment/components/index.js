@@ -16,3 +16,4 @@ export { default as QuestionSelectionCard } from "./QuestionSelectionCard";
 export { default as QuestionSelectionStep } from "./QuestionSelectionStep";
 export { default as AssessmentSettingsForm } from "./AssessmentSettingsForm";
 export { default as AssessmentReview } from "./AssessmentReview";
+export { default as AssessmentDetails } from "./AssessmentDetails";
