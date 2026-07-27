@@ -30,6 +30,7 @@ const QuestionForm = ({
   defaultValues = defaultQuestion,
   onSubmit,
   onCancel,
+  isSubmitting = false,
 }) => {
   const form = useForm({
     resolver: zodResolver(questionSchema),
@@ -209,11 +210,12 @@ const QuestionForm = ({
             type="button"
             variant="outline"
             onClick={onCancel}
+            disabled={isSubmitting}
           >
             Cancel
           </Button>
-          <Button type="submit">
-            Save Question
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Saving..." : "Save Question"}
           </Button>
         </div>
       </form>

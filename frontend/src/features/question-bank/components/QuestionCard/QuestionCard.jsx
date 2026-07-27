@@ -17,6 +17,7 @@ import {
 
 import { StatusBadge } from "@/components/common";
 import { hoverCard } from "@/lib/animations";
+import { formatDate } from "@/lib/formatters";
 
 const QuestionCard = ({ question }) => {
   return (
@@ -63,7 +64,7 @@ const QuestionCard = ({ question }) => {
           </div>
 
           <div className="text-xs text-muted-foreground">
-            Last updated • {question.updatedAt}
+            Last updated • {formatDate(question.updatedAt)}
           </div>
         </CardContent>
 

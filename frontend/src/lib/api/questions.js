@@ -50,12 +50,12 @@ export const createQuestion = async (questionData) => {
   await delay(400);
   const formattedData = formatQuestionData(questionData);
   const newQuestion = {
-    id: questions.length > 0 ? Math.max(...questions.map((q) => q.id)) + 1 : 1,
+    id: Date.now(),
     ...formattedData,
     usedIn: 0,
     updatedAt: new Date().toISOString(),
   };
-  questions.push(newQuestion);
+  questions = [newQuestion, ...questions];
   return {
     success: true,
     data: newQuestion,
