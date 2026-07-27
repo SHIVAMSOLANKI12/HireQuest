@@ -5,9 +5,10 @@ import { Search, CheckCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { questions as mockQuestions } from "../../../question-bank/data";
+import { useQuestionsQuery } from "@/features/question-bank/hooks";
 
 const QuestionSelectionSection = ({ selectedQuestionIds = [], onSelectionChange }) => {
+  const { data: mockQuestions = [] } = useQuestionsQuery();
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredQuestions = mockQuestions.filter((q) =>
