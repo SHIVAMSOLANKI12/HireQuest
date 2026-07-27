@@ -27,7 +27,7 @@ const DashboardHeader = () => {
       </div>
 
       <Link
-        href={ROUTES.ASSESSMENTS}
+        href="/assessments/create"
         className={buttonVariants({ variant: "default" })}
       >
         <Plus className="mr-2 h-4 w-4" />

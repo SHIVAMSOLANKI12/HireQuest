@@ -1,5 +1,6 @@
 import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
 
 const AssessmentHeader = () => {
   return (
@@ -13,12 +14,16 @@ const AssessmentHeader = () => {
         </p>
       </div>
 
-      <Button className="gap-2">
+      <Link
+        href="/assessments/create"
+        className={buttonVariants({ className: "gap-2" })}
+      >
         <Plus className="h-4 w-4" />
         Create Assessment
-      </Button>
+      </Link>
     </div>
   );
 };
 
 export default AssessmentHeader;
+

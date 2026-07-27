@@ -1,2 +1,1 @@
-// Question Bank services barrel export placeholder
-export {};
+export { questionsService } from "./questionsService";

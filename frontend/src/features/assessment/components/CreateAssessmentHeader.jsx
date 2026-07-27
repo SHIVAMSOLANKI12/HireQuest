@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 
-const CreateAssessmentHeader = () => {
+const CreateAssessmentHeader = ({ onPublish, onSaveDraft }) => {
   return (
     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div>
@@ -24,11 +24,11 @@ const CreateAssessmentHeader = () => {
       </div>
 
       <div className="flex gap-3">
-        <Button variant="outline">
+        <Button variant="outline" onClick={onSaveDraft}>
           Save Draft
         </Button>
 
-        <Button>
+        <Button onClick={onPublish}>
           Publish
         </Button>
       </div>

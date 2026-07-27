@@ -6,8 +6,27 @@ export const questions = [
     difficulty: "Easy",
     type: "MCQ",
     status: "Active",
+    options: [
+      {
+        id: "optionA",
+        text: "Programming Language",
+      },
+      {
+        id: "optionB",
+        text: "Database",
+      },
+      {
+        id: "optionC",
+        text: "Browser",
+      },
+      {
+        id: "optionD",
+        text: "Operating System",
+      },
+    ],
+    correctAnswer: "optionA",
     usedIn: 8,
-    updatedAt: "2 days ago",
+    updatedAt: "2026-07-27T00:00:00.000Z",
   },
   {
     id: 2,
@@ -16,7 +35,26 @@ export const questions = [
     difficulty: "Medium",
     type: "MCQ",
     status: "Draft",
+    options: [
+      {
+        id: "optionA",
+        text: "concat()",
+      },
+      {
+        id: "optionB",
+        text: "map()",
+      },
+      {
+        id: "optionC",
+        text: "push()",
+      },
+      {
+        id: "optionD",
+        text: "pop()",
+      },
+    ],
+    correctAnswer: "optionB",
     usedIn: 3,
-    updatedAt: "1 week ago",
+    updatedAt: "2026-07-27T00:00:00.000Z",
   },
 ];

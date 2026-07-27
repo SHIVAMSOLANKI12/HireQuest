@@ -8,7 +8,7 @@ const DashboardLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-zinc-50 text-slate-900 overflow-x-hidden">
+    <div className="flex min-h-screen bg-[#f0f7ff] text-slate-900 overflow-x-hidden">
       {/* Sidebar container */}
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
