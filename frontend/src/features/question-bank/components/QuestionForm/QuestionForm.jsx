@@ -22,13 +22,16 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { GAME_STATUS_OPTIONS } from "@/constants";
 import { questionSchema } from "../../validations/questionSchema";
-import { defaultQuestion } from "../../constants/defaultQuestion";
+import {
+  DEFAULT_QUESTION,
+  QUESTION_STATUS_OPTIONS,
+  QUESTION_TYPE_OPTIONS,
+} from "../../constants";
 import QuestionOptionFields from "./QuestionOptionFields";
 
 const QuestionForm = ({
-  defaultValues = defaultQuestion,
+  defaultValues = DEFAULT_QUESTION,
   onSubmit,
   onCancel,
   isSubmitting = false,
@@ -136,8 +139,14 @@ const QuestionForm = ({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="MCQ">MCQ</SelectItem>
-                    <SelectItem value="Coding">Coding</SelectItem>
+                    {QUESTION_TYPE_OPTIONS.map((option) => (
+                      <SelectItem
+                        key={option.value}
+                        value={option.value}
+                      >
+                        {option.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -161,11 +170,16 @@ const QuestionForm = ({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {GAME_STATUS_OPTIONS.filter(opt => opt.value !== "all").map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </SelectItem>
-                    ))}
+                    {QUESTION_STATUS_OPTIONS
+                      .filter((option) => option.value !== "all")
+                      .map((option) => (
+                        <SelectItem
+                          key={option.value}
+                          value={option.value}
+                        >
+                          {option.label}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
                 <FormMessage />

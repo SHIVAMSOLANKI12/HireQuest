@@ -1,3 +1,6 @@
+import { DIFFICULTY } from "@/constants";
+import { QUESTION_STATUS, QUESTION_TYPE } from "../constants";
+
 export const transformQuestionFormToPayload = (data) => {
   return {
     question: data.question.trim(),
@@ -43,9 +46,9 @@ export const transformQuestionToForm = (question) => {
   return {
     question: question.question || "",
     category: question.category || "",
-    difficulty: question.difficulty || "Easy",
-    type: question.type || "MCQ",
-    status: question.status || "Active",
+    difficulty: question.difficulty || DIFFICULTY.EASY,
+    type: question.type || QUESTION_TYPE.MCQ,
+    status: question.status || QUESTION_STATUS.ACTIVE,
 
     optionA: getOptionText("optionA"),
     optionB: getOptionText("optionB"),

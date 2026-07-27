@@ -4,17 +4,18 @@ import {
   FileText,
   Folder,
 } from "lucide-react";
+import { QUESTION_STATUS } from "../../constants";
 import QuestionStatCard from "./QuestionStatCard";
 
 const QuestionStats = ({ questions = [] }) => {
   const total = questions.length;
 
   const active = questions.filter(
-    (question) => question.status === "Active"
+    (question) => question.status === QUESTION_STATUS.ACTIVE
   ).length;
 
   const draft = questions.filter(
-    (question) => question.status === "Draft"
+    (question) => question.status === QUESTION_STATUS.DRAFT
   ).length;
 
   const categories = new Set(

@@ -1,11 +1,13 @@
-import { GAME_STATUS, DIFFICULTY } from "@/constants";
+import { DIFFICULTY } from "@/constants";
+import { QUESTION_STATUS } from "./questionStatus";
+import { QUESTION_TYPE } from "./questionType";
 
-export const defaultQuestion = {
+export const DEFAULT_QUESTION = {
   question: "",
   category: "",
   difficulty: DIFFICULTY.EASY,
-  status: GAME_STATUS.ACTIVE,
-  type: "MCQ",
+  status: QUESTION_STATUS.ACTIVE,
+  type: QUESTION_TYPE.MCQ,
   optionA: "",
   optionB: "",
   optionC: "",
