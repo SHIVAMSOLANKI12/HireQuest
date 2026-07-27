@@ -7,11 +7,11 @@ import { QUESTION_STATUS } from "@/features/question-bank/constants";
 import { useAssessmentBuilder } from "../../hooks";
 
 import AssessmentStepper from "../AssessmentStepper";
-import AssessmentStepContent from "../AssessmentStepContent";
 import AssessmentDetailsForm from "../AssessmentDetailsForm";
 import GameSelectionStep from "../GameSelectionStep";
 import QuestionSelectionStep from "../QuestionSelectionStep";
 import AssessmentSettingsForm from "../AssessmentSettingsForm";
+import AssessmentReview from "../AssessmentReview";
 
 // Static games data — swap with useGamesQuery() when real API is connected
 const isGamesLoading = false;
@@ -143,9 +143,14 @@ const AssessmentBuilder = () => {
         />
       )}
 
-      {/* ── Step 5: Review (placeholder) ── */}
+      {/* ── Step 5: Review ── */}
       {currentStep === 5 && (
-        <AssessmentStepContent currentStep={currentStep} />
+        <AssessmentReview
+          assessment={assessment}
+          games={games}
+          questions={questions}
+          onBack={previousStep}
+        />
       )}
     </div>
   );
