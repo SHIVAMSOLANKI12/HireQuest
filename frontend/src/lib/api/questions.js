@@ -94,17 +94,21 @@ export const updateQuestion = async (id, questionData) => {
 
 export const deleteQuestion = async (id) => {
   await delay(400);
-  const originalLength = questions.length;
-  questions = questions.filter((q) => q.id !== Number(id) && q.id !== id);
-  
-  if (questions.length < originalLength) {
-    return {
-      success: true,
-      data: id,
-    };
+
+  const exists = questions.some(
+    (question) => question.id === id || question.id === Number(id)
+  );
+
+  if (!exists) {
+    throw new Error("Question not found");
   }
+
+  questions = questions.filter(
+    (question) => question.id !== id && question.id !== Number(id)
+  );
+
   return {
-    success: false,
-    error: "Question not found",
+    success: true,
+    data: id,
   };
 };

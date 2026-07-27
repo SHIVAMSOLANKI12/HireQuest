@@ -8,3 +8,4 @@ export { default as SortFilter } from "./SortFilter";
 export { default as AddQuestionDialog } from "./AddQuestionDialog";
 export { default as QuestionForm } from "./QuestionForm";
 export { default as EditQuestionDialog } from "./EditQuestionDialog";
+export { default as DeleteQuestionDialog } from "./DeleteQuestionDialog";
