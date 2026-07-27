@@ -17,9 +17,7 @@ const GameSelectionStep = ({
   error,
 }) => {
   const [search, setSearch] = useState("");
-
-  const [selectedIds, setSelectedIds] =
-    useState(selectedGameIds);
+  const [selectedIds, setSelectedIds] = useState(selectedGameIds);
 
   const filteredGames = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -40,15 +38,12 @@ const GameSelectionStep = ({
   }, [games, search]);
 
   const handleToggle = (gameId) => {
-    setSelectedIds((current) => {
-      const updatedIds = current.includes(gameId)
-        ? current.filter((id) => id !== gameId)
-        : [...current, gameId];
+    const updatedIds = selectedIds.includes(gameId)
+      ? selectedIds.filter((id) => id !== gameId)
+      : [...selectedIds, gameId];
 
-      onSelectionChange?.(updatedIds);
-
-      return updatedIds;
-    });
+    setSelectedIds(updatedIds);
+    onSelectionChange?.(updatedIds);
   };
 
   const handleContinue = () => {

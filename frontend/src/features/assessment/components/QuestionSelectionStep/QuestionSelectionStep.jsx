@@ -26,9 +26,7 @@ const QuestionSelectionStep = ({
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [difficulty, setDifficulty] = useState("all");
-
-  const [selectedIds, setSelectedIds] =
-    useState(selectedQuestionIds);
+  const [selectedIds, setSelectedIds] = useState(selectedQuestionIds);
 
   const categories = useMemo(() => {
     return [
@@ -63,15 +61,12 @@ const QuestionSelectionStep = ({
   }, [questions, search, category, difficulty]);
 
   const handleToggle = (questionId) => {
-    setSelectedIds((current) => {
-      const updatedIds = current.includes(questionId)
-        ? current.filter((id) => id !== questionId)
-        : [...current, questionId];
+    const updatedIds = selectedIds.includes(questionId)
+      ? selectedIds.filter((id) => id !== questionId)
+      : [...selectedIds, questionId];
 
-      onSelectionChange?.(updatedIds);
-
-      return updatedIds;
-    });
+    setSelectedIds(updatedIds);
+    onSelectionChange?.(updatedIds);
   };
 
   const handleContinue = () => {
