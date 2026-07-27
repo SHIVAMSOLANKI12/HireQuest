@@ -1,7 +1,15 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { PageHeader, PageToolbar, SearchInput, Pagination, EmptyState } from "@/components/common";
+import { 
+  PageHeader, 
+  PageToolbar, 
+  SearchInput, 
+  Pagination, 
+  EmptyState, 
+  StatsSkeleton, 
+  GameCardSkeleton 
+} from "@/components/common";
 import {
   CategoryFilter,
   DifficultyFilter,
@@ -16,7 +24,10 @@ import { useQuestions } from "../hooks";
 const QuestionList = () => {
   const {
     questions,
-    totalQuestions,
+    allQuestions,
+    isLoading,
+    isError,
+    error,
     search,
     setSearch,
     category,
@@ -30,7 +41,33 @@ const QuestionList = () => {
     currentPage,
     setCurrentPage,
     totalPages,
+    totalQuestions,
   } = useQuestions();
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <StatsSkeleton />
+        <div className="grid gap-8 md:grid-cols-2 2xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <GameCardSkeleton key={index} />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <EmptyState
+        title="Unable to load questions"
+        description={
+          error?.message ||
+          "Something went wrong while loading questions."
+        }
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -41,7 +78,7 @@ const QuestionList = () => {
         <AddQuestionDialog />
       </PageHeader>
 
-      <QuestionStats />
+      <QuestionStats questions={allQuestions} />
 
       <PageToolbar
         leftContent={
