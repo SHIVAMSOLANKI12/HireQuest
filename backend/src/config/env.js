@@ -24,6 +24,7 @@ const env = Object.freeze({
   app: {
     name: process.env.APP_NAME || "HireQuest",
     url: process.env.APP_URL || `http://localhost:${process.env.PORT}`,
+    environment: process.env.NODE_ENV,
   },
 
   database: {
@@ -39,6 +40,8 @@ const env = Object.freeze({
 
   cookie: {
     secret: process.env.COOKIE_SECRET,
+    accessMaxAge: Number(process.env.ACCESS_COOKIE_MAX_AGE) || 15 * 60 * 1000,
+    refreshMaxAge: Number(process.env.REFRESH_COOKIE_MAX_AGE) || 7 * 24 * 60 * 60 * 1000,
   },
 
   security: {
