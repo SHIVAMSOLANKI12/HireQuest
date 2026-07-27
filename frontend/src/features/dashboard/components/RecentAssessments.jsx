@@ -1,50 +1,121 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import useRecentAssessments from "../hooks/useRecentAssessments";
+"use client";
 
-const statusClasses = {
-  Active: "bg-green-100 text-green-700",
-  Draft: "bg-yellow-100 text-yellow-700",
-  Completed: "bg-blue-100 text-blue-700",
-};
+import { useMemo } from "react";
+import Link from "next/link";
+import { ArrowRight, Clock } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAssessmentsQuery } from "@/features/assessment/hooks";
+import { AssessmentStatusBadge } from "@/features/assessment/components";
+import {
+  formatAssessmentDate,
+  getRecentAssessments,
+} from "@/features/assessment/utils";
 
 const RecentAssessments = () => {
-  const { data: assessments, isLoading } = useRecentAssessments();
+  const {
+    data: assessments = [],
+    isLoading,
+    isError,
+  } = useAssessmentsQuery();
 
-  if (isLoading) return null;
+  const recentAssessments = useMemo(
+    () => getRecentAssessments(assessments, 5),
+    [assessments]
+  );
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Recent Assessments</CardTitle>
+        </CardHeader>
+
+        <CardContent className="space-y-4">
+          {Array.from({ length: 3 }).map((_, idx) => (
+            <div key={idx} className="flex justify-between items-center py-2">
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-48" />
+                <Skeleton className="h-3 w-28" />
+              </div>
+
+              <Skeleton className="h-5 w-16" />
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isError) {
+    return null;
+  }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Recent Assessments</CardTitle>
+        <div className="flex items-center justify-between gap-4">
+          <CardTitle className="text-lg">
+            Recent Assessments
+          </CardTitle>
+
+          <Link href="/assessments">
+            <Button variant="ghost" size="sm">
+              View All
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
       </CardHeader>
 
       <CardContent>
-        <div className="space-y-4">
-          {assessments?.map((assessment) => (
-            <div
-              key={assessment.id}
-              className="flex items-center justify-between rounded-lg border p-4 transition-colors hover:bg-muted/50"
-            >
-              <div>
-                <h3 className="font-semibold">
-                  {assessment.title}
-                </h3>
+        {recentAssessments.length === 0 ? (
+          <div className="py-8 text-center">
+            <p className="text-sm text-muted-foreground">
+              No assessments yet.
+            </p>
 
-                <p className="text-sm text-muted-foreground">
-                  {assessment.candidates} Candidates • {assessment.createdAt}
-                </p>
-              </div>
-
-              <span
-                className={`rounded-full px-3 py-1 text-xs font-medium ${
-                  statusClasses[assessment.status]
-                }`}
+            <Link href="/assessments/create">
+              <Button variant="outline" size="sm" className="mt-4">
+                Create Assessment
+              </Button>
+            </Link>
+          </div>
+        ) : (
+          <div className="divide-y">
+            {recentAssessments.map((assessment) => (
+              <div
+                key={assessment.id}
+                className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
               >
-                {assessment.status}
-              </span>
-            </div>
-          ))}
-        </div>
+                <div className="min-w-0">
+                  <Link
+                    href={`/assessments/${assessment.id}`}
+                    className="font-medium hover:underline"
+                  >
+                    {assessment.title}
+                  </Link>
+
+                  <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+                    <Clock className="h-3.5 w-3.5" />
+                    {formatAssessmentDate(
+                      assessment.updatedAt ?? assessment.createdAt
+                    )}
+                  </div>
+                </div>
+
+                <AssessmentStatusBadge status={assessment.status} />
+              </div>
+            ))}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

@@ -4,3 +4,6 @@ export { default as StatsGrid } from "./StatsGrid";
 export { default as RecentAssessments } from "./RecentAssessments";
 export { default as RecentCandidates } from "./RecentCandidates";
 export { default as ActivityChart } from "./ActivityChart";
+export { default as DashboardStatCard } from "./DashboardStatCard";
+export { default as AssessmentStats } from "./AssessmentStats";
+export { default as DashboardStatsSkeleton } from "./DashboardStatsSkeleton";

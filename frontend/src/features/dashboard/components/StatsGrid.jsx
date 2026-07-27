@@ -1,24 +1,41 @@
-import StatsCard from "./StatsCard";
-import useDashboardStats from "../hooks/useDashboardStats";
+"use client";
+
+import { useMemo } from "react";
+
+import { useAssessmentsQuery } from "@/features/assessment/hooks";
+import { getAssessmentStats } from "@/features/assessment/utils";
+
+import AssessmentStats from "./AssessmentStats";
+import DashboardStatsSkeleton from "./DashboardStatsSkeleton";
 
 const StatsGrid = () => {
-  const { data: stats, isLoading } = useDashboardStats();
+  const {
+    data: assessments = [],
+    isLoading,
+    isError,
+  } = useAssessmentsQuery();
 
-  if (isLoading) return null;
-
-  return (
-    <section className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-      {stats?.map((stat) => (
-        <StatsCard
-          key={stat.id}
-          title={stat.title}
-          value={stat.value}
-          change={stat.change}
-          icon={stat.icon}
-        />
-      ))}
-    </section>
+  const stats = useMemo(
+    () => getAssessmentStats(assessments),
+    [assessments]
   );
+
+  if (isLoading) {
+    return <DashboardStatsSkeleton />;
+  }
+
+  if (isError) {
+    return (
+      <div className="rounded-xl border border-destructive/50 p-8 text-center">
+        <h2 className="font-semibold">Unable to load assessment stats</h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Assessment information could not be loaded.
+        </p>
+      </div>
+    );
+  }
+
+  return <AssessmentStats stats={stats} />;
 };
 
 export default StatsGrid;
