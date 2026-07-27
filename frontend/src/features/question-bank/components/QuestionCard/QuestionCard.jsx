@@ -18,7 +18,7 @@ import {
 import { StatusBadge } from "@/components/common";
 import { hoverCard } from "@/lib/animations";
 import { formatDate } from "@/lib/formatters";
-import { EditQuestionDialog, DeleteQuestionDialog } from "..";
+import { EditQuestionDialog, DeleteQuestionDialog, QuestionPreviewSheet } from "..";
 
 const QuestionCard = ({ question }) => {
   return (
@@ -70,16 +70,7 @@ const QuestionCard = ({ question }) => {
         </CardContent>
 
         <CardFooter className="gap-2 flex-wrap">
-          <motion.div whileHover={{ scale: 1.05 }} className="flex-1 min-w-[70px]">
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full"
-            >
-              <Eye className="mr-2 h-4 w-4" />
-              Preview
-            </Button>
-          </motion.div>
+          <QuestionPreviewSheet question={question} />
 
           <EditQuestionDialog question={question} />
           
