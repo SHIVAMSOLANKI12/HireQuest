@@ -65,6 +65,8 @@ const AUTH_ERRORS = Object.freeze({
   EMAIL_ALREADY_EXISTS: "Email already exists.",
 
   INVALID_PASSWORD: "Incorrect password.",
+  INVALID_PASSWORD_FORMAT:
+    "Password must contain at least one uppercase letter, one lowercase letter, one number, one special character and be between 8 to 64 characters long.",
 
   REFRESH_TOKEN_NOT_FOUND: "Refresh token not found.",
 

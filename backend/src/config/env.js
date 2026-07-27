@@ -41,6 +41,10 @@ const env = Object.freeze({
     secret: process.env.COOKIE_SECRET,
   },
 
+  security: {
+    bcryptSaltRounds: Number(process.env.BCRYPT_SALT_ROUNDS) || 12,
+  },
+
   cors: {
     origin: process.env.CLIENT_URL,
   },
