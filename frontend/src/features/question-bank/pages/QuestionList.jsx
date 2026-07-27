@@ -8,7 +8,6 @@ import {
   Pagination, 
   EmptyState, 
   StatsSkeleton, 
-  GameCardSkeleton 
 } from "@/components/common";
 import {
   CategoryFilter,
@@ -18,6 +17,7 @@ import {
   QuestionGrid,
   QuestionStats,
   AddQuestionDialog,
+  QuestionGridSkeleton,
 } from "../components";
 import { useQuestions } from "../hooks";
 
@@ -28,6 +28,7 @@ const QuestionList = () => {
     isLoading,
     isError,
     error,
+    refetch,
     search,
     setSearch,
     category,
@@ -48,11 +49,7 @@ const QuestionList = () => {
     return (
       <div className="space-y-6">
         <StatsSkeleton />
-        <div className="grid gap-8 md:grid-cols-2 2xl:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <GameCardSkeleton key={index} />
-          ))}
-        </div>
+        <QuestionGridSkeleton />
       </div>
     );
   }
@@ -63,11 +60,19 @@ const QuestionList = () => {
         title="Unable to load questions"
         description={
           error?.message ||
-          "Something went wrong while loading questions."
+          "Something went wrong while loading the question bank."
         }
+        actionLabel="Try Again"
+        onAction={refetch}
       />
     );
   }
+
+  const hasFilters =
+    search.trim() !== "" ||
+    category !== "all" ||
+    difficulty !== "all" ||
+    status !== "all";
 
   return (
     <div className="space-y-6">
@@ -117,20 +122,7 @@ const QuestionList = () => {
         }
       />
 
-      {questions.length === 0 ? (
-        <EmptyState
-          title="No questions found"
-          description="Try changing the filters or add a new question."
-          actionLabel="Clear Filters"
-          onAction={() => {
-            setSearch("");
-            setCategory("all");
-            setDifficulty("all");
-            setStatus("all");
-            setSortBy("latest");
-          }}
-        />
-      ) : (
+      {questions.length > 0 ? (
         <>
           <QuestionGrid questions={questions} />
 
@@ -145,6 +137,27 @@ const QuestionList = () => {
             />
           </div>
         </>
+      ) : (
+        <EmptyState
+          title={hasFilters ? "No matching questions" : "No questions yet"}
+          description={
+            hasFilters
+              ? "Try changing your search or filters."
+              : "Create your first question to start building the question bank."
+          }
+          actionLabel={hasFilters ? "Clear Filters" : undefined}
+          onAction={
+            hasFilters
+              ? () => {
+                  setSearch("");
+                  setCategory("all");
+                  setDifficulty("all");
+                  setStatus("all");
+                  setSortBy("latest");
+                }
+              : undefined
+          }
+        />
       )}
     </div>
   );
