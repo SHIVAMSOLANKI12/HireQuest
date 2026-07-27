@@ -10,3 +10,4 @@ export * from "./form";
 export { default as AssessmentBuilder } from "./AssessmentBuilder";
 export { default as AssessmentStepper } from "./AssessmentStepper";
 export { default as AssessmentStepContent } from "./AssessmentStepContent";
+export { default as AssessmentDetailsForm } from "./AssessmentDetailsForm";
