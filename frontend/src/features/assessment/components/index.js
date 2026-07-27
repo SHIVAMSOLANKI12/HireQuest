@@ -15,3 +15,4 @@ export { default as GameSelectionCard } from "./GameSelectionCard";
 export { default as GameSelectionStep } from "./GameSelectionStep";
 export { default as QuestionSelectionCard } from "./QuestionSelectionCard";
 export { default as QuestionSelectionStep } from "./QuestionSelectionStep";
+export { default as AssessmentSettingsForm } from "./AssessmentSettingsForm";

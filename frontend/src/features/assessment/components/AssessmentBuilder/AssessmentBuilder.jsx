@@ -1,8 +1,5 @@
 "use client";
 
-import { ArrowLeft, ArrowRight } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
 import { games } from "@/features/games/data";
 import { useQuestionsQuery } from "@/features/question-bank/hooks";
 import { QUESTION_STATUS } from "@/features/question-bank/constants";
@@ -14,6 +11,7 @@ import AssessmentStepContent from "../AssessmentStepContent";
 import AssessmentDetailsForm from "../AssessmentDetailsForm";
 import GameSelectionStep from "../GameSelectionStep";
 import QuestionSelectionStep from "../QuestionSelectionStep";
+import AssessmentSettingsForm from "../AssessmentSettingsForm";
 
 // Static games data — swap with useGamesQuery() when real API is connected
 const isGamesLoading = false;
@@ -26,7 +24,6 @@ const AssessmentBuilder = () => {
     updateAssessment,
     previousStep,
     nextStep,
-    isFirstStep,
     isLastStep,
   } = useAssessmentBuilder();
 
@@ -39,9 +36,10 @@ const AssessmentBuilder = () => {
 
   // Only Active questions are selectable in assessments
   const availableQuestions = questions.filter(
-    (question) =>
-      question.status === QUESTION_STATUS.ACTIVE
+    (question) => question.status === QUESTION_STATUS.ACTIVE
   );
+
+  // ── Step Handlers ──────────────────────────────────────────────
 
   const handleDetailsContinue = (data) => {
     updateAssessment(data);
@@ -55,6 +53,11 @@ const AssessmentBuilder = () => {
 
   const handleQuestionsContinue = (selectedQuestionIds) => {
     updateAssessment({ selectedQuestionIds });
+    nextStep();
+  };
+
+  const handleSettingsContinue = (data) => {
+    updateAssessment(data);
     nextStep();
   };
 
@@ -88,19 +91,17 @@ const AssessmentBuilder = () => {
         </div>
       )}
 
-      {currentStep === 2 &&
-        !isGamesLoading &&
-        !isGamesError && (
-          <GameSelectionStep
-            games={games}
-            selectedGameIds={assessment.selectedGameIds}
-            onSelectionChange={(ids) =>
-              updateAssessment({ selectedGameIds: ids })
-            }
-            onBack={previousStep}
-            onContinue={handleGamesContinue}
-          />
-        )}
+      {currentStep === 2 && !isGamesLoading && !isGamesError && (
+        <GameSelectionStep
+          games={games}
+          selectedGameIds={assessment.selectedGameIds}
+          onSelectionChange={(ids) =>
+            updateAssessment({ selectedGameIds: ids })
+          }
+          onBack={previousStep}
+          onContinue={handleGamesContinue}
+        />
+      )}
 
       {/* ── Step 3: Question Selection ── */}
       {currentStep === 3 && isQuestionsLoading && (
@@ -120,52 +121,31 @@ const AssessmentBuilder = () => {
         </div>
       )}
 
-      {currentStep === 3 &&
-        !isQuestionsLoading &&
-        !isQuestionsError && (
-          <QuestionSelectionStep
-            questions={availableQuestions}
-            selectedQuestionIds={assessment.selectedQuestionIds}
-            onSelectionChange={(ids) =>
-              updateAssessment({ selectedQuestionIds: ids })
-            }
-            onBack={previousStep}
-            onContinue={handleQuestionsContinue}
-          />
-        )}
-
-      {/* ── Step 4+: Placeholder ── */}
-      {currentStep >= 4 && (
-        <AssessmentStepContent currentStep={currentStep} />
+      {currentStep === 3 && !isQuestionsLoading && !isQuestionsError && (
+        <QuestionSelectionStep
+          questions={availableQuestions}
+          selectedQuestionIds={assessment.selectedQuestionIds}
+          onSelectionChange={(ids) =>
+            updateAssessment({ selectedQuestionIds: ids })
+          }
+          onBack={previousStep}
+          onContinue={handleQuestionsContinue}
+        />
       )}
 
-      {/* ── Global footer: only for step 4+ ── */}
-      {/* Step 1 → DetailsForm owns Continue              */}
-      {/* Step 2 → GameSelectionStep owns Back/Continue   */}
-      {/* Step 3 → QuestionSelectionStep owns Back/Continue */}
-      {currentStep >= 4 && (
-        <div className="flex items-center justify-between border-t pt-6">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={previousStep}
-            disabled={isFirstStep}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
+      {/* ── Step 4: Settings ── */}
+      {currentStep === 4 && (
+        <AssessmentSettingsForm
+          defaultValues={assessment}
+          onChange={(values) => updateAssessment(values)}
+          onBack={previousStep}
+          onContinue={handleSettingsContinue}
+        />
+      )}
 
-          {!isLastStep ? (
-            <Button type="button" onClick={nextStep}>
-              Continue
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          ) : (
-            <Button type="button" disabled>
-              Publish Assessment
-            </Button>
-          )}
-        </div>
+      {/* ── Step 5: Review (placeholder) ── */}
+      {currentStep === 5 && (
+        <AssessmentStepContent currentStep={currentStep} />
       )}
     </div>
   );

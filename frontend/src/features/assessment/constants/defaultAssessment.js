@@ -7,4 +7,8 @@ export const DEFAULT_ASSESSMENT = {
 
   duration: 60,
   passingScore: 70,
+
+  attemptsAllowed: 1,
+  shuffleQuestions: true,
+  showResultToCandidate: false,
 };
