@@ -12,6 +12,12 @@ import AssessmentStepContent from "../AssessmentStepContent";
 import AssessmentDetailsForm from "../AssessmentDetailsForm";
 import GameSelectionStep from "../GameSelectionStep";
 
+// Static data — no async loading needed yet
+// When a real API is connected, swap these with
+// values from a useGamesQuery() hook
+const isGamesLoading = false;
+const isGamesError = false;
+
 const AssessmentBuilder = () => {
   const {
     currentStep,
@@ -39,6 +45,7 @@ const AssessmentBuilder = () => {
         currentStep={currentStep}
       />
 
+      {/* ── Step 1: Details ── */}
       {currentStep === 1 && (
         <AssessmentDetailsForm
           defaultValues={assessment}
@@ -46,21 +53,51 @@ const AssessmentBuilder = () => {
         />
       )}
 
-      {currentStep === 2 && (
-        <GameSelectionStep
-          games={games}
-          selectedGameIds={assessment.selectedGameIds}
-          onBack={previousStep}
-          onContinue={handleGamesContinue}
-        />
+      {/* ── Step 2: Game Selection ── */}
+      {currentStep === 2 && isGamesLoading && (
+        <div className="rounded-xl border p-8 text-center">
+          <p className="text-sm text-muted-foreground">
+            Loading games...
+          </p>
+        </div>
       )}
 
+      {currentStep === 2 && isGamesError && (
+        <div className="rounded-xl border border-destructive/50 p-8 text-center">
+          <h3 className="font-semibold">
+            Unable to load games
+          </h3>
+
+          <p className="mt-2 text-sm text-muted-foreground">
+            Games could not be loaded. Please try again.
+          </p>
+        </div>
+      )}
+
+      {currentStep === 2 &&
+        !isGamesLoading &&
+        !isGamesError && (
+          <GameSelectionStep
+            games={games}
+            selectedGameIds={assessment.selectedGameIds}
+            onSelectionChange={(ids) =>
+              updateAssessment({ selectedGameIds: ids })
+            }
+            onBack={previousStep}
+            onContinue={handleGamesContinue}
+          />
+        )}
+
+      {/* ── Step 3+: Placeholder ── */}
       {currentStep >= 3 && (
         <AssessmentStepContent
           currentStep={currentStep}
         />
       )}
 
+      {/* ── Footer: only for step 3+ ── */}
+      {/* Step 1 → DetailsForm owns Continue        */}
+      {/* Step 2 → GameSelectionStep owns Back/Continue */}
       {currentStep >= 3 && (
         <div className="flex items-center justify-between border-t pt-6">
           <Button

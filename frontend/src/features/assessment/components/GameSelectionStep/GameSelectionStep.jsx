@@ -11,6 +11,7 @@ import GameSelectionCard from "../GameSelectionCard";
 const GameSelectionStep = ({
   games = [],
   selectedGameIds = [],
+  onSelectionChange,
   onContinue,
   onBack,
 }) => {
@@ -42,13 +43,13 @@ const GameSelectionStep = ({
 
   const handleToggle = (gameId) => {
     setSelectedIds((current) => {
-      if (current.includes(gameId)) {
-        return current.filter(
-          (id) => id !== gameId
-        );
-      }
+      const updatedIds = current.includes(gameId)
+        ? current.filter((id) => id !== gameId)
+        : [...current, gameId];
 
-      return [...current, gameId];
+      onSelectionChange?.(updatedIds);
+
+      return updatedIds;
     });
   };
 
