@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 
 import {
   AddCandidateDialog,
+  AssignAssessmentDialog,
   CandidateBulkActions,
   CandidateFilters,
   CandidateTable,
@@ -18,6 +19,7 @@ const CandidateList = () => {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [selectedIds, setSelectedIds] = useState([]);
+  const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
 
   const {
     data: candidates = [],
@@ -175,9 +177,7 @@ const CandidateList = () => {
       <CandidateBulkActions
         selectedCount={selectedCandidates.length}
         onClear={handleClearSelection}
-        onAssignAssessment={() => {
-          console.log("Selected candidates for assessment:", selectedCandidates);
-        }}
+        onAssignAssessment={() => setIsAssignDialogOpen(true)}
       />
 
       {/* Loading state */}
@@ -270,6 +270,14 @@ const CandidateList = () => {
           onToggleAll={handleToggleAll}
         />
       )}
+
+      {/* Assign Assessment Dialog */}
+      <AssignAssessmentDialog
+        open={isAssignDialogOpen}
+        onOpenChange={setIsAssignDialogOpen}
+        candidates={selectedCandidates}
+        onAssigned={handleClearSelection}
+      />
     </div>
   );
 };
