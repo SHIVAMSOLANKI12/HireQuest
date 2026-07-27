@@ -113,14 +113,14 @@ export default function Home() {
         </header>
 
         {/* Hero split-layout */}
-        <main className="grid gap-12 md:grid-cols-2 items-center min-h-[calc(100vh-140px)] py-8">
+        <main className="grid gap-12 lg:grid-cols-2 items-center min-h-[calc(100vh-140px)] py-8">
           {/* Left Column */}
           <div className="space-y-6 max-w-xl">
             <h2 className="text-blue-600 text-lg md:text-xl font-bold tracking-wide uppercase">
               Hiring Automation
             </h2>
 
-            <h1 className="text-5xl md:text-7xl font-black tracking-tight text-slate-900 leading-tight">
+            <h1 className="text-4xl md:text-6xl font-black tracking-tight text-slate-900 leading-tight">
               RECRUIT <br />
               <span className="inline-flex text-blue-600 select-none">
                 {smarterWord.split("").map((letter, index) => (
@@ -163,8 +163,8 @@ export default function Home() {
           </div>
 
           {/* Right Column */}
-          <div className="relative flex justify-center items-center">
-            <div className="relative w-full max-w-lg aspect-square drop-shadow-xl hover:scale-102 transition-transform duration-500">
+          <div className="relative flex justify-center items-center py-4">
+            <div className="relative w-full max-w-md h-[300px] sm:h-[400px] drop-shadow-xl hover:scale-102 transition-transform duration-500">
               <Image
                 src={hiringHero}
                 alt="HR hiring automation team illustration"

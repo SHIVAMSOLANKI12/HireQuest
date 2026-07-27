@@ -10,12 +10,14 @@ import { Label } from "@/components/ui/label";
 
 import { candidateSchema } from "../../validations";
 
+const DEFAULT_FORM_VALUES = {
+  name: "",
+  email: "",
+  phone: "",
+};
+
 const CandidateForm = ({
-  defaultValues = {
-    name: "",
-    email: "",
-    phone: "",
-  },
+  defaultValues = DEFAULT_FORM_VALUES,
   onSubmit,
   onCancel,
   isSubmitting = false,
@@ -33,9 +35,19 @@ const CandidateForm = ({
     defaultValues,
   });
 
+  const initialName = defaultValues?.name ?? "";
+  const initialEmail = defaultValues?.email ?? "";
+  const initialPhone = defaultValues?.phone ?? "";
+
   useEffect(() => {
-    reset(defaultValues);
-  }, [resetSignal, reset, defaultValues]);
+    if (resetSignal) {
+      reset({
+        name: initialName,
+        email: initialEmail,
+        phone: initialPhone,
+      });
+    }
+  }, [resetSignal, reset, initialName, initialEmail, initialPhone]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
