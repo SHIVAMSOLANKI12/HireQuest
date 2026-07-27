@@ -1,8 +1,80 @@
-module.exports = {
-  AUTH_MESSAGES: {
-    REGISTER_SUCCESS: 'User registered successfully',
-    LOGIN_SUCCESS: 'User logged in successfully',
-    UNAUTHORIZED: 'Unauthorized access',
-    INVALID_CREDENTIALS: 'Invalid credentials',
-  },
-};
+/**
+ * ============================================================
+ * Auth Module Constants
+ * ============================================================
+ * Centralized constants for Authentication & Authorization.
+ * Do not hardcode auth-related values anywhere else.
+ * ============================================================
+ */
+
+const AUTH_ROLES = Object.freeze({
+  SUPER_ADMIN: "SUPER_ADMIN",
+  HR: "HR",
+  CANDIDATE: "CANDIDATE",
+});
+
+const TOKEN_TYPES = Object.freeze({
+  ACCESS: "ACCESS",
+  REFRESH: "REFRESH",
+});
+
+const TOKEN_EXPIRATION = Object.freeze({
+  ACCESS_TOKEN: "15m",
+  REFRESH_TOKEN: "7d",
+  PASSWORD_RESET: "15m",
+  EMAIL_VERIFICATION: "24h",
+});
+
+const COOKIE_NAMES = Object.freeze({
+  ACCESS_TOKEN: "accessToken",
+  REFRESH_TOKEN: "refreshToken",
+});
+
+const AUTH_MESSAGES = Object.freeze({
+  REGISTER_SUCCESS: "User registered successfully.",
+  LOGIN_SUCCESS: "Login successful.",
+  LOGOUT_SUCCESS: "Logout successful.",
+  LOGOUT_ALL_SUCCESS: "Logged out from all devices successfully.",
+
+  TOKEN_REFRESHED: "Access token refreshed successfully.",
+
+  PASSWORD_CHANGED: "Password changed successfully.",
+  PASSWORD_RESET_EMAIL_SENT: "Password reset link sent successfully.",
+  PASSWORD_RESET_SUCCESS: "Password reset successfully.",
+
+  EMAIL_VERIFIED: "Email verified successfully.",
+
+  PROFILE_FETCHED: "Profile fetched successfully.",
+});
+
+const AUTH_ERRORS = Object.freeze({
+  INVALID_CREDENTIALS: "Invalid email or password.",
+  INVALID_TOKEN: "Invalid token.",
+  TOKEN_EXPIRED: "Token has expired.",
+  TOKEN_REQUIRED: "Authentication token is required.",
+
+  ACCESS_DENIED: "Access denied.",
+  FORBIDDEN: "You are not authorized to perform this action.",
+
+  ACCOUNT_DISABLED: "Your account has been disabled.",
+  ACCOUNT_NOT_FOUND: "User account not found.",
+
+  EMAIL_ALREADY_EXISTS: "Email already exists.",
+
+  INVALID_PASSWORD: "Incorrect password.",
+
+  REFRESH_TOKEN_NOT_FOUND: "Refresh token not found.",
+
+  PASSWORD_RESET_TOKEN_INVALID: "Password reset token is invalid.",
+
+  EMAIL_NOT_VERIFIED: "Email is not verified.",
+});
+
+module.exports = Object.freeze({
+  AUTH_ROLES,
+  TOKEN_TYPES,
+  TOKEN_EXPIRATION,
+  COOKIE_NAMES,
+  AUTH_MESSAGES,
+  AUTH_ERRORS,
+});
