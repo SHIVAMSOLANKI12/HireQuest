@@ -1,5 +1,6 @@
 "use client";
 
+import { ASSESSMENT_STATUS } from "../constants";
 import { AssessmentBuilder } from "../components";
 import { useAssessmentQuery } from "../hooks";
 import { toAssessmentBuilder } from "../utils";
@@ -31,6 +32,20 @@ const EditAssessment = ({ assessmentId }) => {
 
         <p className="mt-2 text-sm text-muted-foreground">
           {error?.message || "Assessment not found."}
+        </p>
+      </div>
+    );
+  }
+
+  if (assessment?.status === ASSESSMENT_STATUS.ARCHIVED) {
+    return (
+      <div className="rounded-xl border p-12 text-center">
+        <h2 className="text-lg font-semibold">
+          Assessment is archived
+        </h2>
+
+        <p className="mt-2 text-sm text-muted-foreground">
+          Restore this assessment before editing it.
         </p>
       </div>
     );

@@ -5,12 +5,18 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Pencil } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-
 import { games as staticGames } from "@/features/games/data";
 import { useQuestionsQuery } from "@/features/question-bank/hooks";
 
-import { AssessmentDetails } from "../components";
-import { useAssessmentQuery } from "../hooks";
+import { ASSESSMENT_STATUS } from "../constants";
+import {
+  AssessmentDetails,
+  AssessmentStatusActions,
+} from "../components";
+import {
+  useAssessmentQuery,
+  useAssessmentStatusMutation,
+} from "../hooks";
 
 const AssessmentDetailsPage = ({ assessmentId }) => {
   const router = useRouter();
@@ -26,6 +32,29 @@ const AssessmentDetailsPage = ({ assessmentId }) => {
     data: questions = [],
     isLoading: isQuestionsLoading,
   } = useQuestionsQuery();
+
+  const statusMutation = useAssessmentStatusMutation();
+
+  const handlePublish = () => {
+    statusMutation.mutate({
+      id: assessmentId,
+      status: ASSESSMENT_STATUS.PUBLISHED,
+    });
+  };
+
+  const handleArchive = () => {
+    statusMutation.mutate({
+      id: assessmentId,
+      status: ASSESSMENT_STATUS.ARCHIVED,
+    });
+  };
+
+  const handleRestore = () => {
+    statusMutation.mutate({
+      id: assessmentId,
+      status: ASSESSMENT_STATUS.PUBLISHED,
+    });
+  };
 
   const isLoading = isAssessmentLoading || isQuestionsLoading;
 
@@ -65,7 +94,7 @@ const AssessmentDetailsPage = ({ assessmentId }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div>
         <Button
           variant="ghost"
           onClick={() => router.push("/assessments")}
@@ -73,19 +102,41 @@ const AssessmentDetailsPage = ({ assessmentId }) => {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Assessments
         </Button>
-
-        <Link href={`/assessments/${assessmentId}/edit`}>
-          <Button variant="outline">
-            <Pencil className="mr-2 h-4 w-4" />
-            Edit Assessment
-          </Button>
-        </Link>
       </div>
+
+      {statusMutation.isError && (
+        <div className="rounded-lg border border-destructive/50 bg-destructive/5 p-4">
+          <p className="text-sm text-destructive">
+            {statusMutation.error?.message ||
+              "Unable to update assessment status."}
+          </p>
+        </div>
+      )}
 
       <AssessmentDetails
         assessment={assessment}
         games={staticGames}
         questions={questions}
+        actions={
+          <>
+            {assessment.status !== ASSESSMENT_STATUS.ARCHIVED && (
+              <Link href={`/assessments/${assessmentId}/edit`}>
+                <Button variant="outline">
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Edit Assessment
+                </Button>
+              </Link>
+            )}
+
+            <AssessmentStatusActions
+              status={assessment.status}
+              onPublish={handlePublish}
+              onArchive={handleArchive}
+              onRestore={handleRestore}
+              isPending={statusMutation.isPending}
+            />
+          </>
+        }
       />
     </div>
   );

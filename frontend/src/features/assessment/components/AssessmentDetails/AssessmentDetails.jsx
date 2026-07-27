@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-
 import {
   Card,
   CardContent,
@@ -22,6 +21,7 @@ const AssessmentDetails = ({
   assessment,
   games = [],
   questions = [],
+  actions = null,
 }) => {
   const selectedGames = games.filter((game) =>
     assessment.gameIds?.includes(game.id)
@@ -34,11 +34,23 @@ const AssessmentDetails = ({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {assessment.title}
-          </h1>
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-2xl font-semibold tracking-tight">
+              {assessment.title}
+            </h1>
+
+            <Badge
+              variant={
+                assessment.status === "Published"
+                  ? "default"
+                  : "secondary"
+              }
+            >
+              {assessment.status}
+            </Badge>
+          </div>
 
           {assessment.description && (
             <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
@@ -47,15 +59,11 @@ const AssessmentDetails = ({
           )}
         </div>
 
-        <Badge
-          variant={
-            assessment.status === "Published"
-              ? "default"
-              : "secondary"
-          }
-        >
-          {assessment.status}
-        </Badge>
+        {actions && (
+          <div className="flex flex-wrap gap-3">
+            {actions}
+          </div>
+        )}
       </div>
 
       {/* Overview */}
