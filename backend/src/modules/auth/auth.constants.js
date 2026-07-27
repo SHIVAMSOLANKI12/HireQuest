@@ -50,6 +50,9 @@ const AUTH_MESSAGES = Object.freeze({
 const AUTH_ERRORS = Object.freeze({
   INVALID_CREDENTIALS: "Invalid email or password.",
   INVALID_TOKEN: "Invalid token.",
+  INVALID_ACCESS_TOKEN: "Invalid access token.",
+  INVALID_REFRESH_TOKEN: "Invalid refresh token.",
+  MALFORMED_TOKEN: "Malformed authentication token.",
   TOKEN_EXPIRED: "Token has expired.",
   TOKEN_REQUIRED: "Authentication token is required.",
 

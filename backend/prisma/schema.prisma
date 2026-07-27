@@ -84,6 +84,8 @@ model User {
 
   isActive      Boolean  @default(true)
 
+  tokenVersion  Int      @default(0)
+
   lastLoginAt   DateTime?
 
   createdAt     DateTime @default(now())

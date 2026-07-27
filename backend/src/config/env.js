@@ -32,9 +32,9 @@ const env = Object.freeze({
 
   jwt: {
     accessSecret: process.env.JWT_ACCESS_SECRET,
-    accessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN,
+    accessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN || "15m",
     refreshSecret: process.env.JWT_REFRESH_SECRET,
-    refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN,
+    refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || "7d",
   },
 
   cookie: {
