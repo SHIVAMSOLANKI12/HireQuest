@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 
 import {
   AddCandidateDialog,
+  CandidateBulkActions,
   CandidateFilters,
   CandidateTable,
   ImportCandidatesDialog,
@@ -16,6 +17,7 @@ import { useCandidatesQuery } from "../hooks";
 const CandidateList = () => {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
+  const [selectedIds, setSelectedIds] = useState([]);
 
   const {
     data: candidates = [],
@@ -45,6 +47,74 @@ const CandidateList = () => {
       return matchesSearch && matchesStatus;
     });
   }, [candidates, search, status]);
+
+  const selectedCandidates = useMemo(() => {
+    return candidates.filter((candidate) =>
+      selectedIds.some(
+        (id) => String(id) === String(candidate.id)
+      )
+    );
+  }, [candidates, selectedIds]);
+
+  const handleToggleCandidate = (candidateId) => {
+    setSelectedIds((current) => {
+      const isSelected = current.some(
+        (id) => String(id) === String(candidateId)
+      );
+
+      if (isSelected) {
+        return current.filter(
+          (id) => String(id) !== String(candidateId)
+        );
+      }
+
+      return [...current, candidateId];
+    });
+  };
+
+  const handleToggleAll = () => {
+    const visibleIds = filteredCandidates.map((candidate) => candidate.id);
+
+    const areAllSelected =
+      visibleIds.length > 0 &&
+      visibleIds.every((candidateId) =>
+        selectedIds.some(
+          (selectedId) => String(selectedId) === String(candidateId)
+        )
+      );
+
+    if (areAllSelected) {
+      setSelectedIds((current) =>
+        current.filter(
+          (selectedId) =>
+            !visibleIds.some(
+              (visibleId) => String(visibleId) === String(selectedId)
+            )
+        )
+      );
+      return;
+    }
+
+    setSelectedIds((current) => {
+      const next = [...current];
+
+      visibleIds.forEach((candidateId) => {
+        const exists = next.some(
+          (id) => String(id) === String(candidateId)
+        );
+
+        if (!exists) {
+          next.push(candidateId);
+        }
+      });
+
+      return next;
+    });
+  };
+
+  const handleClearSelection = () => {
+    setSelectedIds([]);
+  };
 
   const handleClearFilters = () => {
     setSearch("");
@@ -89,8 +159,26 @@ const CandidateList = () => {
             {filteredCandidates.length}
           </span>{" "}
           of {candidates.length} candidates
+          {selectedCandidates.length > 0 && (
+            <>
+              {" "}•{" "}
+              <span className="font-medium text-foreground">
+                {selectedCandidates.length}
+              </span>{" "}
+              selected
+            </>
+          )}
         </p>
       )}
+
+      {/* Bulk Action Bar */}
+      <CandidateBulkActions
+        selectedCount={selectedCandidates.length}
+        onClear={handleClearSelection}
+        onAssignAssessment={() => {
+          console.log("Selected candidates for assessment:", selectedCandidates);
+        }}
+      />
 
       {/* Loading state */}
       {isLoading && (
@@ -175,7 +263,12 @@ const CandidateList = () => {
 
       {/* Table */}
       {!isLoading && !isError && filteredCandidates.length > 0 && (
-        <CandidateTable candidates={filteredCandidates} />
+        <CandidateTable
+          candidates={filteredCandidates}
+          selectedIds={selectedIds}
+          onToggleCandidate={handleToggleCandidate}
+          onToggleAll={handleToggleAll}
+        />
       )}
     </div>
   );

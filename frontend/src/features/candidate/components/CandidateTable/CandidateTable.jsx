@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Eye, Mail, Phone } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
   TableBody,
@@ -13,12 +14,45 @@ import {
 
 import CandidateStatusBadge from "../CandidateStatusBadge";
 
-const CandidateTable = ({ candidates = [] }) => {
+const CandidateTable = ({
+  candidates = [],
+  selectedIds = [],
+  onToggleCandidate,
+  onToggleAll,
+}) => {
+  const isSelected = (candidateId) => {
+    return selectedIds.some(
+      (id) => String(id) === String(candidateId)
+    );
+  };
+
+  const selectedVisibleCount = candidates.filter((candidate) =>
+    isSelected(candidate.id)
+  ).length;
+
+  const allSelected =
+    candidates.length > 0 && selectedVisibleCount === candidates.length;
+
+  const someSelected = selectedVisibleCount > 0 && !allSelected;
+
   return (
     <div className="overflow-hidden rounded-xl border">
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead className="w-12">
+              <Checkbox
+                checked={
+                  allSelected
+                    ? true
+                    : someSelected
+                    ? "indeterminate"
+                    : false
+                }
+                onCheckedChange={onToggleAll}
+                aria-label="Select all candidates"
+              />
+            </TableHead>
             <TableHead>Candidate</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Phone</TableHead>
@@ -29,7 +63,18 @@ const CandidateTable = ({ candidates = [] }) => {
 
         <TableBody>
           {candidates.map((candidate) => (
-            <TableRow key={candidate.id}>
+            <TableRow
+              key={candidate.id}
+              data-state={isSelected(candidate.id) ? "selected" : undefined}
+            >
+              <TableCell>
+                <Checkbox
+                  checked={isSelected(candidate.id)}
+                  onCheckedChange={() => onToggleCandidate(candidate.id)}
+                  aria-label={`Select ${candidate.name}`}
+                />
+              </TableCell>
+
               <TableCell>
                 <div className="font-medium">{candidate.name}</div>
               </TableCell>
