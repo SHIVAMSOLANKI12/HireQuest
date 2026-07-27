@@ -2,6 +2,7 @@ import {
   createCandidate,
   getCandidateById,
   getCandidates,
+  importCandidates,
   updateCandidate,
 } from "@/lib/api/candidates";
 
@@ -20,5 +21,9 @@ export const candidateService = {
 
   update: async ({ id, data }) => {
     return updateCandidate(id, data);
+  },
+
+  importMany: async (candidates) => {
+    return importCandidates(candidates);
   },
 };

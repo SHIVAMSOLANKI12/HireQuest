@@ -111,3 +111,39 @@ export const updateCandidate = async (id, payload) => {
 
   return { ...updatedCandidate };
 };
+
+export const importCandidates = async (importedCandidates) => {
+  await delay(700);
+
+  const existingEmails = new Set(
+    candidates.map((candidate) => candidate.email.toLowerCase())
+  );
+
+  const incomingEmails = new Set();
+
+  for (const candidate of importedCandidates) {
+    const email = candidate.email.trim().toLowerCase();
+
+    if (existingEmails.has(email) || incomingEmails.has(email)) {
+      throw new Error(`Duplicate candidate email: ${email}`);
+    }
+
+    incomingEmails.add(email);
+  }
+
+  const now = new Date().toISOString();
+
+  const createdCandidates = importedCandidates.map((candidate, index) => ({
+    id: Date.now() + index,
+    name: candidate.name.trim(),
+    email: candidate.email.trim().toLowerCase(),
+    phone: candidate.phone?.trim() || "",
+    status: "New",
+    createdAt: now,
+    updatedAt: now,
+  }));
+
+  candidates = [...createdCandidates, ...candidates];
+
+  return createdCandidates;
+};

@@ -5,3 +5,5 @@ export { default as AddCandidateDialog } from "./AddCandidateDialog";
 export { default as CandidateFilters } from "./CandidateFilters";
 export { default as CandidateDetails } from "./CandidateDetails";
 export { default as EditCandidateDialog } from "./EditCandidateDialog";
+export { default as CandidateImportPreview } from "./CandidateImportPreview";
+export { default as ImportCandidatesDialog } from "./ImportCandidatesDialog";

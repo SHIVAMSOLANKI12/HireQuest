@@ -9,6 +9,7 @@ import {
   AddCandidateDialog,
   CandidateFilters,
   CandidateTable,
+  ImportCandidatesDialog,
 } from "../components";
 import { useCandidatesQuery } from "../hooks";
 
@@ -63,7 +64,10 @@ const CandidateList = () => {
           </p>
         </div>
 
-        <AddCandidateDialog />
+        <div className="flex flex-wrap items-center gap-2">
+          <ImportCandidatesDialog existingCandidates={candidates} />
+          <AddCandidateDialog />
+        </div>
       </div>
 
       {/* Filters Toolbar */}
@@ -130,14 +134,17 @@ const CandidateList = () => {
             Add candidates to start your hiring assessment process.
           </p>
 
-          <AddCandidateDialog
-            trigger={
-              <Button type="button" className="mt-4">
-                <Plus className="mr-2 h-4 w-4" />
-                Add Candidate
-              </Button>
-            }
-          />
+          <div className="mt-4 flex justify-center gap-2">
+            <ImportCandidatesDialog existingCandidates={candidates} />
+            <AddCandidateDialog
+              trigger={
+                <Button type="button">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Candidate
+                </Button>
+              }
+            />
+          </div>
         </div>
       )}
 
