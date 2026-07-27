@@ -69,7 +69,7 @@ const QuestionCard = ({ question }) => {
           </div>
         </CardContent>
 
-        <CardFooter className="gap-2 flex-wrap">
+        <CardFooter className="gap-2">
           <QuestionPreviewSheet question={question} />
 
           <EditQuestionDialog question={question} />

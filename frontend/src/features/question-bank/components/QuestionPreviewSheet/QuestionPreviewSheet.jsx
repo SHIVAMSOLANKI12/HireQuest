@@ -110,38 +110,44 @@ const QuestionPreviewSheet = ({ question }) => {
               Answer Options
             </h3>
 
-            <div className="space-y-3">
-              {options.map((option, index) => {
-                const isCorrect =
-                  option.id === question.correctAnswer;
+            {options.length > 0 ? (
+              <div className="space-y-3">
+                {options.map((option, index) => {
+                  const isCorrect =
+                    option.id === question.correctAnswer;
 
-                return (
-                  <div
-                    key={option.id}
-                    className={`flex items-center gap-3 rounded-lg border p-4 ${
-                      isCorrect
-                        ? "border-primary bg-primary/5"
-                        : ""
-                    }`}
-                  >
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm font-medium">
-                      {String.fromCharCode(65 + index)}
-                    </div>
-
-                    <p className="flex-1 text-sm">
-                      {option.text}
-                    </p>
-
-                    {isCorrect && (
-                      <div className="flex items-center gap-1 text-sm font-medium text-primary">
-                        <CheckCircle2 className="h-4 w-4" />
-                        Correct
+                  return (
+                    <div
+                      key={option.id}
+                      className={`flex items-center gap-3 rounded-lg border p-4 ${
+                        isCorrect
+                          ? "border-primary bg-primary/5"
+                          : ""
+                      }`}
+                    >
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm font-medium">
+                        {String.fromCharCode(65 + index)}
                       </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+
+                      <p className="flex-1 text-sm">
+                        {option.text}
+                      </p>
+
+                      {isCorrect && (
+                        <div className="flex items-center gap-1 text-sm font-medium text-primary">
+                          <CheckCircle2 className="h-4 w-4" />
+                          Correct
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                No answer options available.
+              </p>
+            )}
           </section>
 
           {/* Additional Info */}
