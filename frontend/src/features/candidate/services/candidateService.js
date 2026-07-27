@@ -1,11 +1,24 @@
-import { createCandidate, getCandidates } from "@/lib/api/candidates";
+import {
+  createCandidate,
+  getCandidateById,
+  getCandidates,
+  updateCandidate,
+} from "@/lib/api/candidates";
 
 export const candidateService = {
   getAll: async () => {
     return getCandidates();
   },
 
+  getById: async (id) => {
+    return getCandidateById(id);
+  },
+
   create: async (payload) => {
     return createCandidate(payload);
+  },
+
+  update: async ({ id, data }) => {
+    return updateCandidate(id, data);
   },
 };

@@ -37,6 +37,20 @@ export const getCandidates = async () => {
   return [...candidates];
 };
 
+export const getCandidateById = async (id) => {
+  await delay();
+
+  const candidate = candidates.find(
+    (item) => String(item.id) === String(id)
+  );
+
+  if (!candidate) {
+    throw new Error("Candidate not found.");
+  }
+
+  return { ...candidate };
+};
+
 export const createCandidate = async (payload) => {
   await delay();
 
@@ -62,4 +76,38 @@ export const createCandidate = async (payload) => {
   candidates = [candidate, ...candidates];
 
   return candidate;
+};
+
+export const updateCandidate = async (id, payload) => {
+  await delay();
+
+  const index = candidates.findIndex(
+    (candidate) => String(candidate.id) === String(id)
+  );
+
+  if (index === -1) {
+    throw new Error("Candidate not found.");
+  }
+
+  const emailExists = candidates.some(
+    (candidate) =>
+      String(candidate.id) !== String(id) &&
+      candidate.email.toLowerCase() === payload.email.trim().toLowerCase()
+  );
+
+  if (emailExists) {
+    throw new Error("A candidate with this email already exists.");
+  }
+
+  const updatedCandidate = {
+    ...candidates[index],
+    name: payload.name.trim(),
+    email: payload.email.trim().toLowerCase(),
+    phone: payload.phone?.trim() || "",
+    updatedAt: new Date().toISOString(),
+  };
+
+  candidates[index] = updatedCandidate;
+
+  return { ...updatedCandidate };
 };

@@ -1,5 +1,7 @@
-import { Mail, Phone } from "lucide-react";
+import Link from "next/link";
+import { Eye, Mail, Phone } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -21,6 +23,7 @@ const CandidateTable = ({ candidates = [] }) => {
             <TableHead>Email</TableHead>
             <TableHead>Phone</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
 
@@ -28,9 +31,7 @@ const CandidateTable = ({ candidates = [] }) => {
           {candidates.map((candidate) => (
             <TableRow key={candidate.id}>
               <TableCell>
-                <div className="font-medium">
-                  {candidate.name}
-                </div>
+                <div className="font-medium">{candidate.name}</div>
               </TableCell>
 
               <TableCell>
@@ -49,6 +50,15 @@ const CandidateTable = ({ candidates = [] }) => {
 
               <TableCell>
                 <CandidateStatusBadge status={candidate.status} />
+              </TableCell>
+
+              <TableCell className="text-right">
+                <Link href={`/candidates/${candidate.id}`}>
+                  <Button variant="ghost" size="sm">
+                    <Eye className="mr-2 h-4 w-4" />
+                    View
+                  </Button>
+                </Link>
               </TableCell>
             </TableRow>
           ))}
