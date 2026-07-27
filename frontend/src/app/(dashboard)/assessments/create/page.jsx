@@ -1,5 +1,7 @@
-import { CreateAssessmentPage } from "@/features/assessment";
+import { CreateAssessment } from "@/features/assessment";
 
-export default function Page() {
-  return <CreateAssessmentPage />;
-}
+const CreateAssessmentPage = () => {
+  return <CreateAssessment />;
+};
+
+export default CreateAssessmentPage;

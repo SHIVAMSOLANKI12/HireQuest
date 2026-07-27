@@ -1,39 +1,36 @@
 "use client";
 
-import {
-  AssessmentHeader,
-  AssessmentToolbar,
-  AssessmentGrid,
-  EmptyState,
-  ErrorState,
-  AssessmentGridSkeleton,
-} from "../components";
+import Link from "next/link";
+import { Plus } from "lucide-react";
 
-import { useAssessments } from "../hooks";
+import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/common";
 
 const AssessmentList = () => {
-  const {
-    assessments,
-    loading,
-    error,
-    refetch,
-  } = useAssessments();
-
   return (
     <div className="space-y-6">
-      <AssessmentHeader />
+      <PageHeader
+        title="Assessments"
+        description="Create and manage hiring assessments for your candidates."
+      >
+        <Button asChild>
+          <Link href="/assessments/create">
+            <Plus className="mr-2 h-4 w-4" />
+            Create Assessment
+          </Link>
+        </Button>
+      </PageHeader>
 
-      <AssessmentToolbar />
+      <div className="rounded-xl border border-dashed p-12 text-center">
+        <h2 className="text-lg font-semibold">
+          No assessments yet
+        </h2>
 
-      {loading ? (
-        <AssessmentGridSkeleton />
-      ) : error ? (
-        <ErrorState onRetry={refetch} />
-      ) : assessments.length === 0 ? (
-        <EmptyState />
-      ) : (
-        <AssessmentGrid assessments={assessments} />
-      )}
+        <p className="mt-2 text-sm text-muted-foreground">
+          Create your first assessment by selecting
+          games and questions from your library.
+        </p>
+      </div>
     </div>
   );
 };
