@@ -17,3 +17,4 @@ export { default as QuestionSelectionStep } from "./QuestionSelectionStep";
 export { default as AssessmentSettingsForm } from "./AssessmentSettingsForm";
 export { default as AssessmentReview } from "./AssessmentReview";
 export { default as AssessmentDetails } from "./AssessmentDetails";
+export { default as AssessmentFilters } from "./AssessmentFilters";
