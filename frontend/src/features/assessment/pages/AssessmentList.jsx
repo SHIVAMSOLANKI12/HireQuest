@@ -13,12 +13,12 @@ const AssessmentList = () => {
         title="Assessments"
         description="Create and manage hiring assessments for your candidates."
       >
-        <Button asChild>
-          <Link href="/assessments/create">
+        <Link href="/assessments/create">
+          <Button>
             <Plus className="mr-2 h-4 w-4" />
             Create Assessment
-          </Link>
-        </Button>
+          </Button>
+        </Link>
       </PageHeader>
 
       <div className="rounded-xl border border-dashed p-12 text-center">
