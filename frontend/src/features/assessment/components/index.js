@@ -11,3 +11,5 @@ export { default as AssessmentBuilder } from "./AssessmentBuilder";
 export { default as AssessmentStepper } from "./AssessmentStepper";
 export { default as AssessmentStepContent } from "./AssessmentStepContent";
 export { default as AssessmentDetailsForm } from "./AssessmentDetailsForm";
+export { default as GameSelectionCard } from "./GameSelectionCard";
+export { default as GameSelectionStep } from "./GameSelectionStep";
