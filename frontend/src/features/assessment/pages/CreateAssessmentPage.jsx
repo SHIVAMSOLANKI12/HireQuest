@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { ROUTES } from "@/constants";
 import {
   CreateAssessmentHeader,
   BasicInformationSection,
@@ -15,12 +16,12 @@ const CreateAssessmentPage = () => {
 
   const handlePublish = () => {
     toast.success("Assessment published successfully!");
-    router.push("/assessments");
+    router.push(ROUTES.ASSESSMENTS);
   };
 
   const handleSaveDraft = () => {
     toast.success("Draft saved successfully!");
-    router.push("/assessments");
+    router.push(ROUTES.ASSESSMENTS);
   };
 
   return (
