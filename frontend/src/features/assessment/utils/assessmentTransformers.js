@@ -21,3 +21,27 @@ export const toAssessmentPayload = (assessment, status) => {
     questionIds: [...assessment.selectedQuestionIds],
   };
 };
+
+export const toAssessmentBuilder = (assessment) => {
+  if (!assessment) return {};
+
+  return {
+    title: assessment.title ?? "",
+
+    description: assessment.description ?? "",
+
+    selectedGameIds: assessment.gameIds ?? [],
+
+    selectedQuestionIds: assessment.questionIds ?? [],
+
+    duration: assessment.duration ?? 60,
+
+    passingScore: assessment.passingScore ?? 70,
+
+    attemptsAllowed: assessment.attemptsAllowed ?? 1,
+
+    shuffleQuestions: assessment.shuffleQuestions ?? true,
+
+    showResultToCandidate: assessment.showResultToCandidate ?? false,
+  };
+};

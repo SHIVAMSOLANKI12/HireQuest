@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Pencil } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -64,13 +65,22 @@ const AssessmentDetailsPage = ({ assessmentId }) => {
 
   return (
     <div className="space-y-6">
-      <Button
-        variant="ghost"
-        onClick={() => router.push("/assessments")}
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Assessments
-      </Button>
+      <div className="flex items-center justify-between">
+        <Button
+          variant="ghost"
+          onClick={() => router.push("/assessments")}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Assessments
+        </Button>
+
+        <Link href={`/assessments/${assessmentId}/edit`}>
+          <Button variant="outline">
+            <Pencil className="mr-2 h-4 w-4" />
+            Edit Assessment
+          </Button>
+        </Link>
+      </div>
 
       <AssessmentDetails
         assessment={assessment}

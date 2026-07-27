@@ -11,6 +11,7 @@ import { ASSESSMENT_STATUS } from "../../constants";
 import {
   useAssessmentBuilder,
   useCreateAssessment,
+  useUpdateAssessment,
 } from "../../hooks";
 import { toAssessmentPayload } from "../../utils";
 
@@ -25,9 +26,15 @@ import AssessmentReview from "../AssessmentReview";
 const isGamesLoading = false;
 const isGamesError = false;
 
-const AssessmentBuilder = () => {
+const AssessmentBuilder = ({
+  mode = "create",
+  assessmentId = null,
+  initialAssessment,
+}) => {
   const router = useRouter();
   const [submitAction, setSubmitAction] = useState(null);
+
+  const isEditMode = mode === "edit";
 
   const {
     currentStep,
@@ -35,9 +42,10 @@ const AssessmentBuilder = () => {
     updateAssessment,
     previousStep,
     nextStep,
-  } = useAssessmentBuilder();
+  } = useAssessmentBuilder(initialAssessment);
 
   const createAssessment = useCreateAssessment();
+  const updateAssessmentMutation = useUpdateAssessment();
 
   // Questions from existing Question Bank — same source of truth
   const {
@@ -77,6 +85,24 @@ const AssessmentBuilder = () => {
     const payload = toAssessmentPayload(assessment, status);
     setSubmitAction(action);
 
+    if (isEditMode) {
+      updateAssessmentMutation.mutate(
+        {
+          id: assessmentId,
+          payload,
+        },
+        {
+          onSuccess: () => {
+            router.push(`/assessments/${assessmentId}`);
+          },
+          onSettled: () => {
+            setSubmitAction(null);
+          },
+        }
+      );
+      return;
+    }
+
     createAssessment.mutate(payload, {
       onSuccess: () => {
         router.push("/assessments");
@@ -94,6 +120,12 @@ const AssessmentBuilder = () => {
   const handlePublish = () => {
     handleSubmitAssessment(ASSESSMENT_STATUS.PUBLISHED, "publish");
   };
+
+  const isSubmitting =
+    createAssessment.isPending || updateAssessmentMutation.isPending;
+
+  const submitError =
+    createAssessment.error || updateAssessmentMutation.error;
 
   return (
     <div className="space-y-8">
@@ -186,9 +218,9 @@ const AssessmentBuilder = () => {
           onBack={previousStep}
           onSaveDraft={handleSaveDraft}
           onPublish={handlePublish}
-          isSubmitting={createAssessment.isPending}
+          isSubmitting={isSubmitting}
           submitAction={submitAction}
-          error={createAssessment.error}
+          error={submitError}
         />
       )}
     </div>

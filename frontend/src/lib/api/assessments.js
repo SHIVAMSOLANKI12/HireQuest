@@ -41,3 +41,26 @@ export const getAssessmentById = async (id) => {
 
   return assessment;
 };
+
+export const updateAssessment = async (id, payload) => {
+  await delay();
+
+  const index = assessments.findIndex(
+    (assessment) => String(assessment.id) === String(id)
+  );
+
+  if (index === -1) {
+    throw new Error("Assessment not found");
+  }
+
+  const updatedAssessment = {
+    ...assessments[index],
+    ...payload,
+    id: assessments[index].id,
+    updatedAt: new Date().toISOString(),
+  };
+
+  assessments[index] = updatedAssessment;
+
+  return updatedAssessment;
+};
