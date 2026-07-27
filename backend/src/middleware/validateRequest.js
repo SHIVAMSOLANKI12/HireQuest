@@ -1,11 +1,11 @@
-const authRoutes = require("./auth.routes");
+const validate = require("./validate.middleware");
 
 /**
  * ==========================================================
- * Auth Module Index
+ * Validate Request Middleware Export
  * ==========================================================
- * Re-exports Auth Module Express Router.
+ * Alias export for Zod schema validation middleware.
  * ==========================================================
  */
 
-module.exports = authRoutes;
+module.exports = validate;

@@ -1,4 +1,5 @@
 const express = require("express");
+const authRoutes = require("../modules/auth/auth.routes");
 
 const router = express.Router();
 
@@ -12,5 +13,10 @@ router.get("/health", (req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+/**
+ * Auth Module Routes (/api/v1/auth)
+ */
+router.use("/auth", authRoutes);
 
 module.exports = router;

@@ -39,12 +39,15 @@ const AUTH_MESSAGES = Object.freeze({
   TOKEN_REFRESHED: "Access token refreshed successfully.",
 
   PASSWORD_CHANGED: "Password changed successfully.",
-  PASSWORD_RESET_EMAIL_SENT: "Password reset link sent successfully.",
+  PASSWORD_CHANGED_SUCCESS: "Password changed successfully.",
+  PASSWORD_RESET_EMAIL_SENT:
+    "If the email is registered, password reset instructions have been sent.",
   PASSWORD_RESET_SUCCESS: "Password reset successfully.",
 
   EMAIL_VERIFIED: "Email verified successfully.",
 
   PROFILE_FETCHED: "Profile fetched successfully.",
+  CURRENT_USER_FETCHED: "Current user fetched successfully.",
 });
 
 const AUTH_ERRORS = Object.freeze({
@@ -71,6 +74,9 @@ const AUTH_ERRORS = Object.freeze({
   REFRESH_TOKEN_NOT_FOUND: "Refresh token not found.",
 
   PASSWORD_RESET_TOKEN_INVALID: "Password reset token is invalid.",
+  INVALID_RESET_TOKEN: "Invalid or expired password reset token.",
+
+  PASSWORD_ALREADY_USED: "New password must be different from current password.",
 
   EMAIL_NOT_VERIFIED: "Email is not verified.",
 });

@@ -16,7 +16,8 @@ const errorHandler = (err, req, res, next) => {
 
   const response = new ApiResponse(
     statusCode,
-    err.message || "Internal Server Error"
+    err.message || "Internal Server Error",
+    err.errors && err.errors.length > 0 ? err.errors : null
   );
 
   if (env.nodeEnv !== "production") {

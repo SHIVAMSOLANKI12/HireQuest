@@ -16,6 +16,11 @@ const routes = require("./routes");
 const app = express();
 
 /**
+ * Enable Trust Proxy for Reverse Proxies (Cloudflare/Nginx)
+ */
+app.set("trust proxy", true);
+
+/**
  * Request ID
  */
 app.use(requestId);

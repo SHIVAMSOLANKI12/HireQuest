@@ -1,13 +1,26 @@
-const authRepository = require('./auth.repository');
+const { register } = require("./services/register.service");
+const { login } = require("./services/login.service");
+const { refreshAccessToken } = require("./services/refresh-token.service");
+const { logout, logoutAllDevices } = require("./services/logout.service");
+const { changePassword } = require("./services/change-password.service");
+const { forgotPassword } = require("./services/forgot-password.service");
+const { resetPassword } = require("./services/reset-password.service");
 
-class AuthService {
-  async register(userData) {
-    return authRepository.createUser(userData);
-  }
+/**
+ * ==========================================================
+ * Auth Service Aggregator Facade
+ * ==========================================================
+ * Centralized entry point re-exporting modular authentication services.
+ * ==========================================================
+ */
 
-  async login(credentials) {
-    return authRepository.findByEmail(credentials.email);
-  }
-}
-
-module.exports = new AuthService();
+module.exports = {
+  register,
+  login,
+  refreshAccessToken,
+  logout,
+  logoutAllDevices,
+  changePassword,
+  forgotPassword,
+  resetPassword,
+};

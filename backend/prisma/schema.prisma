@@ -94,6 +94,7 @@ model User {
 
   refreshTokens RefreshToken[]
   auditLogs     AuditLog[]
+  passwordResetTokens PasswordResetToken[]
 
   assessments   Assessment[] @relation("UserAssessments")
   candidateAssessments CandidateAssessment[]
@@ -144,6 +145,20 @@ model AuditLog {
   @@index([userId])
   @@index([action])
   @@index([module])
+}
+
+model PasswordResetToken {
+  id          String   @id @default(cuid())
+  tokenHash   String   @unique
+  userId      String
+  expiresAt   DateTime
+  usedAt      DateTime?
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model Assessment {

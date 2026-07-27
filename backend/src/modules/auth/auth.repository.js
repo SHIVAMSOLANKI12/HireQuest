@@ -1,17 +1,26 @@
-const prisma = require('../../config/database');
+const authRepository = require("./repositories/auth.repository");
+const refreshTokenRepository = require("./repositories/refresh-token.repository");
+const auditLogRepository = require("./repositories/audit-log.repository");
 
-class AuthRepository {
-  async findByEmail(email) {
-    return prisma.user.findUnique({ where: { email } });
-  }
+/**
+ * ==========================================================
+ * Auth Module Repository Facade
+ * ==========================================================
+ * Centralized entry point aggregating Auth, Refresh Token, and Audit Log repositories.
+ * ==========================================================
+ */
 
-  async createUser(data) {
-    return prisma.user.create({ data });
-  }
+module.exports = {
+  ...authRepository,
 
-  async findById(id) {
-    return prisma.user.findUnique({ where: { id } });
-  }
-}
+  // Refresh Token operations
+  createRefreshToken: refreshTokenRepository.createRefreshToken,
+  findRefreshToken: refreshTokenRepository.findRefreshToken,
+  revokeRefreshToken: refreshTokenRepository.revokeRefreshToken,
+  revokeAllUserRefreshTokens: refreshTokenRepository.revokeAllUserRefreshTokens,
+  deleteExpiredTokens: refreshTokenRepository.deleteExpiredTokens,
 
-module.exports = new AuthRepository();
+  // Audit Log operations
+  createAuditLog: auditLogRepository.createAuditLog,
+  findLogsByUserId: auditLogRepository.findLogsByUserId,
+};
