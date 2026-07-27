@@ -24,6 +24,11 @@ const AssessmentReview = ({
   games = [],
   questions = [],
   onBack,
+  onSaveDraft,
+  onPublish,
+  isSubmitting = false,
+  submitAction = null,
+  error = null,
 }) => {
   const selectedGames = games.filter((game) =>
     assessment.selectedGameIds.includes(game.id)
@@ -252,12 +257,22 @@ const AssessmentReview = ({
         </CardContent>
       </Card>
 
+      {/* Error display */}
+      {error && (
+        <div className="rounded-lg border border-destructive/50 bg-destructive/5 p-4">
+          <p className="text-sm text-destructive">
+            {error.message || "Unable to save assessment."}
+          </p>
+        </div>
+      )}
+
       {/* Navigation */}
       <div className="flex items-center justify-between border-t pt-6">
         <Button
           type="button"
           variant="outline"
           onClick={onBack}
+          disabled={isSubmitting}
         >
           Back
         </Button>
@@ -266,16 +281,22 @@ const AssessmentReview = ({
           <Button
             type="button"
             variant="outline"
-            disabled
+            onClick={onSaveDraft}
+            disabled={isSubmitting}
           >
-            Save Draft
+            {isSubmitting && submitAction === "draft"
+              ? "Saving..."
+              : "Save Draft"}
           </Button>
 
           <Button
             type="button"
-            disabled
+            onClick={onPublish}
+            disabled={isSubmitting}
           >
-            Publish Assessment
+            {isSubmitting && submitAction === "publish"
+              ? "Publishing..."
+              : "Publish Assessment"}
           </Button>
         </div>
       </div>

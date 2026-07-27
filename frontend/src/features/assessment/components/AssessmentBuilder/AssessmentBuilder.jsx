@@ -1,10 +1,18 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
 import { games } from "@/features/games/data";
 import { useQuestionsQuery } from "@/features/question-bank/hooks";
 import { QUESTION_STATUS } from "@/features/question-bank/constants";
 
-import { useAssessmentBuilder } from "../../hooks";
+import { ASSESSMENT_STATUS } from "../../constants";
+import {
+  useAssessmentBuilder,
+  useCreateAssessment,
+} from "../../hooks";
+import { toAssessmentPayload } from "../../utils";
 
 import AssessmentStepper from "../AssessmentStepper";
 import AssessmentDetailsForm from "../AssessmentDetailsForm";
@@ -18,14 +26,18 @@ const isGamesLoading = false;
 const isGamesError = false;
 
 const AssessmentBuilder = () => {
+  const router = useRouter();
+  const [submitAction, setSubmitAction] = useState(null);
+
   const {
     currentStep,
     assessment,
     updateAssessment,
     previousStep,
     nextStep,
-    isLastStep,
   } = useAssessmentBuilder();
+
+  const createAssessment = useCreateAssessment();
 
   // Questions from existing Question Bank — same source of truth
   const {
@@ -39,7 +51,7 @@ const AssessmentBuilder = () => {
     (question) => question.status === QUESTION_STATUS.ACTIVE
   );
 
-  // ── Step Handlers ──────────────────────────────────────────────
+  // ── Handlers ──────────────────────────────────────────────────
 
   const handleDetailsContinue = (data) => {
     updateAssessment(data);
@@ -59,6 +71,28 @@ const AssessmentBuilder = () => {
   const handleSettingsContinue = (data) => {
     updateAssessment(data);
     nextStep();
+  };
+
+  const handleSubmitAssessment = (status, action) => {
+    const payload = toAssessmentPayload(assessment, status);
+    setSubmitAction(action);
+
+    createAssessment.mutate(payload, {
+      onSuccess: () => {
+        router.push("/assessments");
+      },
+      onSettled: () => {
+        setSubmitAction(null);
+      },
+    });
+  };
+
+  const handleSaveDraft = () => {
+    handleSubmitAssessment(ASSESSMENT_STATUS.DRAFT, "draft");
+  };
+
+  const handlePublish = () => {
+    handleSubmitAssessment(ASSESSMENT_STATUS.PUBLISHED, "publish");
   };
 
   return (
@@ -150,6 +184,11 @@ const AssessmentBuilder = () => {
           games={games}
           questions={questions}
           onBack={previousStep}
+          onSaveDraft={handleSaveDraft}
+          onPublish={handlePublish}
+          isSubmitting={createAssessment.isPending}
+          submitAction={submitAction}
+          error={createAssessment.error}
         />
       )}
     </div>
