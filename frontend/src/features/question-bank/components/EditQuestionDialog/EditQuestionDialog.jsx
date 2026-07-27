@@ -48,7 +48,7 @@ const EditQuestionDialog = ({ question }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" className="flex-1">
+        <Button size="sm" className="min-w-[100px] flex-1">
           <Pencil className="mr-2 h-4 w-4" />
           Edit
         </Button>

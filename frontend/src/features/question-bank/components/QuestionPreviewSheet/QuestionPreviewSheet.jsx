@@ -29,7 +29,7 @@ const QuestionPreviewSheet = ({ question }) => {
           type="button"
           variant="outline"
           size="sm"
-          className="flex-1"
+          className="min-w-[100px] flex-1"
         >
           <Eye className="mr-2 h-4 w-4" />
           Preview
