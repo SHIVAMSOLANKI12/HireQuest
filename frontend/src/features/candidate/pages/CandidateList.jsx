@@ -4,7 +4,7 @@ import { Plus, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-import { CandidateTable } from "../components";
+import { AddCandidateDialog, CandidateTable } from "../components";
 import { useCandidatesQuery } from "../hooks";
 
 const CandidateList = () => {
@@ -29,10 +29,7 @@ const CandidateList = () => {
           </p>
         </div>
 
-        <Button type="button">
-          <Plus className="mr-2 h-4 w-4" />
-          Add Candidate
-        </Button>
+        <AddCandidateDialog />
       </div>
 
       {isLoading && (
@@ -45,9 +42,7 @@ const CandidateList = () => {
 
       {isError && (
         <div className="rounded-xl border border-destructive/50 p-12 text-center">
-          <h2 className="font-semibold">
-            Unable to load candidates
-          </h2>
+          <h2 className="font-semibold">Unable to load candidates</h2>
 
           <p className="mt-2 text-sm text-muted-foreground">
             {error?.message || "Something went wrong."}
@@ -76,10 +71,14 @@ const CandidateList = () => {
             Add candidates to start your hiring assessment process.
           </p>
 
-          <Button type="button" className="mt-4">
-            <Plus className="mr-2 h-4 w-4" />
-            Add Candidate
-          </Button>
+          <AddCandidateDialog
+            trigger={
+              <Button type="button" className="mt-4">
+                <Plus className="mr-2 h-4 w-4" />
+                Add Candidate
+              </Button>
+            }
+          />
         </div>
       )}
 

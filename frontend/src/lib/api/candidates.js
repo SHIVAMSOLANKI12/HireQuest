@@ -36,3 +36,30 @@ export const getCandidates = async () => {
 
   return [...candidates];
 };
+
+export const createCandidate = async (payload) => {
+  await delay();
+
+  const emailExists = candidates.some(
+    (candidate) =>
+      candidate.email.toLowerCase() === payload.email.toLowerCase()
+  );
+
+  if (emailExists) {
+    throw new Error("A candidate with this email already exists.");
+  }
+
+  const candidate = {
+    id: Date.now(),
+    name: payload.name.trim(),
+    email: payload.email.trim().toLowerCase(),
+    phone: payload.phone?.trim() || "",
+    status: "New",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  candidates = [candidate, ...candidates];
+
+  return candidate;
+};

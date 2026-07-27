@@ -113,6 +113,15 @@ export function DialogTitle({ className, ...props }) {
   );
 }
 
+export function DialogDescription({ className, ...props }) {
+  return (
+    <p
+      className={cn("text-sm text-muted-foreground", className)}
+      {...props}
+    />
+  );
+}
+
 export function DialogFooter({ className, ...props }) {
   return (
     <div
