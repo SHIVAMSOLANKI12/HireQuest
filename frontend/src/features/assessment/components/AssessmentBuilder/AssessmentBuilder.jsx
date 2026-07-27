@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { games } from "@/features/games/data";
@@ -13,7 +13,14 @@ import {
   useCreateAssessment,
   useUpdateAssessment,
 } from "../../hooks";
-import { toAssessmentPayload, validateAssessment } from "../../utils";
+import {
+  clearAssessmentDraft,
+  getAssessmentDraft,
+  hasAssessmentProgress,
+  saveAssessmentDraft,
+  toAssessmentPayload,
+  validateAssessment,
+} from "../../utils";
 
 import AssessmentStepper from "../AssessmentStepper";
 import AssessmentDetailsForm from "../AssessmentDetailsForm";
@@ -21,6 +28,7 @@ import GameSelectionStep from "../GameSelectionStep";
 import QuestionSelectionStep from "../QuestionSelectionStep";
 import AssessmentSettingsForm from "../AssessmentSettingsForm";
 import AssessmentReview from "../AssessmentReview";
+import AssessmentDraftRecovery from "../AssessmentDraftRecovery";
 
 // Static games data — swap with useGamesQuery() when real API is connected
 const isGamesLoading = false;
@@ -41,18 +49,88 @@ const AssessmentBuilder = ({
 
   const [finalValidationErrors, setFinalValidationErrors] = useState({});
 
+  const [recoveryDraft, setRecoveryDraft] = useState(null);
+  const [hasCheckedDraft, setHasCheckedDraft] = useState(false);
+  const canAutoSaveRef = useRef(false);
+
   const isEditMode = mode === "edit";
 
   const {
     currentStep,
     assessment,
     updateAssessment,
+    replaceAssessment,
     previousStep,
     nextStep,
-  } = useAssessmentBuilder(initialAssessment);
+    goToStep,
+  } = useAssessmentBuilder({ initialAssessment });
 
   const createAssessment = useCreateAssessment();
   const updateAssessmentMutation = useUpdateAssessment();
+
+  // Check for existing temporary draft on create mode mount
+  useEffect(() => {
+    if (mode !== "create") {
+      setHasCheckedDraft(true);
+      canAutoSaveRef.current = true;
+      return;
+    }
+
+    const draft = getAssessmentDraft();
+
+    if (draft?.assessment) {
+      setRecoveryDraft(draft);
+    } else {
+      canAutoSaveRef.current = true;
+    }
+
+    setHasCheckedDraft(true);
+  }, [mode]);
+
+  // Auto-save draft when assessment or step changes in create mode
+  useEffect(() => {
+    if (mode !== "create") {
+      return;
+    }
+
+    if (!hasCheckedDraft) {
+      return;
+    }
+
+    if (!canAutoSaveRef.current) {
+      return;
+    }
+
+    if (!hasAssessmentProgress(assessment)) {
+      return;
+    }
+
+    saveAssessmentDraft(assessment, currentStep);
+  }, [assessment, currentStep, mode, hasCheckedDraft]);
+
+  const handleRestoreDraft = () => {
+    if (!recoveryDraft) {
+      return;
+    }
+
+    replaceAssessment(recoveryDraft.assessment);
+
+    if (
+      recoveryDraft.currentStep >= 1 &&
+      recoveryDraft.currentStep <= 5
+    ) {
+      goToStep(recoveryDraft.currentStep);
+    }
+
+    setRecoveryDraft(null);
+    canAutoSaveRef.current = true;
+  };
+
+  const handleDiscardDraft = () => {
+    clearAssessmentDraft();
+    setRecoveryDraft(null);
+    canAutoSaveRef.current = true;
+  };
 
   // Questions from existing Question Bank — same source of truth
   const {
@@ -168,6 +246,7 @@ const AssessmentBuilder = ({
 
     createAssessment.mutate(payload, {
       onSuccess: () => {
+        clearAssessmentDraft();
         router.push("/assessments");
       },
       onSettled: () => {
@@ -211,6 +290,16 @@ const AssessmentBuilder = ({
     setFinalValidationErrors({});
     handleSubmitAssessment(ASSESSMENT_STATUS.PUBLISHED, "publish");
   };
+
+  if (mode === "create" && recoveryDraft) {
+    return (
+      <AssessmentDraftRecovery
+        draft={recoveryDraft}
+        onRestore={handleRestoreDraft}
+        onDiscard={handleDiscardDraft}
+      />
+    );
+  }
 
   return (
     <div className="space-y-8">

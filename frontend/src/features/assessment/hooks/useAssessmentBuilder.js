@@ -7,9 +7,11 @@ import {
   DEFAULT_ASSESSMENT,
 } from "../constants";
 
-const useAssessmentBuilder = (initialAssessment = DEFAULT_ASSESSMENT) => {
-  const [currentStep, setCurrentStep] = useState(1);
-
+const useAssessmentBuilder = ({
+  initialAssessment = DEFAULT_ASSESSMENT,
+  initialStep = 1,
+} = {}) => {
+  const [currentStep, setCurrentStep] = useState(initialStep);
   const [assessment, setAssessment] = useState(initialAssessment);
 
   const updateAssessment = (data) => {
@@ -17,6 +19,10 @@ const useAssessmentBuilder = (initialAssessment = DEFAULT_ASSESSMENT) => {
       ...previous,
       ...data,
     }));
+  };
+
+  const replaceAssessment = (newAssessment) => {
+    setAssessment(newAssessment);
   };
 
   const nextStep = () => {
@@ -36,7 +42,6 @@ const useAssessmentBuilder = (initialAssessment = DEFAULT_ASSESSMENT) => {
   };
 
   const isFirstStep = currentStep === 1;
-
   const isLastStep = currentStep === ASSESSMENT_STEPS.length;
 
   return {
@@ -44,6 +49,7 @@ const useAssessmentBuilder = (initialAssessment = DEFAULT_ASSESSMENT) => {
     assessment,
 
     updateAssessment,
+    replaceAssessment,
 
     nextStep,
     previousStep,
