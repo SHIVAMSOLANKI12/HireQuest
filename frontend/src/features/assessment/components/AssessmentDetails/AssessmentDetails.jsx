@@ -17,6 +17,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+import AssessmentStatusBadge from "../AssessmentStatusBadge";
+
 const AssessmentDetails = ({
   assessment,
   games = [],
@@ -41,15 +43,7 @@ const AssessmentDetails = ({
               {assessment.title}
             </h1>
 
-            <Badge
-              variant={
-                assessment.status === "Published"
-                  ? "default"
-                  : "secondary"
-              }
-            >
-              {assessment.status}
-            </Badge>
+            <AssessmentStatusBadge status={assessment.status} />
           </div>
 
           {assessment.description && (

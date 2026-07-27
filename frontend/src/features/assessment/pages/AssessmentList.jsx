@@ -7,22 +7,59 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/common";
 
+import { ASSESSMENT_STATUS } from "../constants";
 import {
   AssessmentCard,
+  AssessmentCardSkeleton,
   AssessmentFilters,
 } from "../components";
-import { useAssessmentsQuery } from "../hooks";
+import {
+  useAssessmentsQuery,
+  useAssessmentStatusMutation,
+} from "../hooks";
 
 const AssessmentList = () => {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
+  const [actionAssessmentId, setActionAssessmentId] = useState(null);
 
   const {
     data: assessments = [],
     isLoading,
     isError,
     error,
+    refetch,
   } = useAssessmentsQuery();
+
+  const statusMutation = useAssessmentStatusMutation();
+
+  const updateStatus = (id, newStatus) => {
+    setActionAssessmentId(id);
+
+    statusMutation.mutate(
+      {
+        id,
+        status: newStatus,
+      },
+      {
+        onSettled: () => {
+          setActionAssessmentId(null);
+        },
+      }
+    );
+  };
+
+  const handlePublish = (id) => {
+    updateStatus(id, ASSESSMENT_STATUS.PUBLISHED);
+  };
+
+  const handleArchive = (id) => {
+    updateStatus(id, ASSESSMENT_STATUS.ARCHIVED);
+  };
+
+  const handleRestore = (id) => {
+    updateStatus(id, ASSESSMENT_STATUS.PUBLISHED);
+  };
 
   const filteredAssessments = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -70,6 +107,16 @@ const AssessmentList = () => {
         onClear={handleClearFilters}
       />
 
+      {/* Top Error Alert for status action failures */}
+      {statusMutation.isError && (
+        <div className="rounded-lg border border-destructive/50 bg-destructive/5 p-4">
+          <p className="text-sm text-destructive">
+            {statusMutation.error?.message ||
+              "Unable to update assessment."}
+          </p>
+        </div>
+      )}
+
       {/* Result counter */}
       {!isLoading && !isError && assessments.length > 0 && (
         <p className="text-sm text-muted-foreground">
@@ -81,25 +128,35 @@ const AssessmentList = () => {
         </p>
       )}
 
-      {/* Loading state */}
+      {/* Loading state: Card skeletons */}
       {isLoading && (
-        <div className="rounded-xl border p-10 text-center">
-          <p className="text-sm text-muted-foreground">
-            Loading assessments...
-          </p>
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <AssessmentCardSkeleton key={index} />
+          ))}
         </div>
       )}
 
       {/* Error state */}
       {isError && (
-        <div className="rounded-xl border border-destructive/50 p-10 text-center">
-          <h2 className="font-semibold">
+        <div className="rounded-xl border border-destructive/50 p-12 text-center">
+          <h2 className="text-lg font-semibold">
             Unable to load assessments
           </h2>
 
           <p className="mt-2 text-sm text-muted-foreground">
-            {error?.message || "Something went wrong."}
+            {error?.message ||
+              "Something went wrong while loading assessments."}
           </p>
+
+          <Button
+            type="button"
+            variant="outline"
+            className="mt-4"
+            onClick={() => refetch()}
+          >
+            Try Again
+          </Button>
         </div>
       )}
 
@@ -148,6 +205,13 @@ const AssessmentList = () => {
             <AssessmentCard
               key={assessment.id}
               assessment={assessment}
+              onPublish={handlePublish}
+              onArchive={handleArchive}
+              onRestore={handleRestore}
+              isPending={
+                statusMutation.isPending &&
+                actionAssessmentId === assessment.id
+              }
             />
           ))}
         </div>
