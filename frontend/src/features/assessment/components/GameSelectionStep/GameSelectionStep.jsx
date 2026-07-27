@@ -14,6 +14,7 @@ const GameSelectionStep = ({
   onSelectionChange,
   onContinue,
   onBack,
+  error,
 }) => {
   const [search, setSearch] = useState("");
 
@@ -28,11 +29,8 @@ const GameSelectionStep = ({
     }
 
     return games.filter((game) => {
-      const title =
-        game.title?.toLowerCase() ?? "";
-
-      const category =
-        game.category?.toLowerCase() ?? "";
+      const title = game.title?.toLowerCase() ?? "";
+      const category = game.category?.toLowerCase() ?? "";
 
       return (
         title.includes(query) ||
@@ -65,8 +63,7 @@ const GameSelectionStep = ({
         </h2>
 
         <p className="mt-1 text-sm text-muted-foreground">
-          Choose the games you want to include in
-          this assessment.
+          Choose the games you want to include in this assessment.
         </p>
       </div>
 
@@ -75,9 +72,7 @@ const GameSelectionStep = ({
 
         <Input
           value={search}
-          onChange={(event) =>
-            setSearch(event.target.value)
-          }
+          onChange={(event) => setSearch(event.target.value)}
           placeholder="Search games..."
           className="pl-9"
         />
@@ -89,18 +84,14 @@ const GameSelectionStep = ({
             <GameSelectionCard
               key={game.id}
               game={game}
-              selected={selectedIds.includes(
-                game.id
-              )}
+              selected={selectedIds.includes(game.id)}
               onToggle={handleToggle}
             />
           ))}
         </div>
       ) : (
         <div className="rounded-lg border border-dashed p-10 text-center">
-          <p className="font-medium">
-            No games found
-          </p>
+          <p className="font-medium">No games found</p>
 
           <p className="mt-1 text-sm text-muted-foreground">
             Try another search term.
@@ -108,12 +99,16 @@ const GameSelectionStep = ({
         </div>
       )}
 
+      {error && (
+        <p className="text-sm text-destructive font-medium">
+          {error}
+        </p>
+      )}
+
       <div className="flex items-center justify-between border-t pt-6">
         <p className="text-sm font-medium">
           {selectedIds.length}{" "}
-          {selectedIds.length === 1
-            ? "game"
-            : "games"}{" "}
+          {selectedIds.length === 1 ? "game" : "games"}{" "}
           selected
         </p>
 
@@ -129,7 +124,6 @@ const GameSelectionStep = ({
           <Button
             type="button"
             onClick={handleContinue}
-            disabled={selectedIds.length === 0}
           >
             Continue
           </Button>

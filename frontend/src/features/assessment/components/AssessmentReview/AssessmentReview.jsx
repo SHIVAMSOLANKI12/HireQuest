@@ -29,6 +29,7 @@ const AssessmentReview = ({
   isSubmitting = false,
   submitAction = null,
   error = null,
+  validationErrors = {},
 }) => {
   const selectedGames = games.filter((game) =>
     assessment.selectedGameIds.includes(game.id)
@@ -37,6 +38,8 @@ const AssessmentReview = ({
   const selectedQuestions = questions.filter((question) =>
     assessment.selectedQuestionIds.includes(question.id)
   );
+
+  const hasValidationErrors = Object.keys(validationErrors).length > 0;
 
   return (
     <div className="space-y-6">
@@ -50,6 +53,21 @@ const AssessmentReview = ({
           Review the assessment before saving or publishing it.
         </p>
       </div>
+
+      {/* Validation Error Summary */}
+      {hasValidationErrors && (
+        <div className="rounded-lg border border-destructive/50 bg-destructive/5 p-4">
+          <p className="font-medium text-destructive">
+            Assessment cannot be published.
+          </p>
+
+          <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-destructive">
+            {Object.values(validationErrors).map((message) => (
+              <li key={message}>{message}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Basic Details */}
       <Card>
@@ -257,7 +275,7 @@ const AssessmentReview = ({
         </CardContent>
       </Card>
 
-      {/* Error display */}
+      {/* API Error display */}
       {error && (
         <div className="rounded-lg border border-destructive/50 bg-destructive/5 p-4">
           <p className="text-sm text-destructive">

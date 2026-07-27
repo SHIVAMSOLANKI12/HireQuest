@@ -21,6 +21,7 @@ const QuestionSelectionStep = ({
   onSelectionChange,
   onBack,
   onContinue,
+  error,
 }) => {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
@@ -45,17 +46,13 @@ const QuestionSelectionStep = ({
     return questions.filter((question) => {
       const matchesSearch =
         !query ||
-        question.question
-          ?.toLowerCase()
-          .includes(query);
+        question.question?.toLowerCase().includes(query);
 
       const matchesCategory =
-        category === "all" ||
-        question.category === category;
+        category === "all" || question.category === category;
 
       const matchesDifficulty =
-        difficulty === "all" ||
-        question.difficulty === difficulty;
+        difficulty === "all" || question.difficulty === difficulty;
 
       return (
         matchesSearch &&
@@ -89,8 +86,7 @@ const QuestionSelectionStep = ({
         </h2>
 
         <p className="mt-1 text-sm text-muted-foreground">
-          Choose questions from your question bank
-          for this assessment.
+          Choose questions from your question bank for this assessment.
         </p>
       </div>
 
@@ -101,18 +97,13 @@ const QuestionSelectionStep = ({
 
           <Input
             value={search}
-            onChange={(event) =>
-              setSearch(event.target.value)
-            }
+            onChange={(event) => setSearch(event.target.value)}
             placeholder="Search questions..."
             className="pl-9"
           />
         </div>
 
-        <Select
-          value={category}
-          onValueChange={setCategory}
-        >
+        <Select value={category} onValueChange={setCategory}>
           <SelectTrigger>
             <SelectValue placeholder="Category" />
           </SelectTrigger>
@@ -130,10 +121,7 @@ const QuestionSelectionStep = ({
           </SelectContent>
         </Select>
 
-        <Select
-          value={difficulty}
-          onValueChange={setDifficulty}
-        >
+        <Select value={difficulty} onValueChange={setDifficulty}>
           <SelectTrigger>
             <SelectValue placeholder="Difficulty" />
           </SelectTrigger>
@@ -172,6 +160,12 @@ const QuestionSelectionStep = ({
         </div>
       )}
 
+      {error && (
+        <p className="text-sm text-destructive font-medium">
+          {error}
+        </p>
+      )}
+
       {/* Footer */}
       <div className="flex flex-col gap-4 border-t pt-6 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm font-medium">
@@ -194,7 +188,6 @@ const QuestionSelectionStep = ({
           <Button
             type="button"
             onClick={handleContinue}
-            disabled={selectedIds.length === 0}
           >
             Continue
           </Button>

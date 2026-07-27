@@ -13,7 +13,7 @@ import {
   useCreateAssessment,
   useUpdateAssessment,
 } from "../../hooks";
-import { toAssessmentPayload } from "../../utils";
+import { toAssessmentPayload, validateAssessment } from "../../utils";
 
 import AssessmentStepper from "../AssessmentStepper";
 import AssessmentDetailsForm from "../AssessmentDetailsForm";
@@ -33,6 +33,13 @@ const AssessmentBuilder = ({
 }) => {
   const router = useRouter();
   const [submitAction, setSubmitAction] = useState(null);
+
+  const [selectionErrors, setSelectionErrors] = useState({
+    games: "",
+    questions: "",
+  });
+
+  const [finalValidationErrors, setFinalValidationErrors] = useState({});
 
   const isEditMode = mode === "edit";
 
@@ -59,20 +66,72 @@ const AssessmentBuilder = ({
     (question) => question.status === QUESTION_STATUS.ACTIVE
   );
 
-  // ── Handlers ──────────────────────────────────────────────────
+  const isSubmitting =
+    createAssessment.isPending || updateAssessmentMutation.isPending;
+
+  const submitError =
+    createAssessment.error || updateAssessmentMutation.error;
+
+  // ── Step Handlers ──────────────────────────────────────────────
 
   const handleDetailsContinue = (data) => {
     updateAssessment(data);
     nextStep();
   };
 
-  const handleGamesContinue = (selectedGameIds) => {
-    updateAssessment({ selectedGameIds });
+  const handleGameSelectionChange = (selectedIds) => {
+    updateAssessment({ selectedGameIds: selectedIds });
+
+    if (selectedIds.length > 0) {
+      setSelectionErrors((previous) => ({
+        ...previous,
+        games: "",
+      }));
+    }
+  };
+
+  const handleGamesContinue = () => {
+    if (assessment.selectedGameIds.length === 0) {
+      setSelectionErrors((previous) => ({
+        ...previous,
+        games: "Select at least one game to continue.",
+      }));
+      return;
+    }
+
+    setSelectionErrors((previous) => ({
+      ...previous,
+      games: "",
+    }));
+
     nextStep();
   };
 
-  const handleQuestionsContinue = (selectedQuestionIds) => {
-    updateAssessment({ selectedQuestionIds });
+  const handleQuestionSelectionChange = (selectedIds) => {
+    updateAssessment({ selectedQuestionIds: selectedIds });
+
+    if (selectedIds.length > 0) {
+      setSelectionErrors((previous) => ({
+        ...previous,
+        questions: "",
+      }));
+    }
+  };
+
+  const handleQuestionsContinue = () => {
+    if (assessment.selectedQuestionIds.length === 0) {
+      setSelectionErrors((previous) => ({
+        ...previous,
+        questions: "Select at least one question to continue.",
+      }));
+      return;
+    }
+
+    setSelectionErrors((previous) => ({
+      ...previous,
+      questions: "",
+    }));
+
     nextStep();
   };
 
@@ -82,6 +141,10 @@ const AssessmentBuilder = ({
   };
 
   const handleSubmitAssessment = (status, action) => {
+    if (isSubmitting) {
+      return;
+    }
+
     const payload = toAssessmentPayload(assessment, status);
     setSubmitAction(action);
 
@@ -118,14 +181,36 @@ const AssessmentBuilder = ({
   };
 
   const handlePublish = () => {
+    const validation = validateAssessment(assessment);
+    const errors = { ...validation.errors };
+
+    const hasInvalidGameSelection = assessment.selectedGameIds.some(
+      (id) => !games.some((game) => String(game.id) === String(id))
+    );
+
+    const hasInvalidQuestionSelection = assessment.selectedQuestionIds.some(
+      (id) =>
+        !questions.some((question) => String(question.id) === String(id))
+    );
+
+    if (hasInvalidGameSelection) {
+      errors.selectedGameIds =
+        "One or more selected games are no longer available.";
+    }
+
+    if (hasInvalidQuestionSelection) {
+      errors.selectedQuestionIds =
+        "One or more selected questions are no longer available.";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFinalValidationErrors(errors);
+      return;
+    }
+
+    setFinalValidationErrors({});
     handleSubmitAssessment(ASSESSMENT_STATUS.PUBLISHED, "publish");
   };
-
-  const isSubmitting =
-    createAssessment.isPending || updateAssessmentMutation.isPending;
-
-  const submitError =
-    createAssessment.error || updateAssessmentMutation.error;
 
   return (
     <div className="space-y-8">
@@ -161,11 +246,10 @@ const AssessmentBuilder = ({
         <GameSelectionStep
           games={games}
           selectedGameIds={assessment.selectedGameIds}
-          onSelectionChange={(ids) =>
-            updateAssessment({ selectedGameIds: ids })
-          }
+          onSelectionChange={handleGameSelectionChange}
           onBack={previousStep}
           onContinue={handleGamesContinue}
+          error={selectionErrors.games}
         />
       )}
 
@@ -191,11 +275,10 @@ const AssessmentBuilder = ({
         <QuestionSelectionStep
           questions={availableQuestions}
           selectedQuestionIds={assessment.selectedQuestionIds}
-          onSelectionChange={(ids) =>
-            updateAssessment({ selectedQuestionIds: ids })
-          }
+          onSelectionChange={handleQuestionSelectionChange}
           onBack={previousStep}
           onContinue={handleQuestionsContinue}
+          error={selectionErrors.questions}
         />
       )}
 
@@ -221,6 +304,7 @@ const AssessmentBuilder = ({
           isSubmitting={isSubmitting}
           submitAction={submitAction}
           error={submitError}
+          validationErrors={finalValidationErrors}
         />
       )}
     </div>
