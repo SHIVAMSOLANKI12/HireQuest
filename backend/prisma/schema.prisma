@@ -1,5 +1,3 @@
-// Prisma schema file for HireQuest
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,18 +7,424 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+//
+// ENUMS
+//
+
 enum Role {
-  JOB_SEEKER
-  EMPLOYER
-  ADMIN
+  SUPER_ADMIN
+  HR
+  CANDIDATE
 }
 
+enum AssessmentStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+}
+
+enum InvitationStatus {
+  PENDING
+  SENT
+  OPENED
+  COMPLETED
+  EXPIRED
+}
+
+enum CandidateAssessmentStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  SUBMITTED
+}
+
+enum ResultStatus {
+  PASS
+  FAIL
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  PUBLISH
+  UNPUBLISH
+}
+
+enum AuditModule {
+  AUTH
+  USER
+  ASSESSMENT
+  GAME
+  QUESTION
+}
+
+enum QuestionType {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+}
+
+//
+// MODELS
+//
+
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  name      String
-  role      Role     @default(JOB_SEEKER)
+  id            String   @id @default(cuid())
+
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+
+  password      String
+
+  firstName     String
+  lastName      String
+
+  role          Role     @default(CANDIDATE)
+
+  isActive      Boolean  @default(true)
+
+  tokenVersion  Int      @default(0)
+
+  lastLoginAt   DateTime?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  deletedAt     DateTime?
+
+  refreshTokens RefreshToken[]
+  auditLogs     AuditLog[]
+  passwordResetTokens PasswordResetToken[]
+
+  assessments   Assessment[] @relation("UserAssessments")
+  candidateAssessments CandidateAssessment[]
+  invitationsSent Invitation[]
+
+  @@index([role])
+  @@index([isActive])
+}
+
+model RefreshToken {
+  id         String   @id @default(cuid())
+
+  token      String   @unique
+
+  expiresAt  DateTime
+
+  revokedAt  DateTime?
+
+  createdAt  DateTime @default(now())
+
+  userId     String
+
+  user       User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+
+  action      AuditAction
+
+  module      AuditModule
+
+  description String?
+
+  ipAddress   String?
+
+  userAgent   String?
+
+  createdAt   DateTime @default(now())
+
+  userId      String
+
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([action])
+  @@index([module])
+}
+
+model PasswordResetToken {
+  id          String   @id @default(cuid())
+  tokenHash   String   @unique
+  userId      String
+  expiresAt   DateTime
+  usedAt      DateTime?
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Assessment {
+  id              String   @id @default(cuid())
+
+  title           String
+  description     String?
+  instructions    String?
+
+  durationMinutes Int
+
+  passingScore    Int
+
+  maxAttempts     Int @default(1)
+
+  status          AssessmentStatus @default(DRAFT)
+
+  isActive        Boolean @default(true)
+
+  createdById     String
+
+  createdBy       User @relation("UserAssessments", fields: [createdById], references: [id], onDelete: Restrict)
+
+  games           AssessmentGame[]
+
+  questions       AssessmentQuestion[]
+
+  candidateAssessments CandidateAssessment[]
+
+  invitations     Invitation[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+
+  @@index([createdById])
+  @@index([status])
+  @@index([isActive])
+}
+
+model Game {
+  id          String   @id @default(cuid())
+
+  name        String
+
+  code        String   @unique
+
+  description String?
+
+  isActive    Boolean  @default(true)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+
+  assessments AssessmentGame[]
+  results     GameResult[]
+
+  @@index([isActive])
+}
+
+model Question {
+  id            String   @id @default(cuid())
+
+  question      String
+
+  type          QuestionType @default(SINGLE_CHOICE)
+
+  marks         Int @default(1)
+
+  isActive      Boolean @default(true)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  deletedAt     DateTime?
+
+  options       QuestionOption[]
+  assessments   AssessmentQuestion[]
+  candidateAnswers CandidateAnswer[]
+
+  @@index([type])
+  @@index([isActive])
+}
+
+model QuestionOption {
+  id          String   @id @default(cuid())
+
+  questionId  String
+
+  optionText  String
+
+  isCorrect   Boolean  @default(false)
+
+  sequence    Int?
+
+  createdAt   DateTime @default(now())
+
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+}
+
+model AssessmentGame {
+  id           String   @id @default(cuid())
+
+  assessmentId String
+  gameId       String
+
+  sequence     Int
+
+  createdAt    DateTime @default(now())
+
+  assessment   Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  game         Game @relation(fields: [gameId], references: [id], onDelete: Restrict)
+
+  @@unique([assessmentId, gameId])
+
+  @@index([assessmentId])
+  @@index([gameId])
+}
+
+model AssessmentQuestion {
+  id           String   @id @default(cuid())
+
+  assessmentId String
+  questionId   String
+
+  sequence     Int
+
+  createdAt    DateTime @default(now())
+
+  assessment   Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  question     Question @relation(fields: [questionId], references: [id], onDelete: Restrict)
+
+  @@unique([assessmentId, questionId])
+
+  @@index([assessmentId])
+  @@index([questionId])
+}
+
+model CandidateAssessment {
+  id          String   @id @default(cuid())
+
+  candidateId String
+  assessmentId String
+
+  status CandidateAssessmentStatus @default(NOT_STARTED)
+
+  startedAt DateTime?
+  submittedAt DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  candidate  User       @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  assessment Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  answers     CandidateAnswer[]
+  result      AssessmentResult?
+  gameResults GameResult[]
+
+  @@unique([candidateId, assessmentId])
+
+  @@index([candidateId])
+  @@index([assessmentId])
+  @@index([status])
+}
+
+model CandidateAnswer {
+  id String @id @default(cuid())
+
+  candidateAssessmentId String
+
+  questionId String
+
+  answer String
+
+  isCorrect Boolean?
+
+  marksAwarded Int @default(0)
+
+  createdAt DateTime @default(now())
+
+  candidateAssessment CandidateAssessment @relation(fields: [candidateAssessmentId], references: [id], onDelete: Cascade)
+  question            Question            @relation(fields: [questionId], references: [id], onDelete: Restrict)
+
+  @@unique([candidateAssessmentId, questionId])
+
+  @@index([candidateAssessmentId])
+
+  @@index([questionId])
+}
+
+model AssessmentResult {
+  id String @id @default(cuid())
+
+  candidateAssessmentId String @unique
+
+  quizScore Int
+
+  totalScore Int
+
+  percentage Float
+
+  status ResultStatus
+
+  createdAt DateTime @default(now())
+
+  candidateAssessment CandidateAssessment @relation(fields: [candidateAssessmentId], references: [id], onDelete: Cascade)
+}
+
+model Invitation {
+  id           String   @id @default(cuid())
+
+  email        String
+
+  token        String   @unique
+
+  status       InvitationStatus @default(PENDING)
+
+  expiresAt    DateTime
+
+  sentAt       DateTime?
+
+  openedAt     DateTime?
+
+  acceptedAt   DateTime?
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  assessmentId String
+
+  invitedById  String
+
+  assessment   Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  invitedBy    User       @relation(fields: [invitedById], references: [id], onDelete: Restrict)
+
+  @@index([email])
+  @@index([token])
+  @@index([status])
+  @@index([assessmentId])
+}
+
+model GameResult {
+  id                    String @id @default(cuid())
+
+  candidateAssessmentId String
+
+  gameId                String
+
+  score                 Int
+
+  accuracy              Float?
+
+  completionTime        Int?
+
+  playedAt              DateTime @default(now())
+
+  candidateAssessment CandidateAssessment @relation(fields: [candidateAssessmentId], references: [id], onDelete: Cascade)
+  game                Game                @relation(fields: [gameId], references: [id], onDelete: Restrict)
+
+  @@unique([candidateAssessmentId, gameId])
+
+  @@index([candidateAssessmentId])
+  @@index([gameId])
 }

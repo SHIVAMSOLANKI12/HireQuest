@@ -1,41 +1,66 @@
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const morgan = require('morgan');
-const cookieParser = require('cookie-parser');
-const routes = require('./routes');
-const errorHandler = require('./middleware/errorHandler');
+const express = require("express");
+const cors = require("cors");
+
+const corsOptions = require("./config/cors");
+
+const securityMiddleware = require("./middleware/security.middleware");
+const requestId = require("./middleware/requestId.middleware");
+const requestLogger = require("./middleware/requestLogger.middleware");
+const { globalRateLimiter } = require("./middleware/rateLimit.middleware");
+const notFound = require("./middleware/notFound.middleware");
+const errorHandler = require("./middleware/error.middleware");
+
+
+const routes = require("./routes");
 
 const app = express();
 
-// Security HTTP headers
-app.use(helmet());
+/**
+ * Enable Trust Proxy for Reverse Proxies (Cloudflare/Nginx)
+ */
+app.set("trust proxy", true);
 
-// CORS configuration
-app.use(
-  cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
-    credentials: true,
-  })
-);
+/**
+ * Request ID
+ */
+app.use(requestId);
 
-// Request Logger
-if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
-}
+/**
+ * Request Logger
+ */
+app.use(requestLogger);
 
-// Body parsers
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+/**
+ * Global Rate Limiter
+ */
 
-// Static uploads directory
-app.use('/uploads', express.static('uploads'));
+app.use(globalRateLimiter);
 
-// Base API Routes
-app.use('/api/v1', routes);
+/**
+ * Security
+ */
+securityMiddleware(app);
 
-// Global Error Handler
+/**
+ * CORS
+ */
+app.use(cors(corsOptions));
+
+/**
+ * Routes
+ */
+app.use("/api/v1", routes);
+
+/**
+ * 404 Handler
+ */
+app.use(notFound);
+
+/**
+ * Global Error Handler
+ */
 app.use(errorHandler);
+
+
 
 module.exports = app;

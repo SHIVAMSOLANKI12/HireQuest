@@ -1,5 +1,24 @@
-// Logger configuration stub
-module.exports = {
-  info: (msg) => console.log(`[INFO] ${new Date().toISOString()}: ${msg}`),
-  error: (msg, err) => console.error(`[ERROR] ${new Date().toISOString()}: ${msg}`, err || ''),
-};
+const pino = require("pino");
+const env = require("./env");
+
+const logger = pino({
+  level: env.logger.level,
+
+  transport:
+    env.nodeEnv === "development"
+      ? {
+          target: "pino-pretty",
+          options: {
+            colorize: true,
+            translateTime: "SYS:standard",
+            ignore: "pid,hostname",
+          },
+        }
+      : undefined,
+
+  base: undefined,
+
+  timestamp: pino.stdTimeFunctions.isoTime,
+});
+
+module.exports = logger;
