@@ -64,22 +64,31 @@ export const createQuestion = async (questionData) => {
 
 export const updateQuestion = async (id, questionData) => {
   await delay(400);
-  const index = questions.findIndex((q) => q.id === Number(id) || q.id === id);
-  if (index !== -1) {
-    const formattedData = formatQuestionData(questionData);
-    questions[index] = {
-      ...questions[index],
-      ...formattedData,
-      updatedAt: new Date().toISOString(),
-    };
+  const index = questions.findIndex(
+    (question) => question.id === id || question.id === Number(id)
+  );
+
+  if (index === -1) {
     return {
-      success: true,
-      data: questions[index],
+      success: false,
+      error: "Question not found",
     };
   }
+
+  const formattedData = formatQuestionData(questionData);
+  const updatedQuestion = {
+    ...questions[index],
+    ...formattedData,
+    id: questions[index].id,
+    usedIn: questions[index].usedIn,
+    updatedAt: new Date().toISOString(),
+  };
+
+  questions[index] = updatedQuestion;
+
   return {
-    success: false,
-    error: "Question not found",
+    success: true,
+    data: updatedQuestion,
   };
 };
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -31,11 +32,16 @@ const QuestionForm = ({
   onSubmit,
   onCancel,
   isSubmitting = false,
+  submitLabel = "Save Question",
 }) => {
   const form = useForm({
     resolver: zodResolver(questionSchema),
     defaultValues,
   });
+
+  useEffect(() => {
+    form.reset(defaultValues);
+  }, [defaultValues, form]);
 
   const submitHandler = (data) => {
     onSubmit(data);
@@ -215,7 +221,7 @@ const QuestionForm = ({
             Cancel
           </Button>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Saving..." : "Save Question"}
+            {isSubmitting ? "Saving..." : submitLabel}
           </Button>
         </div>
       </form>
