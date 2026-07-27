@@ -9,3 +9,4 @@ export { default as CandidateImportPreview } from "./CandidateImportPreview";
 export { default as ImportCandidatesDialog } from "./ImportCandidatesDialog";
 export { default as CandidateBulkActions } from "./CandidateBulkActions";
 export { default as AssignAssessmentDialog } from "./AssignAssessmentDialog";
+export { default as CandidateAssessments } from "./CandidateAssessments";

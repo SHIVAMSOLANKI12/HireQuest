@@ -5,7 +5,11 @@ import { ArrowLeft } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-import { CandidateDetails, EditCandidateDialog } from "../components";
+import {
+  CandidateAssessments,
+  CandidateDetails,
+  EditCandidateDialog,
+} from "../components";
 import { useCandidateQuery } from "../hooks";
 
 const CandidateDetail = ({ candidateId }) => {
@@ -79,6 +83,8 @@ const CandidateDetail = ({ candidateId }) => {
       </div>
 
       <CandidateDetails candidate={candidate} />
+
+      <CandidateAssessments candidateId={candidate.id} />
     </div>
   );
 };

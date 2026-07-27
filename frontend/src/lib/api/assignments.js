@@ -1,3 +1,5 @@
+import { generateInvitationToken } from "@/features/candidate/utils";
+
 let assignments = [];
 
 const delay = (ms = 500) =>
@@ -7,6 +9,20 @@ export const getAssignments = async () => {
   await delay();
 
   return [...assignments];
+};
+
+export const getAssignmentByToken = async (token) => {
+  await delay();
+
+  const assignment = assignments.find(
+    (item) => item.invitationToken === token
+  );
+
+  if (!assignment) {
+    throw new Error("Invalid or expired invitation.");
+  }
+
+  return { ...assignment };
 };
 
 export const assignAssessment = async ({ assessmentId, candidateIds }) => {
@@ -40,7 +56,9 @@ export const assignAssessment = async ({ assessmentId, candidateIds }) => {
       assessmentId,
       status: "Assigned",
       assignedAt: now,
+      invitationToken: null,
       invitedAt: null,
+      startedAt: null,
       completedAt: null,
     };
 
@@ -49,4 +67,47 @@ export const assignAssessment = async ({ assessmentId, candidateIds }) => {
   });
 
   return createdAssignments;
+};
+
+export const sendInvitation = async (assignmentId) => {
+  await delay(700);
+
+  const index = assignments.findIndex(
+    (assignment) => String(assignment.id) === String(assignmentId)
+  );
+
+  if (index === -1) {
+    throw new Error("Assignment not found.");
+  }
+
+  const assignment = assignments[index];
+
+  if (assignment.status === "Completed") {
+    throw new Error("Completed assessment cannot be invited again.");
+  }
+
+  const invitationToken =
+    assignment.invitationToken || generateInvitationToken();
+
+  const updatedAssignment = {
+    ...assignment,
+    status: "Invited",
+    invitationToken,
+    invitedAt: new Date().toISOString(),
+  };
+
+  assignments[index] = updatedAssignment;
+
+  return { ...updatedAssignment };
+};
+
+export const sendBulkInvitations = async (assignmentIds) => {
+  const results = [];
+
+  for (const assignmentId of assignmentIds) {
+    const invitation = await sendInvitation(assignmentId);
+    results.push(invitation);
+  }
+
+  return results;
 };
