@@ -97,6 +97,17 @@ enum QuestionStatus {
   ARCHIVED
 }
 
+enum AttachmentType {
+  IMAGE
+  VIDEO
+  AUDIO
+  PDF
+  DOCUMENT
+  CODE
+  ZIP
+  OTHER
+}
+
 //
 // MODELS
 //
@@ -131,6 +142,11 @@ model User {
   assessments          Assessment[]          @relation("UserAssessments")
   candidateAssessments CandidateAssessment[]
   invitationsSent      Invitation[]
+
+  questionVersions  QuestionVersion[]
+  questionAuditLogs QuestionAuditLog[]
+  questionsCreated  Question[]         @relation("QuestionCreatedBy")
+  questionsUpdated  Question[]         @relation("QuestionUpdatedBy")
 
   @@index([role])
   @@index([isActive])
@@ -281,7 +297,25 @@ model Question {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
+  createdById String
+  updatedById String?
+
+  createdBy User  @relation("QuestionCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  updatedBy User? @relation("QuestionUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  categoryId String?
+
+  category QuestionCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
   options QuestionOption[]
+
+  tags QuestionTag[]
+
+  attachments QuestionAttachment[]
+
+  versions QuestionVersion[]
+
+  auditLogs QuestionAuditLog[]
 
   assessments AssessmentQuestion[]
 
@@ -290,6 +324,9 @@ model Question {
   @@index([type])
   @@index([difficulty])
   @@index([status])
+  @@index([categoryId])
+  @@index([createdById])
+  @@index([updatedById])
   @@index([isActive])
 }
 
@@ -313,6 +350,131 @@ model QuestionOption {
 
   @@unique([questionId, sequence])
   @@index([questionId])
+}
+
+model QuestionCategory {
+  id String @id @default(cuid())
+
+  name String @unique
+
+  description String?
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  questions Question[]
+
+  @@index([isActive])
+}
+
+model Tag {
+  id String @id @default(cuid())
+
+  name String @unique
+
+  description String?
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  questionTags QuestionTag[]
+
+  @@index([isActive])
+}
+
+model QuestionTag {
+  id String @id @default(cuid())
+
+  questionId String
+
+  tagId String
+
+  createdAt DateTime @default(now())
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  tag Tag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([questionId, tagId])
+  @@index([questionId])
+  @@index([tagId])
+}
+
+model QuestionAttachment {
+  id String @id @default(cuid())
+
+  questionId String
+
+  type AttachmentType
+
+  fileName String
+
+  originalName String
+
+  mimeType String
+
+  fileSize Int
+
+  fileUrl String
+
+  uploadedAt DateTime @default(now())
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+  @@index([type])
+}
+
+model QuestionVersion {
+  id String @id @default(cuid())
+
+  questionId String
+
+  version Int @default(1)
+
+  snapshot Json
+
+  createdById String
+
+  createdAt DateTime @default(now())
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  createdBy User @relation(fields: [createdById], references: [id], onDelete: Restrict)
+
+  @@unique([questionId, version])
+  @@index([questionId])
+  @@index([createdById])
+}
+
+model QuestionAuditLog {
+  id String @id @default(cuid())
+
+  questionId String
+
+  userId String
+
+  action AuditAction
+
+  oldValue Json?
+
+  newValue Json?
+
+  description String?
+
+  createdAt DateTime @default(now())
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([questionId])
+  @@index([userId])
+  @@index([action])
 }
 
 model AssessmentGame {
@@ -391,7 +553,7 @@ model CandidateAnswer {
 
   questionId String
 
-  answer String
+  answer Json
 
   isCorrect Boolean?
 
