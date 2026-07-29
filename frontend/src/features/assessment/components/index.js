@@ -23,3 +23,4 @@ export { default as AssessmentStatusBadge } from "./AssessmentStatusBadge";
 export { default as AssessmentCardActions } from "./AssessmentCardActions";
 export { default as AssessmentCardSkeleton } from "./AssessmentCardSkeleton";
 export { default as AssessmentDraftRecovery } from "./AssessmentDraftRecovery";
+export { default as AssessmentLanding } from "./AssessmentLanding";

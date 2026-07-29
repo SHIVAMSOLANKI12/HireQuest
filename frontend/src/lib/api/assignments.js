@@ -111,3 +111,33 @@ export const sendBulkInvitations = async (assignmentIds) => {
 
   return results;
 };
+
+export const markAssignmentInProgress = async (assignmentId) => {
+  await delay(200);
+
+  const index = assignments.findIndex(
+    (assignment) =>
+      String(assignment.id) === String(assignmentId)
+  );
+
+  if (index === -1) {
+    throw new Error("Assignment not found.");
+  }
+
+  const assignment = assignments[index];
+
+  if (assignment.status === "Completed") {
+    throw new Error(
+      "This assessment has already been completed."
+    );
+  }
+
+  assignments[index] = {
+    ...assignment,
+    status: "In Progress",
+    startedAt:
+      assignment.startedAt || new Date().toISOString(),
+  };
+
+  return { ...assignments[index] };
+};
