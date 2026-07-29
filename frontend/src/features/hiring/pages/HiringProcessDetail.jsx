@@ -1,17 +1,40 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+import {
   HiringPipeline,
+  NextRoundAction,
   PipelineCandidateTable,
   PipelineStats,
 } from "../components";
-import { useHiringProcess, usePipelineCandidates } from "../hooks";
-import { getPipelineStats } from "../utils";
+import {
+  useAdvanceHiringRound,
+  useHiringProcess,
+  usePipelineCandidates,
+} from "../hooks";
+import {
+  getActiveRound,
+  getEligibleCandidates,
+  getNextRound,
+  getPipelineStats,
+} from "../utils";
 
 const HiringProcessDetail = ({ hiringProcessId }) => {
+  const [isMoveDialogOpen, setIsMoveDialogOpen] = useState(false);
+
   const {
     data: process,
     isLoading: processLoading,
@@ -24,10 +47,53 @@ const HiringProcessDetail = ({ hiringProcessId }) => {
     isError: candidatesError,
   } = usePipelineCandidates(hiringProcessId);
 
+  const advanceRound = useAdvanceHiringRound();
+
+  const activeRound = useMemo(
+    () => getActiveRound(process?.rounds),
+    [process]
+  );
+
+  const nextRound = useMemo(
+    () =>
+      getNextRound({
+        rounds: process?.rounds ?? [],
+        currentRoundId: activeRound?.id,
+      }),
+    [process, activeRound]
+  );
+
+  const eligibleCandidates = useMemo(
+    () =>
+      getEligibleCandidates({
+        candidates,
+        roundId: activeRound?.id,
+      }),
+    [candidates, activeRound]
+  );
+
   const stats = useMemo(
     () => getPipelineStats({ process, candidates }),
     [process, candidates]
   );
+
+  const handleAdvanceRound = () => {
+    if (!activeRound || !nextRound || eligibleCandidates.length === 0) return;
+
+    advanceRound.mutate(
+      {
+        hiringProcessId,
+        currentRoundId: activeRound.id,
+        nextRoundId: nextRound.id,
+        candidateIds: eligibleCandidates.map((c) => c.candidateId),
+      },
+      {
+        onSuccess: () => {
+          setIsMoveDialogOpen(false);
+        },
+      }
+    );
+  };
 
   if (processLoading || candidatesLoading) {
     return (
@@ -78,6 +144,24 @@ const HiringProcessDetail = ({ hiringProcessId }) => {
         <HiringPipeline rounds={process.rounds} />
       </section>
 
+      {/* Next Round Action Banner */}
+      <NextRoundAction
+        currentRound={activeRound}
+        nextRound={nextRound}
+        candidateCount={eligibleCandidates.length}
+        onMove={() => setIsMoveDialogOpen(true)}
+        isMoving={advanceRound.isPending}
+      />
+
+      {advanceRound.isError && (
+        <div className="rounded-xl border border-destructive/50 bg-destructive/5 p-4">
+          <p className="text-sm font-medium text-destructive">
+            {advanceRound.error?.message ??
+              "Unable to move candidates to the next round."}
+          </p>
+        </div>
+      )}
+
       <PipelineStats stats={stats} />
 
       <section className="space-y-4">
@@ -95,6 +179,49 @@ const HiringProcessDetail = ({ hiringProcessId }) => {
           rounds={process.rounds}
         />
       </section>
+
+      {/* Confirmation Dialog */}
+      <AlertDialog
+        open={isMoveDialogOpen}
+        onOpenChange={setIsMoveDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Move candidates to {nextRound?.title}?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {eligibleCandidates.length}{" "}
+              {eligibleCandidates.length === 1
+                ? "shortlisted candidate"
+                : "shortlisted candidates"}{" "}
+              will enter {nextRound?.title}. Their history in {activeRound?.title} will be preserved.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={advanceRound.isPending}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(event) => {
+                event.preventDefault();
+                handleAdvanceRound();
+              }}
+              disabled={advanceRound.isPending}
+            >
+              {advanceRound.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Moving Candidates...
+                </>
+              ) : (
+                `Move ${eligibleCandidates.length} Candidates`
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

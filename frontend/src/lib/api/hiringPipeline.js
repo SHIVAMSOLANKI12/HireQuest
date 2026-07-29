@@ -16,6 +16,8 @@ const pipelineCandidates = [
         status: "Completed",
         resultId: "result-1",
         decision: "Shortlisted",
+        enteredAt: "2026-07-25T09:00:00.000Z",
+        completedAt: "2026-07-28T10:42:00.000Z",
       },
     ],
   },
@@ -36,6 +38,8 @@ const pipelineCandidates = [
         status: "Completed",
         resultId: "result-2",
         decision: "Shortlisted",
+        enteredAt: "2026-07-25T09:00:00.000Z",
+        completedAt: "2026-07-28T11:38:00.000Z",
       },
     ],
   },
@@ -56,6 +60,8 @@ const pipelineCandidates = [
         status: "Completed",
         resultId: "result-3",
         decision: "Pending",
+        enteredAt: "2026-07-25T09:00:00.000Z",
+        completedAt: "2026-07-28T12:45:00.000Z",
       },
     ],
   },
@@ -76,6 +82,8 @@ const pipelineCandidates = [
         status: "Completed",
         resultId: "result-4",
         decision: "Rejected",
+        enteredAt: "2026-07-25T09:00:00.000Z",
+        completedAt: "2026-07-28T14:50:00.000Z",
       },
     ],
   },
@@ -96,4 +104,89 @@ export const getPipelineCandidates = async (hiringProcessId) => {
     candidate: { ...item.candidate },
     rounds: item.rounds.map((round) => ({ ...round })),
   }));
+};
+
+export const moveCandidatesToRound = async ({
+  hiringProcessId,
+  candidateIds,
+  targetRoundId,
+}) => {
+  await delay(600);
+
+  if (!Array.isArray(candidateIds) || candidateIds.length === 0) {
+    throw new Error("Select at least one candidate.");
+  }
+
+  const processCandidates = pipelineCandidates.filter(
+    (item) => String(item.hiringProcessId) === String(hiringProcessId)
+  );
+
+  const selectedCandidates = candidateIds.map((candidateId) =>
+    processCandidates.find(
+      (item) => String(item.candidateId) === String(candidateId)
+    )
+  );
+
+  if (selectedCandidates.some((candidate) => !candidate)) {
+    throw new Error("One or more candidates were not found.");
+  }
+
+  const invalidCandidate = selectedCandidates.find((candidate) => {
+    const currentRound = candidate.rounds.find(
+      (round) => String(round.roundId) === String(candidate.currentRoundId)
+    );
+
+    return (
+      !currentRound ||
+      currentRound.status !== "Completed" ||
+      currentRound.decision !== "Shortlisted"
+    );
+  });
+
+  if (invalidCandidate) {
+    throw new Error(
+      "Only shortlisted candidates from a completed round can move forward."
+    );
+  }
+
+  const alreadyInRound = selectedCandidates.some((candidate) =>
+    candidate.rounds.some(
+      (round) => String(round.roundId) === String(targetRoundId)
+    )
+  );
+
+  if (alreadyInRound) {
+    throw new Error(
+      "One or more candidates are already in the target round."
+    );
+  }
+
+  const now = new Date().toISOString();
+
+  const updatedCandidates = selectedCandidates.map((candidate) => {
+    const index = pipelineCandidates.findIndex(
+      (item) => String(item.id) === String(candidate.id)
+    );
+
+    const assignmentId = `assignment-${Date.now()}-${candidate.candidateId}`;
+
+    const nextRound = {
+      roundId: targetRoundId,
+      status: "Invited",
+      assignmentId,
+      decision: "Pending",
+      enteredAt: now,
+      completedAt: null,
+    };
+
+    pipelineCandidates[index] = {
+      ...pipelineCandidates[index],
+      currentRoundId: targetRoundId,
+      rounds: [...pipelineCandidates[index].rounds, nextRound],
+    };
+
+    return { ...pipelineCandidates[index] };
+  });
+
+  return updatedCandidates;
 };

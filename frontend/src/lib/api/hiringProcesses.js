@@ -52,3 +52,44 @@ export const getHiringProcessById = async (hiringProcessId) => {
     rounds: process.rounds.map((round) => ({ ...round })),
   };
 };
+
+export const activateNextRound = async ({
+  hiringProcessId,
+  currentRoundId,
+  nextRoundId,
+}) => {
+  await delay(300);
+
+  const processIndex = hiringProcesses.findIndex(
+    (process) => String(process.id) === String(hiringProcessId)
+  );
+
+  if (processIndex === -1) {
+    throw new Error("Hiring process not found.");
+  }
+
+  const process = hiringProcesses[processIndex];
+
+  hiringProcesses[processIndex] = {
+    ...process,
+    rounds: process.rounds.map((round) => {
+      if (String(round.id) === String(currentRoundId)) {
+        return {
+          ...round,
+          status: "Completed",
+        };
+      }
+
+      if (String(round.id) === String(nextRoundId)) {
+        return {
+          ...round,
+          status: "Active",
+        };
+      }
+
+      return round;
+    }),
+  };
+
+  return { ...hiringProcesses[processIndex] };
+};
