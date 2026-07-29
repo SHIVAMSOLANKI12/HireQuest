@@ -2,6 +2,7 @@ import {
   getAttemptByAssignmentId,
   getAttemptById,
   getAttempts,
+  saveQuizResponse,
   startAttempt,
   updateAttemptProgress,
 } from "@/lib/api/attempts";
@@ -35,5 +36,14 @@ export const attemptService = {
 
   updateProgress: async ({ attemptId, currentSection }) => {
     return updateAttemptProgress({ attemptId, currentSection });
+  },
+
+  saveQuizResponse: async ({ attemptId, sectionId, questionId, optionId }) => {
+    return saveQuizResponse({
+      attemptId,
+      sectionId,
+      questionId,
+      optionId,
+    });
   },
 };

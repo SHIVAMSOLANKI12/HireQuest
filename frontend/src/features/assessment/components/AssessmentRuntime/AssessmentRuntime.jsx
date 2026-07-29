@@ -21,6 +21,7 @@ const AssessmentRuntime = ({ assessment, attempt, onReview }) => {
   const currentSection = sections[currentIndex];
   const isFirst = currentIndex === 0;
   const isLast = currentIndex === sections.length - 1;
+  const isQuiz = currentSection?.type === "quiz";
 
   const changeSection = (nextIndex) => {
     if (nextIndex < 0 || nextIndex >= sections.length) return;
@@ -34,6 +35,14 @@ const AssessmentRuntime = ({ assessment, attempt, onReview }) => {
   const handlePrevious = () => changeSection(currentIndex - 1);
 
   const handleNext = () => {
+    if (isLast) {
+      onReview?.();
+      return;
+    }
+    changeSection(currentIndex + 1);
+  };
+
+  const handleSectionComplete = () => {
     if (isLast) {
       onReview?.();
       return;
@@ -75,7 +84,11 @@ const AssessmentRuntime = ({ assessment, attempt, onReview }) => {
         </p>
 
         {/* Section content */}
-        <AssessmentSection section={currentSection} />
+        <AssessmentSection
+          section={currentSection}
+          attempt={attempt}
+          onSectionComplete={handleSectionComplete}
+        />
 
         {/* Error */}
         {updateProgress.isError && (
@@ -86,14 +99,16 @@ const AssessmentRuntime = ({ assessment, attempt, onReview }) => {
           </div>
         )}
 
-        {/* Navigation */}
-        <AssessmentNavigation
-          isFirst={isFirst}
-          isLast={isLast}
-          onPrevious={handlePrevious}
-          onNext={handleNext}
-          isUpdating={updateProgress.isPending}
-        />
+        {/* Navigation — QuizRenderer handles its own navigation */}
+        {!isQuiz && (
+          <AssessmentNavigation
+            isFirst={isFirst}
+            isLast={isLast}
+            onPrevious={handlePrevious}
+            onNext={handleNext}
+            isUpdating={updateProgress.isPending}
+          />
+        )}
       </main>
     </div>
   );

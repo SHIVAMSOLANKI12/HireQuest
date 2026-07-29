@@ -9,3 +9,5 @@ export { default as useInvitationQuery } from "./useInvitationQuery";
 export { default as useAttemptQuery } from "./useAttemptQuery";
 export { default as useAssignmentAttemptQuery } from "./useAssignmentAttemptQuery";
 export { default as useUpdateAttemptProgress } from "./useUpdateAttemptProgress";
+export { default as useSaveQuizResponse } from "./useSaveQuizResponse";
+
