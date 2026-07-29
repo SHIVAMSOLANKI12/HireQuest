@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import DecisionBadge from "../DecisionBadge";
 import ResultStatusBadge from "../ResultStatusBadge";
 
 const ResultsTable = ({ results, onViewResult }) => {
@@ -21,9 +22,11 @@ const ResultsTable = ({ results, onViewResult }) => {
         <table className="w-full">
           <thead className="border-b bg-muted/40 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             <tr>
+              <th className="px-5 py-3.5 text-left w-16">Rank</th>
               <th className="px-5 py-3.5 text-left">Candidate</th>
               <th className="px-5 py-3.5 text-left">Status</th>
               <th className="px-5 py-3.5 text-left">Score</th>
+              <th className="px-5 py-3.5 text-left">Decision</th>
               <th className="px-5 py-3.5 text-right">Action</th>
             </tr>
           </thead>
@@ -34,6 +37,10 @@ const ResultsTable = ({ results, onViewResult }) => {
                 key={result.id}
                 className="transition-colors hover:bg-muted/30"
               >
+                <td className="px-5 py-4 font-bold text-slate-700">
+                  {result.rank ? `#${result.rank}` : "—"}
+                </td>
+
                 <td className="px-5 py-4">
                   <p className="font-semibold text-slate-900">
                     {result.candidate.name}
@@ -49,6 +56,14 @@ const ResultsTable = ({ results, onViewResult }) => {
 
                 <td className="px-5 py-4 font-semibold text-slate-900">
                   {result.score != null ? `${result.score}%` : "—"}
+                </td>
+
+                <td className="px-5 py-4">
+                  {result.status === "Completed" ? (
+                    <DecisionBadge decision={result.decision ?? "Pending"} />
+                  ) : (
+                    <span className="text-muted-foreground text-xs">—</span>
+                  )}
                 </td>
 
                 <td className="px-5 py-4 text-right">

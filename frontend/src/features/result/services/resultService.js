@@ -2,6 +2,7 @@ import {
   getAssessmentResults,
   getAssessmentResultSummary,
   getResultById,
+  updateCandidateDecision,
 } from "@/lib/api/results";
 
 export const resultService = {
@@ -15,5 +16,9 @@ export const resultService = {
 
   getResultById: async ({ assessmentId, resultId }) => {
     return getResultById({ assessmentId, resultId });
+  },
+
+  updateDecision: async ({ resultId, decision }) => {
+    return updateCandidateDecision({ resultId, decision });
   },
 };

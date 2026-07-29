@@ -6,3 +6,5 @@ export { default as ScoreCard } from "./ScoreCard";
 export { default as ResultOverview } from "./ResultOverview";
 export { default as SectionBreakdown } from "./SectionBreakdown";
 export { default as ResultTimeline } from "./ResultTimeline";
+export { default as DecisionBadge } from "./DecisionBadge";
+export { default as CandidateDecision } from "./CandidateDecision";

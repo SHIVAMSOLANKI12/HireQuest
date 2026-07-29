@@ -13,12 +13,14 @@ import {
   useAssessmentResults,
   useAssessmentResultSummary,
 } from "../hooks";
+import { rankCandidateResults } from "../utils";
 
 const AssessmentResults = ({ assessmentId, assessmentTitle }) => {
   const router = useRouter();
 
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
+  const [decision, setDecision] = useState("all");
 
   const {
     data: results = [],
@@ -31,20 +33,26 @@ const AssessmentResults = ({ assessmentId, assessmentTitle }) => {
     isLoading: summaryLoading,
   } = useAssessmentResultSummary(assessmentId);
 
+  const rankedResults = useMemo(() => {
+    return rankCandidateResults(results);
+  }, [results]);
+
   const filteredResults = useMemo(() => {
     const query = search.trim().toLowerCase();
 
-    return results.filter((result) => {
+    return rankedResults.filter((result) => {
       const matchesSearch =
         !query ||
         result.candidate.name.toLowerCase().includes(query) ||
         result.candidate.email.toLowerCase().includes(query);
 
       const matchesStatus = status === "all" || result.status === status;
+      const matchesDecision =
+        decision === "all" || (result.decision ?? "Pending") === decision;
 
-      return matchesSearch && matchesStatus;
+      return matchesSearch && matchesStatus && matchesDecision;
     });
-  }, [results, search, status]);
+  }, [rankedResults, search, status, decision]);
 
   const handleViewResult = (result) => {
     router.push(`/assessments/${assessmentId}/results/${result.id}`);
@@ -84,7 +92,7 @@ const AssessmentResults = ({ assessmentId, assessmentTitle }) => {
           {assessmentTitle || "Assessment Results"}
         </h1>
         <p className="mt-1.5 text-sm text-muted-foreground">
-          Track candidate progress and completed assessment scores.
+          Track candidate progress, scores, rankings, and shortlisting decisions.
         </p>
       </div>
 
@@ -96,7 +104,7 @@ const AssessmentResults = ({ assessmentId, assessmentTitle }) => {
             Candidate Results
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            View candidate status and completed assessment scores.
+            View candidate rankings, assessment scores, and hiring decisions.
           </p>
         </div>
 
@@ -105,6 +113,8 @@ const AssessmentResults = ({ assessmentId, assessmentTitle }) => {
           onSearchChange={setSearch}
           status={status}
           onStatusChange={setStatus}
+          decision={decision}
+          onDecisionChange={setDecision}
         />
 
         <ResultsTable

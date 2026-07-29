@@ -6,13 +6,20 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import {
+  CandidateDecision,
   ResultOverview,
   ResultStatusBadge,
   ResultTimeline,
   SectionBreakdown,
 } from "../components";
 
-import { useResultDetail } from "../hooks";
+import {
+  CANDIDATE_DECISION,
+} from "../constants";
+import {
+  useResultDetail,
+  useUpdateCandidateDecision,
+} from "../hooks";
 
 const CandidateResult = ({ assessmentId, resultId }) => {
   const router = useRouter();
@@ -27,8 +34,24 @@ const CandidateResult = ({ assessmentId, resultId }) => {
     resultId,
   });
 
+  const updateDecision = useUpdateCandidateDecision();
+
   const handleBack = () => {
     router.push(`/assessments/${assessmentId}/results`);
+  };
+
+  const handleShortlist = () => {
+    updateDecision.mutate({
+      resultId: result.id,
+      decision: CANDIDATE_DECISION.SHORTLISTED,
+    });
+  };
+
+  const handleReject = () => {
+    updateDecision.mutate({
+      resultId: result.id,
+      decision: CANDIDATE_DECISION.REJECTED,
+    });
   };
 
   if (isLoading) {
@@ -97,6 +120,21 @@ const CandidateResult = ({ assessmentId, resultId }) => {
       </div>
 
       <ResultOverview result={result} />
+
+      <CandidateDecision
+        decision={result.decision ?? CANDIDATE_DECISION.PENDING}
+        onShortlist={handleShortlist}
+        onReject={handleReject}
+        isUpdating={updateDecision.isPending}
+      />
+
+      {updateDecision.isError && (
+        <div className="rounded-xl border border-destructive/50 bg-destructive/5 p-4">
+          <p className="text-sm font-medium text-destructive">
+            {updateDecision.error?.message ?? "Unable to update candidate decision."}
+          </p>
+        </div>
+      )}
 
       <section className="space-y-4">
         <div>

@@ -1,4 +1,4 @@
-import { CheckCircle2, Clock3, Mail, Users } from "lucide-react";
+import { CheckCircle2, Clock3, Mail, UserCheck, Users } from "lucide-react";
 
 const ResultSummary = ({ summary }) => {
   if (!summary) return null;
@@ -24,10 +24,15 @@ const ResultSummary = ({ summary }) => {
       value: summary.completed,
       icon: CheckCircle2,
     },
+    {
+      label: "Shortlisted",
+      value: summary.shortlisted ?? 0,
+      icon: UserCheck,
+    },
   ];
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
       {items.map(({ label, value, icon: Icon }) => (
         <div key={label} className="rounded-xl border bg-card p-5 shadow-sm">
           <div className="flex items-center justify-between">

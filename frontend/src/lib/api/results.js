@@ -14,9 +14,11 @@ const results = [
       title: "Frontend Developer Assessment",
     },
     status: "Completed",
-    score: 82,
+    score: 82.2,
     quizScore: 78,
     gameScore: 86,
+    decision: "Pending",
+    decisionAt: null,
     startedAt: "2026-07-28T10:00:00.000Z",
     submittedAt: "2026-07-28T10:42:00.000Z",
     sections: [
@@ -61,9 +63,11 @@ const results = [
       title: "Frontend Developer Assessment",
     },
     status: "Completed",
-    score: 91,
-    quizScore: 90,
-    gameScore: 92,
+    score: 94.5,
+    quizScore: 94,
+    gameScore: 95,
+    decision: "Shortlisted",
+    decisionAt: "2026-07-29T08:30:00.000Z",
     startedAt: "2026-07-28T11:00:00.000Z",
     submittedAt: "2026-07-28T11:38:00.000Z",
     sections: [
@@ -71,7 +75,7 @@ const results = [
         id: "quiz-js",
         type: "quiz",
         title: "JavaScript Quiz",
-        score: 90,
+        score: 94,
         correctAnswers: 9,
         totalQuestions: 10,
       },
@@ -79,15 +83,15 @@ const results = [
         id: "memory-game",
         type: "game",
         title: "Pattern Memory",
-        score: 92,
+        score: 95,
         gameScore: 490,
-        accuracy: 92,
+        accuracy: 95,
       },
       {
         id: "quiz-react",
         type: "quiz",
         title: "React & Web Core Quiz",
-        score: 90,
+        score: 94,
         correctAnswers: 9,
         totalQuestions: 10,
       },
@@ -107,18 +111,37 @@ const results = [
       id: "ass-001",
       title: "Frontend Developer Assessment",
     },
-    status: "In Progress",
-    score: null,
-    quizScore: null,
-    gameScore: null,
+    status: "Completed",
+    score: 79.8,
+    quizScore: 75,
+    gameScore: 83,
+    decision: "Pending",
+    decisionAt: null,
     startedAt: "2026-07-28T12:00:00.000Z",
-    submittedAt: null,
-    sections: [],
+    submittedAt: "2026-07-28T12:45:00.000Z",
+    sections: [
+      {
+        id: "quiz-js",
+        type: "quiz",
+        title: "JavaScript Quiz",
+        score: 75,
+        correctAnswers: 7,
+        totalQuestions: 10,
+      },
+      {
+        id: "memory-game",
+        type: "game",
+        title: "Pattern Memory",
+        score: 83,
+        gameScore: 410,
+        accuracy: 83,
+      },
+    ],
   },
   {
     id: "result-4",
     assessmentId: "ass-001",
-    attemptId: null,
+    attemptId: "attempt-4",
     candidateId: "cand-4",
     candidate: {
       id: "cand-4",
@@ -129,13 +152,32 @@ const results = [
       id: "ass-001",
       title: "Frontend Developer Assessment",
     },
-    status: "Invited",
-    score: null,
-    quizScore: null,
-    gameScore: null,
-    startedAt: null,
-    submittedAt: null,
-    sections: [],
+    status: "Completed",
+    score: 61.4,
+    quizScore: 60,
+    gameScore: 62,
+    decision: "Rejected",
+    decisionAt: "2026-07-29T09:15:00.000Z",
+    startedAt: "2026-07-28T14:00:00.000Z",
+    submittedAt: "2026-07-28T14:50:00.000Z",
+    sections: [
+      {
+        id: "quiz-js",
+        type: "quiz",
+        title: "JavaScript Quiz",
+        score: 60,
+        correctAnswers: 6,
+        totalQuestions: 10,
+      },
+      {
+        id: "memory-game",
+        type: "game",
+        title: "Pattern Memory",
+        score: 62,
+        gameScore: 300,
+        accuracy: 62,
+      },
+    ],
   },
 ];
 
@@ -164,12 +206,16 @@ export const getAssessmentResultSummary = async (assessmentId) => {
   const completed = assessmentResults.filter(
     (result) => result.status === "Completed"
   ).length;
+  const shortlisted = assessmentResults.filter(
+    (result) => result.decision === "Shortlisted"
+  ).length;
 
   return {
     candidates,
     invited: candidates,
     started: inProgress + completed,
     completed,
+    shortlisted,
   };
 };
 
@@ -191,4 +237,34 @@ export const getResultById = async ({ assessmentId, resultId }) => {
   }
 
   return { ...result };
+};
+
+export const updateCandidateDecision = async ({ resultId, decision }) => {
+  await delay(400);
+
+  const allowedDecisions = ["Pending", "Shortlisted", "Rejected"];
+
+  if (!allowedDecisions.includes(decision)) {
+    throw new Error("Invalid candidate decision.");
+  }
+
+  const index = results.findIndex(
+    (result) => String(result.id) === String(resultId)
+  );
+
+  if (index === -1) {
+    throw new Error("Candidate result not found.");
+  }
+
+  if (results[index].status !== "Completed") {
+    throw new Error("Only completed candidates can be reviewed.");
+  }
+
+  results[index] = {
+    ...results[index],
+    decision,
+    decisionAt: decision === "Pending" ? null : new Date().toISOString(),
+  };
+
+  return { ...results[index] };
 };
