@@ -1,17 +1,11 @@
-const prisma = require('../../config/database');
+const assessmentRepository = require("./repositories/assessment.repository");
 
-class AssessmentRepository {
-  async findAll() {
-    return [];
-  }
+/**
+ * ==========================================================
+ * Assessment Repository Facade
+ * ==========================================================
+ * Centralized export for Assessment Data Access Layer operations.
+ * ==========================================================
+ */
 
-  async findById(id) {
-    return null;
-  }
-
-  async create(data) {
-    return data;
-  }
-}
-
-module.exports = new AssessmentRepository();
+module.exports = assessmentRepository;
