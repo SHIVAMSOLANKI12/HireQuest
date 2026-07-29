@@ -1,4 +1,6 @@
 import { Badge } from "@/components/ui/badge";
+import { InvitationActions } from "@/features/assignment/components";
+import { getAssignmentPath } from "@/features/assignment/utils";
 
 const PipelineCandidateTable = ({ candidates = [], rounds = [] }) => {
   if (!candidates || candidates.length === 0) {
@@ -58,10 +60,14 @@ const PipelineCandidateTable = ({ candidates = [], rounds = [] }) => {
                     badgeVariant = "destructive";
                   }
 
+                  const invitationPath = candidateRound?.assignmentId
+                    ? getAssignmentPath(candidateRound.assignmentId)
+                    : null;
+
                   return (
                     <td key={round.id} className="px-5 py-4">
                       {candidateRound ? (
-                        <div className="flex flex-col gap-1 items-start">
+                        <div className="flex flex-col gap-1.5 items-start">
                           <span className="text-xs font-medium text-slate-700">
                             {candidateRound.status}
                           </span>
@@ -73,6 +79,12 @@ const PipelineCandidateTable = ({ candidates = [], rounds = [] }) => {
                               {candidateRound.decision}
                             </Badge>
                           )}
+                          {candidateRound.status === "Invited" &&
+                            invitationPath && (
+                              <div className="mt-1">
+                                <InvitationActions link={invitationPath} />
+                              </div>
+                            )}
                         </div>
                       ) : (
                         <span className="text-muted-foreground text-xs">—</span>

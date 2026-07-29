@@ -2,12 +2,15 @@ import { generateInvitationToken } from "@/features/candidate/utils";
 
 let assignments = [];
 
-const delay = (ms = 500) =>
+const delay = (ms = 400) =>
   new Promise((resolve) => setTimeout(resolve, ms));
+
+const createToken = () => {
+  return crypto.randomUUID();
+};
 
 export const getAssignments = async () => {
   await delay();
-
   return [...assignments];
 };
 
@@ -15,14 +18,146 @@ export const getAssignmentByToken = async (token) => {
   await delay();
 
   const assignment = assignments.find(
-    (item) => item.invitationToken === token
+    (item) => item.token === token || item.invitationToken === token
   );
 
   if (!assignment) {
-    throw new Error("Invalid or expired invitation.");
+    throw new Error("Assessment invitation is invalid or no longer available.");
   }
 
   return { ...assignment };
+};
+
+export const createAssignment = async ({
+  candidateId,
+  assessmentId,
+  hiringProcessId,
+  roundId,
+}) => {
+  await delay(300);
+
+  const existing = assignments.find(
+    (assignment) =>
+      String(assignment.candidateId) === String(candidateId) &&
+      String(assignment.roundId) === String(roundId) &&
+      String(assignment.hiringProcessId) === String(hiringProcessId)
+  );
+
+  if (existing) {
+    return { ...existing };
+  }
+
+  const now = new Date().toISOString();
+  const token = createToken();
+
+  const assignment = {
+    id: crypto.randomUUID(),
+    candidateId,
+    assessmentId,
+    hiringProcessId,
+    roundId,
+    status: "Invited",
+    token,
+    invitationToken: token,
+    invitedAt: now,
+    startedAt: null,
+    submittedAt: null,
+    completedAt: null,
+  };
+
+  assignments.push(assignment);
+  return { ...assignment };
+};
+
+export const createAssignments = async ({
+  candidates,
+  assessmentId,
+  hiringProcessId,
+  roundId,
+}) => {
+  if (!Array.isArray(candidates) || candidates.length === 0) {
+    throw new Error("Candidates are required.");
+  }
+
+  const created = [];
+
+  for (const candidate of candidates) {
+    const assignment = await createAssignment({
+      candidateId: candidate.candidateId,
+      assessmentId,
+      hiringProcessId,
+      roundId,
+    });
+
+    created.push(assignment);
+  }
+
+  return created;
+};
+
+export const startAssignment = async (token) => {
+  await delay(300);
+
+  const index = assignments.findIndex(
+    (item) => item.token === token || item.invitationToken === token
+  );
+
+  if (index === -1) {
+    throw new Error("Assessment invitation not found.");
+  }
+
+  const assignment = assignments[index];
+
+  if (assignment.status === "Completed") {
+    throw new Error("This assessment has already been completed.");
+  }
+
+  if (assignment.status === "Expired") {
+    throw new Error("This assessment invitation has expired.");
+  }
+
+  if (assignment.status === "Invited" || assignment.status === "Assigned") {
+    assignments[index] = {
+      ...assignment,
+      status: "In Progress",
+      startedAt: assignment.startedAt || new Date().toISOString(),
+    };
+  }
+
+  return { ...assignments[index] };
+};
+
+export const completeAssignment = async ({ assignmentId }) => {
+  await delay(300);
+
+  const index = assignments.findIndex(
+    (item) => String(item.id) === String(assignmentId)
+  );
+
+  if (index === -1) {
+    throw new Error("Assignment not found.");
+  }
+
+  assignments[index] = {
+    ...assignments[index],
+    status: "Completed",
+    completedAt: assignments[index].completedAt ?? new Date().toISOString(),
+    submittedAt: assignments[index].submittedAt ?? new Date().toISOString(),
+  };
+
+  return { ...assignments[index] };
+};
+
+export const getRoundAssignments = async ({ hiringProcessId, roundId }) => {
+  await delay(300);
+
+  return assignments
+    .filter(
+      (item) =>
+        String(item.hiringProcessId) === String(hiringProcessId) &&
+        String(item.roundId) === String(roundId)
+    )
+    .map((item) => ({ ...item }));
 };
 
 export const assignAssessment = async ({ assessmentId, candidateIds }) => {
@@ -46,17 +181,17 @@ export const assignAssessment = async ({ assessmentId, candidateIds }) => {
         String(assignment.assessmentId) === String(assessmentId)
     );
 
-    if (alreadyAssigned) {
-      return;
-    }
+    if (alreadyAssigned) return;
 
+    const token = createToken();
     const assignment = {
-      id: Date.now() + index,
+      id: crypto.randomUUID(),
       candidateId,
       assessmentId,
       status: "Assigned",
       assignedAt: now,
-      invitationToken: null,
+      token,
+      invitationToken: token,
       invitedAt: null,
       startedAt: null,
       completedAt: null,
@@ -87,28 +222,26 @@ export const sendInvitation = async (assignmentId) => {
   }
 
   const invitationToken =
-    assignment.invitationToken || generateInvitationToken();
+    assignment.token || assignment.invitationToken || generateInvitationToken();
 
   const updatedAssignment = {
     ...assignment,
     status: "Invited",
+    token: invitationToken,
     invitationToken,
     invitedAt: new Date().toISOString(),
   };
 
   assignments[index] = updatedAssignment;
-
   return { ...updatedAssignment };
 };
 
 export const sendBulkInvitations = async (assignmentIds) => {
   const results = [];
-
   for (const assignmentId of assignmentIds) {
     const invitation = await sendInvitation(assignmentId);
     results.push(invitation);
   }
-
   return results;
 };
 
@@ -116,8 +249,7 @@ export const markAssignmentInProgress = async (assignmentId) => {
   await delay(200);
 
   const index = assignments.findIndex(
-    (assignment) =>
-      String(assignment.id) === String(assignmentId)
+    (assignment) => String(assignment.id) === String(assignmentId)
   );
 
   if (index === -1) {
@@ -127,16 +259,13 @@ export const markAssignmentInProgress = async (assignmentId) => {
   const assignment = assignments[index];
 
   if (assignment.status === "Completed") {
-    throw new Error(
-      "This assessment has already been completed."
-    );
+    throw new Error("This assessment has already been completed.");
   }
 
   assignments[index] = {
     ...assignment,
     status: "In Progress",
-    startedAt:
-      assignment.startedAt || new Date().toISOString(),
+    startedAt: assignment.startedAt || new Date().toISOString(),
   };
 
   return { ...assignments[index] };
@@ -157,8 +286,8 @@ export const markAssignmentCompleted = async (assignmentId) => {
     ...assignments[index],
     status: "Completed",
     completedAt: assignments[index].completedAt ?? new Date().toISOString(),
+    submittedAt: assignments[index].submittedAt ?? new Date().toISOString(),
   };
 
   return { ...assignments[index] };
 };
-

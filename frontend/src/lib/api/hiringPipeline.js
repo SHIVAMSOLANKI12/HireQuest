@@ -168,12 +168,10 @@ export const moveCandidatesToRound = async ({
       (item) => String(item.id) === String(candidate.id)
     );
 
-    const assignmentId = `assignment-${Date.now()}-${candidate.candidateId}`;
-
     const nextRound = {
       roundId: targetRoundId,
       status: "Invited",
-      assignmentId,
+      assignmentId: null,
       decision: "Pending",
       enteredAt: now,
       completedAt: null,
@@ -189,4 +187,34 @@ export const moveCandidatesToRound = async ({
   });
 
   return updatedCandidates;
+};
+
+export const attachAssignmentToCandidateRound = async ({
+  hiringProcessId,
+  candidateId,
+  roundId,
+  assignmentId,
+}) => {
+  const candidateIndex = pipelineCandidates.findIndex(
+    (item) =>
+      String(item.hiringProcessId) === String(hiringProcessId) &&
+      String(item.candidateId) === String(candidateId)
+  );
+
+  if (candidateIndex === -1) {
+    throw new Error("Pipeline candidate not found.");
+  }
+
+  const candidate = pipelineCandidates[candidateIndex];
+
+  pipelineCandidates[candidateIndex] = {
+    ...candidate,
+    rounds: candidate.rounds.map((round) =>
+      String(round.roundId) === String(roundId)
+        ? { ...round, assignmentId }
+        : round
+    ),
+  };
+
+  return { ...pipelineCandidates[candidateIndex] };
 };
