@@ -64,7 +64,7 @@ const DEFAULT_SELECT = {
       question: {
         select: {
           id: true,
-          question: true,
+          title: true,
           type: true,
           options: {
             select: {

@@ -78,6 +78,23 @@ enum AuditModule {
 enum QuestionType {
   SINGLE_CHOICE
   MULTIPLE_CHOICE
+  TRUE_FALSE
+  SHORT_ANSWER
+  CODING
+  SQL
+  PUZZLE
+}
+
+enum QuestionDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum QuestionStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
 }
 
 //
@@ -234,23 +251,45 @@ model Game {
 model Question {
   id String @id @default(cuid())
 
-  question String
+  title String
 
-  type QuestionType @default(SINGLE_CHOICE)
+  description String?
+
+  explanation String?
+
+  type QuestionType
+
+  difficulty QuestionDifficulty @default(MEDIUM)
+
+  status QuestionStatus @default(DRAFT)
 
   marks Int @default(1)
 
+  negativeMarks Float @default(0)
+
+  estimatedTime Int?
+
+  shuffleOptions Boolean @default(true)
+
+  version Int @default(1)
+
   isActive Boolean @default(true)
+
+  publishedAt DateTime?
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  options          QuestionOption[]
-  assessments      AssessmentQuestion[]
+  options QuestionOption[]
+
+  assessments AssessmentQuestion[]
+
   candidateAnswers CandidateAnswer[]
 
   @@index([type])
+  @@index([difficulty])
+  @@index([status])
   @@index([isActive])
 }
 
@@ -263,12 +302,16 @@ model QuestionOption {
 
   isCorrect Boolean @default(false)
 
-  sequence Int?
+  sequence Int
+
+  explanation String?
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
+  @@unique([questionId, sequence])
   @@index([questionId])
 }
 
@@ -297,8 +340,9 @@ model AssessmentQuestion {
   assessmentId String
   questionId   String
 
-  sequence      Int
-  marks         Int   @default(1)
+  sequence Int
+  marks    Int @default(1)
+
   negativeMarks Float @default(0)
 
   createdAt DateTime @default(now())
@@ -309,6 +353,7 @@ model AssessmentQuestion {
   @@unique([assessmentId, questionId])
   @@index([assessmentId])
   @@index([questionId])
+  @@index([sequence])
 }
 
 model CandidateAssessment {
