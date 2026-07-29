@@ -141,3 +141,24 @@ export const markAssignmentInProgress = async (assignmentId) => {
 
   return { ...assignments[index] };
 };
+
+export const markAssignmentCompleted = async (assignmentId) => {
+  await delay(200);
+
+  const index = assignments.findIndex(
+    (assignment) => String(assignment.id) === String(assignmentId)
+  );
+
+  if (index === -1) {
+    throw new Error("Assignment not found.");
+  }
+
+  assignments[index] = {
+    ...assignments[index],
+    status: "Completed",
+    completedAt: assignments[index].completedAt ?? new Date().toISOString(),
+  };
+
+  return { ...assignments[index] };
+};
+

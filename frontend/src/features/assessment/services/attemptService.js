@@ -5,10 +5,14 @@ import {
   saveGameResult,
   saveQuizResponse,
   startAttempt,
+  submitAttempt,
   updateAttemptProgress,
 } from "@/lib/api/attempts";
 
-import { markAssignmentInProgress } from "@/lib/api/assignments";
+import {
+  markAssignmentCompleted,
+  markAssignmentInProgress,
+} from "@/lib/api/assignments";
 
 export const attemptService = {
   getAll: async () => {
@@ -54,5 +58,18 @@ export const attemptService = {
       sectionId,
       result,
     });
+  },
+
+  submit: async ({ attemptId, assessment }) => {
+    const attempt = await submitAttempt({
+      attemptId,
+      assessment,
+    });
+
+    if (attempt.assignmentId) {
+      await markAssignmentCompleted(attempt.assignmentId);
+    }
+
+    return attempt;
   },
 };

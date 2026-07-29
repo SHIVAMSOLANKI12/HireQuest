@@ -3,15 +3,22 @@
 import { useState } from "react";
 import { Loader2, AlertCircle } from "lucide-react";
 
-import { AssessmentReview, AssessmentRuntime } from "../components";
+import {
+  AssessmentCompleted,
+  AssessmentReview,
+  AssessmentRuntime,
+  SubmitAssessmentDialog,
+} from "../components";
 import {
   useAttemptQuery,
   useAssessmentQuery,
+  useSubmitAttempt,
   useUpdateAttemptProgress,
 } from "../hooks";
 
 const AssessmentAttempt = ({ attemptId }) => {
   const [isReviewing, setIsReviewing] = useState(false);
+  const [submitDialogOpen, setSubmitDialogOpen] = useState(false);
 
   const {
     data: attempt,
@@ -26,6 +33,7 @@ const AssessmentAttempt = ({ attemptId }) => {
   } = useAssessmentQuery(attempt?.assessmentId);
 
   const updateProgress = useUpdateAttemptProgress();
+  const submitAttempt = useSubmitAttempt();
 
   const handleReviewSection = (sectionIndex) => {
     updateProgress.mutate(
@@ -36,6 +44,20 @@ const AssessmentAttempt = ({ attemptId }) => {
       {
         onSuccess: () => {
           setIsReviewing(false);
+        },
+      }
+    );
+  };
+
+  const handleSubmit = () => {
+    submitAttempt.mutate(
+      {
+        attemptId: attempt.id,
+        assessment,
+      },
+      {
+        onSuccess: () => {
+          setSubmitDialogOpen(false);
         },
       }
     );
@@ -70,18 +92,33 @@ const AssessmentAttempt = ({ attemptId }) => {
     );
   }
 
+  // ── Completed State ──────────────────────────────────────
+  if (attempt.status === "Completed") {
+    return (
+      <AssessmentCompleted assessment={assessment} attempt={attempt} />
+    );
+  }
+
   // ── Review Mode ──────────────────────────────────────────
   if (isReviewing) {
     return (
-      <AssessmentReview
-        assessment={assessment}
-        attempt={attempt}
-        onBack={() => setIsReviewing(false)}
-        onReviewSection={handleReviewSection}
-        onSubmit={() => {
-          console.log("Submit assessment — attempt:", attempt.id);
-        }}
-      />
+      <>
+        <AssessmentReview
+          assessment={assessment}
+          attempt={attempt}
+          onBack={() => setIsReviewing(false)}
+          onReviewSection={handleReviewSection}
+          onSubmit={() => setSubmitDialogOpen(true)}
+          submitError={submitAttempt.error}
+        />
+
+        <SubmitAssessmentDialog
+          open={submitDialogOpen}
+          onOpenChange={setSubmitDialogOpen}
+          onConfirm={handleSubmit}
+          isSubmitting={submitAttempt.isPending}
+        />
+      </>
     );
   }
 

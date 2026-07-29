@@ -11,5 +11,7 @@ export { default as useAssignmentAttemptQuery } from "./useAssignmentAttemptQuer
 export { default as useUpdateAttemptProgress } from "./useUpdateAttemptProgress";
 export { default as useSaveQuizResponse } from "./useSaveQuizResponse";
 export { default as useSaveGameResult } from "./useSaveGameResult";
+export { default as useSubmitAttempt } from "./useSubmitAttempt";
+
 
 

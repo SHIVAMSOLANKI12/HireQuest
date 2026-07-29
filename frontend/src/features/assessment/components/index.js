@@ -31,4 +31,7 @@ export { default as AssessmentSection } from "./AssessmentSection";
 export { default as AssessmentNavigation } from "./AssessmentNavigation";
 export { default as QuizRenderer } from "./QuizRenderer";
 export { default as GameRuntime } from "./GameRuntime";
+export { default as SubmitAssessmentDialog } from "./SubmitAssessmentDialog";
+export { default as AssessmentCompleted } from "./AssessmentCompleted";
+
 

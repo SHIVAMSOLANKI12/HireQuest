@@ -19,6 +19,7 @@ const AssessmentReview = ({
   onBack,
   onReviewSection,
   onSubmit,
+  submitError,
 }) => {
   const review = getAssessmentReview({
     assessment,
@@ -97,6 +98,18 @@ const AssessmentReview = ({
                 still incomplete.
               </p>
             </div>
+          </div>
+        )}
+
+        {/* Submission Error Banner */}
+        {submitError && (
+          <div className="rounded-xl border border-destructive/50 bg-destructive/5 p-4">
+            <p className="font-medium text-destructive">
+              Unable to submit assessment
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {submitError.message || "Please try again."}
+            </p>
           </div>
         )}
 

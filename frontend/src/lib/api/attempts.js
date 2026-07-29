@@ -176,4 +176,69 @@ export const saveGameResult = async ({
   return { ...attempts[index] };
 };
 
+const isAttemptComplete = ({ assessment, attempt }) => {
+  const sections =
+    assessment?.sections ?? [
+      ...(assessment?.games ?? []),
+      ...(assessment?.quizzes ?? []),
+    ];
 
+  // Fallback: if empty arrays, check if default sample sections are used
+  if (sections.length === 0) {
+    // If no sections in object, return true if attempt has responses or gameResults
+    const hasAnyResponse =
+      Object.keys(attempt?.responses ?? {}).length > 0 ||
+      Object.keys(attempt?.gameResults ?? {}).length > 0;
+    return hasAnyResponse;
+  }
+
+  return sections.every((section) => {
+    if (section.type === "quiz") {
+      const questions = section.questions ?? [];
+      if (questions.length === 0) return true;
+
+      const responses = attempt?.responses?.[section.id] ?? {};
+      return questions.every((q) => responses[q.id] != null);
+    }
+
+    if (section.type === "game") {
+      return Boolean(attempt?.gameResults?.[section.id]);
+    }
+
+    return false;
+  });
+};
+
+export const submitAttempt = async ({ attemptId, assessment }) => {
+  await delay(700);
+
+  const index = attempts.findIndex(
+    (attempt) => String(attempt.id) === String(attemptId)
+  );
+
+  if (index === -1) {
+    throw new Error("Assessment attempt not found.");
+  }
+
+  const attempt = attempts[index];
+
+  if (attempt.status === "Completed") {
+    return { ...attempt };
+  }
+
+  if (attempt.status !== "In Progress") {
+    throw new Error("This assessment cannot be submitted.");
+  }
+
+  if (!isAttemptComplete({ assessment, attempt })) {
+    throw new Error("Complete all required sections before submitting.");
+  }
+
+  attempts[index] = {
+    ...attempt,
+    status: "Completed",
+    submittedAt: new Date().toISOString(),
+  };
+
+  return { ...attempts[index] };
+};
