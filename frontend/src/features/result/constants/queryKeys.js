@@ -13,4 +13,12 @@ export const RESULT_QUERY_KEYS = {
     String(assessmentId),
     "summary",
   ],
+
+  detail: (assessmentId, resultId) => [
+    "results",
+    "assessment",
+    String(assessmentId),
+    "detail",
+    String(resultId),
+  ],
 };
