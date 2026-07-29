@@ -7,3 +7,8 @@ export * from "./getAssessmentStats";
 export * from "./getRecentAssessments";
 export * from "./getAssessmentSummary";
 export * from "./buildRuntimeSections";
+export * from "./getQuizCompletion";
+export * from "./getGameCompletion";
+export * from "./getSectionCompletion";
+export * from "./getAssessmentReview";
+

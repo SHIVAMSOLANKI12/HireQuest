@@ -1,23 +1,45 @@
 "use client";
 
+import { useState } from "react";
 import { Loader2, AlertCircle } from "lucide-react";
 
-import { AssessmentRuntime } from "../components";
-import { useAttemptQuery, useAssessmentQuery } from "../hooks";
+import { AssessmentReview, AssessmentRuntime } from "../components";
+import {
+  useAttemptQuery,
+  useAssessmentQuery,
+  useUpdateAttemptProgress,
+} from "../hooks";
 
 const AssessmentAttempt = ({ attemptId }) => {
+  const [isReviewing, setIsReviewing] = useState(false);
+
   const {
     data: attempt,
     isLoading: attemptLoading,
     isError: attemptError,
   } = useAttemptQuery(attemptId);
 
-  // assessmentId only available once attempt loads
   const {
     data: assessment,
     isLoading: assessmentLoading,
     isError: assessmentError,
   } = useAssessmentQuery(attempt?.assessmentId);
+
+  const updateProgress = useUpdateAttemptProgress();
+
+  const handleReviewSection = (sectionIndex) => {
+    updateProgress.mutate(
+      {
+        attemptId: attempt.id,
+        currentSection: sectionIndex,
+      },
+      {
+        onSuccess: () => {
+          setIsReviewing(false);
+        },
+      }
+    );
+  };
 
   // ── Loading ──────────────────────────────────────────────
   if (attemptLoading || assessmentLoading) {
@@ -48,15 +70,27 @@ const AssessmentAttempt = ({ attemptId }) => {
     );
   }
 
+  // ── Review Mode ──────────────────────────────────────────
+  if (isReviewing) {
+    return (
+      <AssessmentReview
+        assessment={assessment}
+        attempt={attempt}
+        onBack={() => setIsReviewing(false)}
+        onReviewSection={handleReviewSection}
+        onSubmit={() => {
+          console.log("Submit assessment — attempt:", attempt.id);
+        }}
+      />
+    );
+  }
+
   // ── Runtime Engine ───────────────────────────────────────
   return (
     <AssessmentRuntime
       assessment={assessment}
       attempt={attempt}
-      onReview={() => {
-        // Sprint 8.11: navigate to review/submit screen
-        console.log("Open review — attempt:", attempt.id);
-      }}
+      onReview={() => setIsReviewing(true)}
     />
   );
 };
