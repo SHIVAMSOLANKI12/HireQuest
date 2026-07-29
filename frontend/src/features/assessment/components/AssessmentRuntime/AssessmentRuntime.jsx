@@ -21,7 +21,8 @@ const AssessmentRuntime = ({ assessment, attempt, onReview }) => {
   const currentSection = sections[currentIndex];
   const isFirst = currentIndex === 0;
   const isLast = currentIndex === sections.length - 1;
-  const isQuiz = currentSection?.type === "quiz";
+  const handlesOwnNavigation =
+    currentSection?.type === "quiz" || currentSection?.type === "game";
 
   const changeSection = (nextIndex) => {
     if (nextIndex < 0 || nextIndex >= sections.length) return;
@@ -99,8 +100,8 @@ const AssessmentRuntime = ({ assessment, attempt, onReview }) => {
           </div>
         )}
 
-        {/* Navigation — QuizRenderer handles its own navigation */}
-        {!isQuiz && (
+        {/* Navigation — Quiz and Game runtimes handle their own internal navigation */}
+        {!handlesOwnNavigation && (
           <AssessmentNavigation
             isFirst={isFirst}
             isLast={isLast}

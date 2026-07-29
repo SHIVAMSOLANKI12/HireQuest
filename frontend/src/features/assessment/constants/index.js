@@ -5,3 +5,5 @@ export * from "./queryKeys";
 export * from "./storageKeys";
 export * from "./attemptStatus";
 export * from "./attemptQueryKeys";
+export * from "./gameState";
+

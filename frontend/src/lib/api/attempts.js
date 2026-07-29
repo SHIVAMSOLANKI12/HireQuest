@@ -65,6 +65,7 @@ export const startAttempt = async ({
 
     currentSection: 0,
     responses: {},
+    gameResults: {},
     score: null,
   };
 
@@ -137,4 +138,42 @@ export const saveQuizResponse = async ({
 
   return { ...attempts[index] };
 };
+
+export const saveGameResult = async ({
+  attemptId,
+  sectionId,
+  result,
+}) => {
+  await delay(400);
+
+  const index = attempts.findIndex(
+    (attempt) => String(attempt.id) === String(attemptId)
+  );
+
+  if (index === -1) {
+    throw new Error("Assessment attempt not found.");
+  }
+
+  const attempt = attempts[index];
+
+  if (attempt.status !== "In Progress") {
+    throw new Error("This assessment attempt is not active.");
+  }
+
+  const currentGameResults = attempt.gameResults ?? {};
+
+  attempts[index] = {
+    ...attempt,
+    gameResults: {
+      ...currentGameResults,
+      [sectionId]: {
+        ...result,
+        completedAt: new Date().toISOString(),
+      },
+    },
+  };
+
+  return { ...attempts[index] };
+};
+
 

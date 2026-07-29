@@ -2,6 +2,7 @@ import {
   getAttemptByAssignmentId,
   getAttemptById,
   getAttempts,
+  saveGameResult,
   saveQuizResponse,
   startAttempt,
   updateAttemptProgress,
@@ -44,6 +45,14 @@ export const attemptService = {
       sectionId,
       questionId,
       optionId,
+    });
+  },
+
+  saveGameResult: async ({ attemptId, sectionId, result }) => {
+    return saveGameResult({
+      attemptId,
+      sectionId,
+      result,
     });
   },
 };

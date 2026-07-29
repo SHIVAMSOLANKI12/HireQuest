@@ -29,3 +29,6 @@ export { default as AssessmentRuntimeHeader } from "./AssessmentRuntimeHeader";
 export { default as AssessmentProgress } from "./AssessmentProgress";
 export { default as AssessmentSection } from "./AssessmentSection";
 export { default as AssessmentNavigation } from "./AssessmentNavigation";
+export { default as QuizRenderer } from "./QuizRenderer";
+export { default as GameRuntime } from "./GameRuntime";
+
