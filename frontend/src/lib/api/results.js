@@ -268,3 +268,50 @@ export const updateCandidateDecision = async ({ resultId, decision }) => {
 
   return { ...results[index] };
 };
+
+export const updateCandidateDecisions = async ({ resultIds, decision }) => {
+  await delay(600);
+
+  const allowedDecisions = ["Pending", "Shortlisted", "Rejected"];
+
+  if (!allowedDecisions.includes(decision)) {
+    throw new Error("Invalid candidate decision.");
+  }
+
+  if (!Array.isArray(resultIds) || resultIds.length === 0) {
+    throw new Error("Select at least one candidate.");
+  }
+
+  const uniqueIds = [...new Set(resultIds.map(String))];
+
+  const selectedResults = uniqueIds.map((id) =>
+    results.find((result) => String(result.id) === id)
+  );
+
+  if (selectedResults.some((result) => !result)) {
+    throw new Error("One or more candidate results were not found.");
+  }
+
+  if (selectedResults.some((result) => result.status !== "Completed")) {
+    throw new Error("Only completed candidates can be reviewed.");
+  }
+
+  const now = new Date().toISOString();
+
+  const updatedResults = selectedResults.map((result) => {
+    const index = results.findIndex(
+      (item) => String(item.id) === String(result.id)
+    );
+
+    results[index] = {
+      ...results[index],
+      decision,
+      decisionAt: decision === "Pending" ? null : now,
+    };
+
+    return { ...results[index] };
+  });
+
+  return updatedResults;
+};
+

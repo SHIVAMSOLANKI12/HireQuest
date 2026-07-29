@@ -5,13 +5,29 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+import {
+  BulkResultActions,
   ResultFilters,
   ResultSummary,
   ResultsTable,
 } from "../components";
 import {
+  CANDIDATE_DECISION,
+} from "../constants";
+import {
   useAssessmentResults,
   useAssessmentResultSummary,
+  useBulkCandidateDecision,
 } from "../hooks";
 import { rankCandidateResults } from "../utils";
 
@@ -21,6 +37,8 @@ const AssessmentResults = ({ assessmentId, assessmentTitle }) => {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [decision, setDecision] = useState("all");
+  const [selectedResultIds, setSelectedResultIds] = useState([]);
+  const [pendingBulkDecision, setPendingBulkDecision] = useState(null);
 
   const {
     data: results = [],
@@ -32,6 +50,8 @@ const AssessmentResults = ({ assessmentId, assessmentTitle }) => {
     data: summary,
     isLoading: summaryLoading,
   } = useAssessmentResultSummary(assessmentId);
+
+  const bulkDecision = useBulkCandidateDecision();
 
   const rankedResults = useMemo(() => {
     return rankCandidateResults(results);
@@ -53,6 +73,61 @@ const AssessmentResults = ({ assessmentId, assessmentTitle }) => {
       return matchesSearch && matchesStatus && matchesDecision;
     });
   }, [rankedResults, search, status, decision]);
+
+  const selectableResultIds = useMemo(() => {
+    return filteredResults
+      .filter((result) => result.status === "Completed")
+      .map((result) => result.id);
+  }, [filteredResults]);
+
+  const areAllSelected = useMemo(() => {
+    return (
+      selectableResultIds.length > 0 &&
+      selectableResultIds.every((id) => selectedResultIds.includes(id))
+    );
+  }, [selectableResultIds, selectedResultIds]);
+
+  const toggleResultSelection = (resultId) => {
+    setSelectedResultIds((current) =>
+      current.includes(resultId)
+        ? current.filter((id) => id !== resultId)
+        : [...current, resultId]
+    );
+  };
+
+  const handleToggleAll = () => {
+    if (areAllSelected) {
+      setSelectedResultIds((current) =>
+        current.filter((id) => !selectableResultIds.includes(id))
+      );
+      return;
+    }
+
+    setSelectedResultIds((current) => [
+      ...new Set([...current, ...selectableResultIds]),
+    ]);
+  };
+
+  const clearSelection = () => {
+    setSelectedResultIds([]);
+  };
+
+  const handleConfirmBulkDecision = () => {
+    if (!pendingBulkDecision || selectedResultIds.length === 0) return;
+
+    bulkDecision.mutate(
+      {
+        resultIds: selectedResultIds,
+        decision: pendingBulkDecision,
+      },
+      {
+        onSuccess: () => {
+          setPendingBulkDecision(null);
+          clearSelection();
+        },
+      }
+    );
+  };
 
   const handleViewResult = (result) => {
     router.push(`/assessments/${assessmentId}/results/${result.id}`);
@@ -117,11 +192,90 @@ const AssessmentResults = ({ assessmentId, assessmentTitle }) => {
           onDecisionChange={setDecision}
         />
 
+        <BulkResultActions
+          selectedCount={selectedResultIds.length}
+          onClear={clearSelection}
+          onShortlist={() =>
+            setPendingBulkDecision(CANDIDATE_DECISION.SHORTLISTED)
+          }
+          onReject={() =>
+            setPendingBulkDecision(CANDIDATE_DECISION.REJECTED)
+          }
+          isUpdating={bulkDecision.isPending}
+        />
+
+        {bulkDecision.isError && (
+          <div className="rounded-xl border border-destructive/50 bg-destructive/5 p-4">
+            <p className="text-sm font-medium text-destructive">
+              {bulkDecision.error?.message ?? "Unable to update candidate decisions."}
+            </p>
+          </div>
+        )}
+
         <ResultsTable
           results={filteredResults}
+          selectedResultIds={selectedResultIds}
+          onToggleSelection={toggleResultSelection}
+          onToggleAll={handleToggleAll}
+          areAllSelected={areAllSelected}
           onViewResult={handleViewResult}
         />
       </section>
+
+      {/* Bulk Action Confirmation Dialog */}
+      <AlertDialog
+        open={Boolean(pendingBulkDecision)}
+        onOpenChange={(open) => {
+          if (!open) setPendingBulkDecision(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {pendingBulkDecision === CANDIDATE_DECISION.SHORTLISTED
+                ? `Shortlist ${selectedResultIds.length} ${
+                    selectedResultIds.length === 1 ? "candidate" : "candidates"
+                  }?`
+                : `Reject ${selectedResultIds.length} ${
+                    selectedResultIds.length === 1 ? "candidate" : "candidates"
+                  }?`}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {pendingBulkDecision === CANDIDATE_DECISION.SHORTLISTED
+                ? `${selectedResultIds.length} selected ${
+                    selectedResultIds.length === 1 ? "candidate" : "candidates"
+                  } will be marked as Shortlisted.`
+                : `${selectedResultIds.length} selected ${
+                    selectedResultIds.length === 1 ? "candidate" : "candidates"
+                  } will be marked as Rejected.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={bulkDecision.isPending}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(event) => {
+                event.preventDefault();
+                handleConfirmBulkDecision();
+              }}
+              disabled={bulkDecision.isPending}
+            >
+              {bulkDecision.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Updating...
+                </>
+              ) : pendingBulkDecision === CANDIDATE_DECISION.SHORTLISTED ? (
+                "Shortlist Candidates"
+              ) : (
+                "Reject Candidates"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
