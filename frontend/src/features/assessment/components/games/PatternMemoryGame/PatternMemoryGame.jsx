@@ -19,11 +19,14 @@ const PatternMemoryGame = ({ onComplete }) => {
     const isCorrect = selectedPattern.join("-") === pattern.join("-");
 
     onComplete?.({
+      rawScore: isCorrect ? 100 : 0,
+      normalizedScore: isCorrect ? 100 : 0,
       score: isCorrect ? 100 : 0,
       accuracy: isCorrect ? 100 : 0,
       roundsCompleted: 1,
     });
   };
+
 
   if (phase === "memorize") {
     return (

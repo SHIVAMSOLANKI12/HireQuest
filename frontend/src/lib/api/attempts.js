@@ -1,3 +1,5 @@
+import { calculateAssessmentScore } from "@/lib/scoring";
+
 let attempts = [];
 
 const delay = (ms = 500) =>
@@ -234,11 +236,18 @@ export const submitAttempt = async ({ attemptId, assessment }) => {
     throw new Error("Complete all required sections before submitting.");
   }
 
+  const scoringResult = calculateAssessmentScore({ assessment, attempt });
+
   attempts[index] = {
     ...attempt,
     status: "Completed",
+    score: scoringResult.score,
+    quizScore: scoringResult.quizScore,
+    gameScore: scoringResult.gameScore,
+    sectionScores: scoringResult.sections,
     submittedAt: new Date().toISOString(),
   };
 
   return { ...attempts[index] };
 };
+
