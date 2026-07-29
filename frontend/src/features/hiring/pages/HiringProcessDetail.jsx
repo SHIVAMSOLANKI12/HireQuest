@@ -13,6 +13,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { RoundInvitations } from "@/features/assignment/components";
+import {
+  useResendInvitation,
+  useRoundAssignments,
+} from "@/features/assignment/hooks";
 
 import {
   HiringPipeline,
@@ -34,6 +39,7 @@ import {
 
 const HiringProcessDetail = ({ hiringProcessId }) => {
   const [isMoveDialogOpen, setIsMoveDialogOpen] = useState(false);
+  const [resendTarget, setResendTarget] = useState(null);
 
   const {
     data: process,
@@ -77,6 +83,16 @@ const HiringProcessDetail = ({ hiringProcessId }) => {
     [process, candidates]
   );
 
+  const { data: roundAssignments = [] } = useRoundAssignments({
+    hiringProcessId,
+    roundId: activeRound?.type === "assessment" ? activeRound.id : null,
+  });
+
+  const resendMutation = useResendInvitation({
+    hiringProcessId,
+    roundId: activeRound?.id,
+  });
+
   const handleAdvanceRound = () => {
     if (!activeRound || !nextRound || eligibleCandidates.length === 0) return;
 
@@ -84,7 +100,7 @@ const HiringProcessDetail = ({ hiringProcessId }) => {
       {
         hiringProcessId,
         currentRoundId: activeRound.id,
-        nextRoundId: nextRound.id,
+        nextRound: nextRound,
         candidateIds: eligibleCandidates.map((c) => c.candidateId),
       },
       {
@@ -93,6 +109,16 @@ const HiringProcessDetail = ({ hiringProcessId }) => {
         },
       }
     );
+  };
+
+  const handleConfirmResend = () => {
+    if (!resendTarget) return;
+
+    resendMutation.mutate(resendTarget.id, {
+      onSuccess: () => {
+        setResendTarget(null);
+      },
+    });
   };
 
   if (processLoading || candidatesLoading) {
@@ -164,10 +190,31 @@ const HiringProcessDetail = ({ hiringProcessId }) => {
 
       <PipelineStats stats={stats} />
 
+      {/* Active Assessment Round Invitations */}
+      {activeRound?.type === "assessment" && (
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-xl font-semibold text-slate-900">
+              Round Invitations ({activeRound.title})
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Manage candidate invitations, links, and expiry states for this round.
+            </p>
+          </div>
+
+          <RoundInvitations
+            assignments={roundAssignments}
+            candidates={candidates}
+            onResend={(assignment) => setResendTarget(assignment)}
+            resendingId={resendMutation.isPending ? resendTarget?.id : null}
+          />
+        </section>
+      )}
+
       <section className="space-y-4">
         <div>
           <h2 className="text-xl font-semibold text-slate-900">
-            Candidate Pipeline
+            Candidate Pipeline Matrix
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Track candidate progress across recruitment rounds.
@@ -180,7 +227,7 @@ const HiringProcessDetail = ({ hiringProcessId }) => {
         />
       </section>
 
-      {/* Confirmation Dialog */}
+      {/* Move Confirmation Dialog */}
       <AlertDialog
         open={isMoveDialogOpen}
         onOpenChange={setIsMoveDialogOpen}
@@ -217,6 +264,45 @@ const HiringProcessDetail = ({ hiringProcessId }) => {
                 </>
               ) : (
                 `Move ${eligibleCandidates.length} Candidates`
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Resend Invitation Confirmation Dialog */}
+      <AlertDialog
+        open={Boolean(resendTarget)}
+        onOpenChange={(open) => {
+          if (!open) setResendTarget(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Resend Assessment Invitation?</AlertDialogTitle>
+            <AlertDialogDescription>
+              A new assessment link will be generated. The candidate&apos;s previous invitation link will stop working immediately.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={resendMutation.isPending}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(event) => {
+                event.preventDefault();
+                handleConfirmResend();
+              }}
+              disabled={resendMutation.isPending}
+            >
+              {resendMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Regenerating Link...
+                </>
+              ) : (
+                "Resend Invitation"
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

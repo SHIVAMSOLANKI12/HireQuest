@@ -15,7 +15,7 @@ export const getAssignments = async () => {
 };
 
 export const getAssignmentByToken = async (token) => {
-  await delay();
+  await delay(300);
 
   const assignment = assignments.find(
     (item) => item.token === token || item.invitationToken === token
@@ -25,7 +25,15 @@ export const getAssignmentByToken = async (token) => {
     throw new Error("Assessment invitation is invalid or no longer available.");
   }
 
-  return { ...assignment };
+  const expired =
+    assignment.status === "Invited" &&
+    assignment.expiresAt &&
+    new Date(assignment.expiresAt).getTime() <= Date.now();
+
+  return {
+    ...assignment,
+    isExpired: Boolean(expired),
+  };
 };
 
 export const createAssignment = async ({
@@ -47,7 +55,8 @@ export const createAssignment = async ({
     return { ...existing };
   }
 
-  const now = new Date().toISOString();
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
   const token = createToken();
 
   const assignment = {
@@ -59,10 +68,13 @@ export const createAssignment = async ({
     status: "Invited",
     token,
     invitationToken: token,
-    invitedAt: now,
+    invitedAt: now.toISOString(),
+    expiresAt: expiresAt.toISOString(),
     startedAt: null,
     submittedAt: null,
     completedAt: null,
+    resendCount: 0,
+    lastResentAt: null,
   };
 
   assignments.push(assignment);
@@ -112,7 +124,12 @@ export const startAssignment = async (token) => {
     throw new Error("This assessment has already been completed.");
   }
 
-  if (assignment.status === "Expired") {
+  const expired =
+    assignment.status === "Invited" &&
+    assignment.expiresAt &&
+    new Date(assignment.expiresAt).getTime() <= Date.now();
+
+  if (expired) {
     throw new Error("This assessment invitation has expired.");
   }
 
@@ -148,6 +165,45 @@ export const completeAssignment = async ({ assignmentId }) => {
   return { ...assignments[index] };
 };
 
+export const resendAssignmentInvitation = async (assignmentId) => {
+  await delay(500);
+
+  const index = assignments.findIndex(
+    (assignment) => String(assignment.id) === String(assignmentId)
+  );
+
+  if (index === -1) {
+    throw new Error("Assignment not found.");
+  }
+
+  const assignment = assignments[index];
+
+  if (assignment.status === "Completed") {
+    throw new Error("Completed assessments cannot be resent.");
+  }
+
+  if (assignment.status === "In Progress") {
+    throw new Error("An assessment already in progress cannot be resent.");
+  }
+
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+  const newToken = createToken();
+
+  assignments[index] = {
+    ...assignment,
+    status: "Invited",
+    token: newToken,
+    invitationToken: newToken,
+    invitedAt: now.toISOString(),
+    expiresAt: expiresAt.toISOString(),
+    resendCount: (assignment.resendCount ?? 0) + 1,
+    lastResentAt: now.toISOString(),
+  };
+
+  return { ...assignments[index] };
+};
+
 export const getRoundAssignments = async ({ hiringProcessId, roundId }) => {
   await delay(300);
 
@@ -171,7 +227,8 @@ export const assignAssessment = async ({ assessmentId, candidateIds }) => {
     throw new Error("Select at least one candidate.");
   }
 
-  const now = new Date().toISOString();
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
   const createdAssignments = [];
 
   candidateIds.forEach((candidateId, index) => {
@@ -189,12 +246,15 @@ export const assignAssessment = async ({ assessmentId, candidateIds }) => {
       candidateId,
       assessmentId,
       status: "Assigned",
-      assignedAt: now,
+      assignedAt: now.toISOString(),
       token,
       invitationToken: token,
       invitedAt: null,
+      expiresAt: expiresAt.toISOString(),
       startedAt: null,
       completedAt: null,
+      resendCount: 0,
+      lastResentAt: null,
     };
 
     assignments.push(assignment);
@@ -224,12 +284,16 @@ export const sendInvitation = async (assignmentId) => {
   const invitationToken =
     assignment.token || assignment.invitationToken || generateInvitationToken();
 
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+
   const updatedAssignment = {
     ...assignment,
     status: "Invited",
     token: invitationToken,
     invitationToken,
-    invitedAt: new Date().toISOString(),
+    invitedAt: now.toISOString(),
+    expiresAt: expiresAt.toISOString(),
   };
 
   assignments[index] = updatedAssignment;
