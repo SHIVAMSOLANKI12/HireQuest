@@ -3,6 +3,7 @@ import {
   getAttemptById,
   getAttempts,
   startAttempt,
+  updateAttemptProgress,
 } from "@/lib/api/attempts";
 
 import { markAssignmentInProgress } from "@/lib/api/assignments";
@@ -30,5 +31,9 @@ export const attemptService = {
     await markAssignmentInProgress(assignmentId);
 
     return attempt;
+  },
+
+  updateProgress: async ({ attemptId, currentSection }) => {
+    return updateAttemptProgress({ attemptId, currentSection });
   },
 };

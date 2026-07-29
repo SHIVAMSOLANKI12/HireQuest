@@ -71,3 +71,29 @@ export const startAttempt = async ({
 
   return { ...attempt };
 };
+
+export const updateAttemptProgress = async ({
+  attemptId,
+  currentSection,
+}) => {
+  await delay(300);
+
+  const index = attempts.findIndex(
+    (attempt) => String(attempt.id) === String(attemptId)
+  );
+
+  if (index === -1) {
+    throw new Error("Assessment attempt not found.");
+  }
+
+  if (attempts[index].status !== "In Progress") {
+    throw new Error("This attempt is not active.");
+  }
+
+  attempts[index] = {
+    ...attempts[index],
+    currentSection,
+  };
+
+  return { ...attempts[index] };
+};
