@@ -51,7 +51,7 @@ const ReviewSectionItem = ({ item, onReview }) => {
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => onReview(index)}
+            onClick={() => onReview?.(index)}
           >
             Review
           </Button>
@@ -62,7 +62,7 @@ const ReviewSectionItem = ({ item, onReview }) => {
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => onReview(index)}
+            onClick={() => onReview?.(index)}
           >
             Complete
           </Button>
@@ -71,5 +71,6 @@ const ReviewSectionItem = ({ item, onReview }) => {
     </div>
   );
 };
+
 
 export default ReviewSectionItem;
