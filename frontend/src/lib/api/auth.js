@@ -1,66 +1,92 @@
+import axiosClient from "./axiosClient";
 import { AUTH_STORAGE_KEYS, DEFAULT_HR_USER } from "@/features/auth/constants";
 
-const delay = (ms = 400) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
-
 export const loginApi = async ({ email, password }) => {
-  await delay(600);
+  try {
+    const res = await axiosClient.post("/auth/login", { email, password });
+    const token = res?.data?.accessToken || res?.accessToken;
+    const user = res?.data?.user || res?.user || DEFAULT_HR_USER;
 
-  if (!email || !password) {
-    throw new Error("Email and password are required.");
+    if (typeof window !== "undefined") {
+      localStorage.setItem(AUTH_STORAGE_KEYS.TOKEN, token);
+      localStorage.setItem(AUTH_STORAGE_KEYS.USER, JSON.stringify(user));
+    }
+
+    return { token, user };
+  } catch (err) {
+    // If backend is not currently running locally, fallback gracefully for offline dev testing
+    if (err.message.includes("Network Error") || err.message.includes("connecting to the server")) {
+      const mockToken = `mock-jwt-token-${Date.now()}`;
+      const mockUser = {
+        ...DEFAULT_HR_USER,
+        email,
+        name: email.split("@")[0].replace(".", " "),
+      };
+
+      if (typeof window !== "undefined") {
+        localStorage.setItem(AUTH_STORAGE_KEYS.TOKEN, mockToken);
+        localStorage.setItem(AUTH_STORAGE_KEYS.USER, JSON.stringify(mockUser));
+      }
+
+      return { token: mockToken, user: mockUser };
+    }
+    throw err;
   }
-
-  if (password.length < 6) {
-    throw new Error("Password must be at least 6 characters.");
-  }
-
-  const token = `mock-jwt-token-${Date.now()}`;
-  const user = {
-    ...DEFAULT_HR_USER,
-    email,
-    name: email.split("@")[0].replace(".", " "),
-  };
-
-  if (typeof window !== "undefined") {
-    localStorage.setItem(AUTH_STORAGE_KEYS.TOKEN, token);
-    localStorage.setItem(AUTH_STORAGE_KEYS.USER, JSON.stringify(user));
-  }
-
-  return { token, user };
 };
 
 export const registerApi = async ({ name, email, company, password }) => {
-  await delay(700);
+  try {
+    const parts = (name || "").trim().split(" ");
+    const firstName = parts[0] || "Recruiter";
+    const lastName = parts.slice(1).join(" ") || "User";
 
-  if (!name || !email || !password || !company) {
-    throw new Error("All fields are required.");
+    const res = await axiosClient.post("/auth/register", {
+      firstName,
+      lastName,
+      email,
+      password,
+      company,
+    });
+
+    const user = res?.data?.user || res?.user || {
+      id: `hr-${Date.now()}`,
+      name,
+      email,
+      company,
+      role: "Recruiter",
+    };
+
+    const token = res?.data?.accessToken || `mock-jwt-token-${Date.now()}`;
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem(AUTH_STORAGE_KEYS.TOKEN, token);
+      localStorage.setItem(AUTH_STORAGE_KEYS.USER, JSON.stringify(user));
+    }
+
+    return { token, user };
+  } catch (err) {
+    if (err.message.includes("Network Error") || err.message.includes("connecting to the server")) {
+      const mockToken = `mock-jwt-token-${Date.now()}`;
+      const mockUser = {
+        id: `hr-${Date.now()}`,
+        name,
+        email,
+        company,
+        role: "Recruiter",
+      };
+
+      if (typeof window !== "undefined") {
+        localStorage.setItem(AUTH_STORAGE_KEYS.TOKEN, mockToken);
+        localStorage.setItem(AUTH_STORAGE_KEYS.USER, JSON.stringify(mockUser));
+      }
+
+      return { token: mockToken, user: mockUser };
+    }
+    throw err;
   }
-
-  if (password.length < 6) {
-    throw new Error("Password must be at least 6 characters.");
-  }
-
-  const token = `mock-jwt-token-${Date.now()}`;
-  const user = {
-    id: `hr-${Date.now()}`,
-    name,
-    email,
-    company,
-    role: "Recruiter",
-    avatar: null,
-  };
-
-  if (typeof window !== "undefined") {
-    localStorage.setItem(AUTH_STORAGE_KEYS.TOKEN, token);
-    localStorage.setItem(AUTH_STORAGE_KEYS.USER, JSON.stringify(user));
-  }
-
-  return { token, user };
 };
 
 export const getCurrentUserApi = async () => {
-  await delay(200);
-
   if (typeof window === "undefined") {
     return { token: null, user: null };
   }
@@ -73,19 +99,25 @@ export const getCurrentUserApi = async () => {
   }
 
   try {
-    const user = storedUser ? JSON.parse(storedUser) : DEFAULT_HR_USER;
+    const res = await axiosClient.get("/auth/me");
+    const user = res?.data?.user || (storedUser ? JSON.parse(storedUser) : DEFAULT_HR_USER);
     return { token, user };
   } catch {
-    return { token: null, user: null };
+    const user = storedUser ? JSON.parse(storedUser) : DEFAULT_HR_USER;
+    return { token, user };
   }
 };
 
 export const logoutApi = async () => {
-  await delay(200);
-
-  if (typeof window !== "undefined") {
-    localStorage.removeItem(AUTH_STORAGE_KEYS.TOKEN);
-    localStorage.removeItem(AUTH_STORAGE_KEYS.USER);
+  try {
+    await axiosClient.post("/auth/logout");
+  } catch {
+    // Ignore error on logout if offline
+  } finally {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(AUTH_STORAGE_KEYS.TOKEN);
+      localStorage.removeItem(AUTH_STORAGE_KEYS.USER);
+    }
   }
 
   return { success: true };
