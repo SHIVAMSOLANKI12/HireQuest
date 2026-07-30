@@ -28,7 +28,7 @@ const RegisterForm = () => {
 
     try {
       await register({ name, email, company, password });
-      router.push("/dashboard");
+      router.push("/login?registered=true");
     } catch (err) {
       setError(err.message || "Failed to create account. Please try again.");
     } finally {

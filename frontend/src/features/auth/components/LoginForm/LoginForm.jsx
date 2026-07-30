@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Lock, Mail, Loader2 } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Lock, Mail, Loader2, CheckCircle2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,10 +12,12 @@ import { useAuth } from "../../context";
 
 const LoginForm = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isRegisteredSuccess = searchParams.get("registered") === "true";
   const { login } = useAuth();
 
-  const [email, setEmail] = useState("rohit@hirequest.com");
-  const [password, setPassword] = useState("password123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -36,6 +38,13 @@ const LoginForm = () => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {isRegisteredSuccess && (
+        <div className="rounded-lg border border-green-500/40 bg-green-50 p-3 text-sm text-green-700 font-medium flex items-center gap-2">
+          <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0" />
+          <span>Account created successfully! Please sign in with your credentials.</span>
+        </div>
+      )}
+
       {error && (
         <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive font-medium">
           {error}

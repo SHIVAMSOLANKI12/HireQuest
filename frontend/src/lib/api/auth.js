@@ -56,17 +56,9 @@ export const registerApi = async ({ name, email, company, password }) => {
       role: "Recruiter",
     };
 
-    const token = res?.data?.accessToken || `mock-jwt-token-${Date.now()}`;
-
-    if (typeof window !== "undefined") {
-      localStorage.setItem(AUTH_STORAGE_KEYS.TOKEN, token);
-      localStorage.setItem(AUTH_STORAGE_KEYS.USER, JSON.stringify(user));
-    }
-
-    return { token, user };
+    return { user };
   } catch (err) {
     if (err.message.includes("Network Error") || err.message.includes("connecting to the server")) {
-      const mockToken = `mock-jwt-token-${Date.now()}`;
       const mockUser = {
         id: `hr-${Date.now()}`,
         name,
@@ -75,12 +67,7 @@ export const registerApi = async ({ name, email, company, password }) => {
         role: "Recruiter",
       };
 
-      if (typeof window !== "undefined") {
-        localStorage.setItem(AUTH_STORAGE_KEYS.TOKEN, mockToken);
-        localStorage.setItem(AUTH_STORAGE_KEYS.USER, JSON.stringify(mockUser));
-      }
-
-      return { token: mockToken, user: mockUser };
+      return { user: mockUser };
     }
     throw err;
   }
