@@ -68,7 +68,7 @@ const AssessmentCard = ({ assessment }) => {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between border-t pt-4">
+        <div className="flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
           <span className="text-xs text-muted-foreground">
             Created {assessment.createdAt}
           </span>

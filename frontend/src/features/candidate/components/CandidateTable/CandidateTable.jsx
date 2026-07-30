@@ -36,7 +36,7 @@ const CandidateTable = ({
   const someSelected = selectedVisibleCount > 0 && !allSelected;
 
   return (
-    <div className="overflow-hidden rounded-xl border">
+    <div className="overflow-x-auto rounded-xl border">
       <Table>
         <TableHeader>
           <TableRow>
@@ -54,8 +54,8 @@ const CandidateTable = ({
               />
             </TableHead>
             <TableHead>Candidate</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Phone</TableHead>
+            <TableHead className="hidden sm:table-cell">Email</TableHead>
+            <TableHead className="hidden md:table-cell">Phone</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
@@ -79,14 +79,14 @@ const CandidateTable = ({
                 <div className="font-medium">{candidate.name}</div>
               </TableCell>
 
-              <TableCell>
+              <TableCell className="hidden sm:table-cell">
                 <div className="flex items-center gap-2">
                   <Mail className="h-4 w-4 text-muted-foreground" />
-                  {candidate.email}
+                  <span className="truncate max-w-[160px] block">{candidate.email}</span>
                 </div>
               </TableCell>
 
-              <TableCell>
+              <TableCell className="hidden md:table-cell">
                 <div className="flex items-center gap-2">
                   <Phone className="h-4 w-4 text-muted-foreground" />
                   {candidate.phone || "—"}

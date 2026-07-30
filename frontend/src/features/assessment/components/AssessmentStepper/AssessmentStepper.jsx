@@ -5,7 +5,7 @@ import { ASSESSMENT_STEPS } from "../../constants";
 const AssessmentStepper = ({ currentStep }) => {
   return (
     <div className="overflow-x-auto">
-      <div className="flex min-w-[650px] items-center">
+      <div className="flex min-w-[460px] sm:min-w-[650px] items-center">
         {ASSESSMENT_STEPS.map((step, index) => {
           const isCompleted =
             step.id < currentStep;
@@ -35,11 +35,12 @@ const AssessmentStepper = ({ currentStep }) => {
                 </div>
 
                 <span
-                  className={
+                  className={[
+                    "hidden sm:block text-sm",
                     isCurrent
-                      ? "text-sm font-medium"
-                      : "text-sm text-muted-foreground"
-                  }
+                      ? "font-medium"
+                      : "text-muted-foreground",
+                  ].join(" ")}
                 >
                   {step.label}
                 </span>
