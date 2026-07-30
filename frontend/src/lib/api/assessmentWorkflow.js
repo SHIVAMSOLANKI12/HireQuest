@@ -1,3 +1,4 @@
+import { getAssessmentById } from "./assessments";
 import { getAssignmentByToken, startAssignment, completeAssignment } from "./assignments";
 import { startAttempt, completeAttempt } from "./attempts";
 import { updateCandidateRoundStatus } from "./hiringPipeline";
@@ -15,6 +16,8 @@ export const startAssessmentWorkflow = async (token) => {
     throw new Error("Assessment has already been completed.");
   }
 
+  const assessment = await getAssessmentById(assignment.assessmentId).catch(() => null);
+
   const startedAssignment = await startAssignment(token);
 
   const attempt = await startAttempt({
@@ -23,6 +26,7 @@ export const startAssessmentWorkflow = async (token) => {
     assessmentId: startedAssignment.assessmentId,
     hiringProcessId: startedAssignment.hiringProcessId,
     roundId: startedAssignment.roundId,
+    durationMinutes: assessment?.timeLimit ?? assessment?.durationMinutes ?? 45,
   });
 
   if (startedAssignment.hiringProcessId && startedAssignment.roundId) {

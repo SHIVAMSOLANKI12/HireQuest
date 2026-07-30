@@ -7,7 +7,6 @@ const delay = (ms = 500) =>
 
 export const getAttempts = async () => {
   await delay();
-
   return [...attempts];
 };
 
@@ -29,8 +28,7 @@ export const getAttemptByAssignmentId = async (assignmentId) => {
   await delay();
 
   const attempt = attempts.find(
-    (attempt) =>
-      String(attempt.assignmentId) === String(assignmentId)
+    (attempt) => String(attempt.assignmentId) === String(assignmentId)
   );
 
   return attempt ? { ...attempt } : null;
@@ -40,41 +38,46 @@ export const startAttempt = async ({
   assignmentId,
   candidateId,
   assessmentId,
+  hiringProcessId,
+  roundId,
+  durationMinutes = 45,
 }) => {
-  await delay(700);
+  await delay(500);
 
-  // Idempotent — prevent duplicate attempts
   const existingAttempt = attempts.find(
-    (attempt) =>
-      String(attempt.assignmentId) === String(assignmentId)
+    (attempt) => String(attempt.assignmentId) === String(assignmentId)
   );
 
   if (existingAttempt) {
     return { ...existingAttempt };
   }
 
+  const now = new Date().toISOString();
+
   const attempt = {
     id: crypto.randomUUID(),
-
     assignmentId,
     candidateId,
     assessmentId,
-
+    hiringProcessId,
+    roundId,
     status: "In Progress",
-
-    startedAt: new Date().toISOString(),
+    durationMinutes: Number(durationMinutes) || 45,
+    startedAt: now,
     submittedAt: null,
-
     currentSection: 0,
+    currentItemIndex: 0,
     responses: {},
     gameResults: {},
     score: null,
+    lastSavedAt: null,
   };
 
   attempts.push(attempt);
-
   return { ...attempt };
 };
+
+export const createAttempt = startAttempt;
 
 export const updateAttemptProgress = async ({
   attemptId,
@@ -97,6 +100,37 @@ export const updateAttemptProgress = async ({
   attempts[index] = {
     ...attempts[index],
     currentSection,
+  };
+
+  return { ...attempts[index] };
+};
+
+export const saveAttemptProgress = async ({
+  attemptId,
+  responses = [],
+  currentItemIndex = 0,
+}) => {
+  await delay(250);
+
+  const index = attempts.findIndex(
+    (attempt) => String(attempt.id) === String(attemptId)
+  );
+
+  if (index === -1) {
+    throw new Error("Attempt not found.");
+  }
+
+  if (attempts[index].status !== "In Progress") {
+    throw new Error("Completed attempt cannot be modified.");
+  }
+
+  attempts[index] = {
+    ...attempts[index],
+    responses: Array.isArray(responses)
+      ? [...responses]
+      : { ...responses },
+    currentItemIndex,
+    lastSavedAt: new Date().toISOString(),
   };
 
   return { ...attempts[index] };
@@ -136,6 +170,7 @@ export const saveQuizResponse = async ({
         [questionId]: optionId,
       },
     },
+    lastSavedAt: new Date().toISOString(),
   };
 
   return { ...attempts[index] };
@@ -173,6 +208,7 @@ export const saveGameResult = async ({
         completedAt: new Date().toISOString(),
       },
     },
+    lastSavedAt: new Date().toISOString(),
   };
 
   return { ...attempts[index] };
@@ -185,9 +221,7 @@ const isAttemptComplete = ({ assessment, attempt }) => {
       ...(assessment?.quizzes ?? []),
     ];
 
-  // Fallback: if empty arrays, check if default sample sections are used
   if (sections.length === 0) {
-    // If no sections in object, return true if attempt has responses or gameResults
     const hasAnyResponse =
       Object.keys(attempt?.responses ?? {}).length > 0 ||
       Object.keys(attempt?.gameResults ?? {}).length > 0;
@@ -211,8 +245,8 @@ const isAttemptComplete = ({ assessment, attempt }) => {
   });
 };
 
-export const submitAttempt = async ({ attemptId, assessment }) => {
-  await delay(700);
+export const completeAttempt = async ({ attemptId, assessment, responses }) => {
+  await delay(500);
 
   const index = attempts.findIndex(
     (attempt) => String(attempt.id) === String(attemptId)
@@ -228,18 +262,11 @@ export const submitAttempt = async ({ attemptId, assessment }) => {
     return { ...attempt };
   }
 
-  if (attempt.status !== "In Progress") {
-    throw new Error("This assessment cannot be submitted.");
-  }
-
-  if (!isAttemptComplete({ assessment, attempt })) {
-    throw new Error("Complete all required sections before submitting.");
-  }
-
   const scoringResult = calculateAssessmentScore({ assessment, attempt });
 
   attempts[index] = {
     ...attempt,
+    ...(responses ? { responses: Array.isArray(responses) ? [...responses] : responses } : {}),
     status: "Completed",
     score: scoringResult.score,
     quizScore: scoringResult.quizScore,
@@ -251,3 +278,6 @@ export const submitAttempt = async ({ attemptId, assessment }) => {
   return { ...attempts[index] };
 };
 
+export const submitAttempt = async ({ attemptId, assessment }) => {
+  return completeAttempt({ attemptId, assessment });
+};

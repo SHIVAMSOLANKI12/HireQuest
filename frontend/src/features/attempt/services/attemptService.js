@@ -4,6 +4,7 @@ import {
 } from "@/lib/api/assessmentWorkflow";
 import {
   getAttemptByAssignmentId,
+  saveAttemptProgress,
   saveQuizResponse,
 } from "@/lib/api/attempts";
 
@@ -12,6 +13,8 @@ export const attemptService = {
 
   getByAssignment: async (assignmentId) =>
     getAttemptByAssignmentId(assignmentId),
+
+  save: async (payload) => saveAttemptProgress(payload),
 
   saveResponse: async (payload) => saveQuizResponse(payload),
 
