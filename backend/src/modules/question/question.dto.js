@@ -1,5 +1,6 @@
-const { QuestionDto } = require("./dto/question.dto");
+const { QuestionDto, CandidateQuestionDto } = require("./dto/question.dto");
 
 module.exports = {
   QuestionDto,
+  CandidateQuestionDto,
 };

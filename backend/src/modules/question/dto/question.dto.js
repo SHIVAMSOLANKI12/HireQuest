@@ -2,13 +2,13 @@
  * ==========================================================
  * Question Data Transfer Object (DTO)
  * ==========================================================
- * Sanitizes and formats database objects into client-safe responses.
+ * Sanitizes and formats Question database models into client-safe payloads.
+ * Includes separate DTOs for Admin and Candidate assessment security.
  * ==========================================================
  */
-
 class QuestionDto {
   /**
-   * Format Detailed Single Question Response DTO
+   * Create / Get By Id Response DTO (Admin / HR)
    */
   static toResponse(question) {
     if (!question) return null;
@@ -36,10 +36,6 @@ class QuestionDto {
 
       shuffleOptions: question.shuffleOptions,
 
-      version: question.version || 1,
-
-      publishedAt: question.publishedAt || null,
-
       category: question.category
         ? {
             id: question.category.id,
@@ -49,26 +45,16 @@ class QuestionDto {
 
       tags:
         question.tags?.map((item) => ({
-          id: item.tag ? item.tag.id : item.id,
-          name: item.tag ? item.tag.name : item.name,
+          id: item.tag?.id || item.id,
+          name: item.tag?.name || item.name,
         })) ?? [],
 
       options:
         question.options?.map((option) => ({
           id: option.id,
-          optionText: option.optionText,
+          text: option.optionText || option.text,
           isCorrect: option.isCorrect,
           sequence: option.sequence,
-          explanation: option.explanation || null,
-        })) ?? [],
-
-      attachments:
-        question.attachments?.map((att) => ({
-          id: att.id,
-          type: att.type,
-          fileName: att.fileName,
-          originalName: att.originalName,
-          fileUrl: att.fileUrl,
         })) ?? [],
 
       createdAt: question.createdAt,
@@ -78,7 +64,7 @@ class QuestionDto {
   }
 
   /**
-   * Format Lightweight Summary List Item DTO
+   * List Response DTO (Admin / HR)
    */
   static toListResponse(question) {
     if (!question) return null;
@@ -96,28 +82,66 @@ class QuestionDto {
 
       marks: question.marks,
 
+      category: question.category?.name ?? null,
+
       createdAt: question.createdAt,
     };
   }
 
   /**
-   * Format Paginated Questions List Response DTO
+   * Summary Response DTO (Dropdowns / Selectors)
    */
-  static toPaginatedResponse({ data = [], total = 0, page = 1, limit = 10 }) {
+  static toSummary(question) {
+    if (!question) return null;
+
     return {
-      items: data.map((item) => QuestionDto.toListResponse(item)),
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit) || 1,
-        hasNextPage: page * limit < total,
-        hasPrevPage: page > 1,
-      },
+      id: question.id,
+
+      title: question.title,
+    };
+  }
+
+  /**
+   * Collection Response Helper
+   */
+  static toCollection(questions) {
+    if (!Array.isArray(questions)) return [];
+    return questions.map((question) => QuestionDto.toListResponse(question));
+  }
+}
+
+/**
+ * Candidate Question DTO (Hides correct answers & explanations for candidate security)
+ */
+class CandidateQuestionDto {
+  static toResponse(question) {
+    if (!question) return null;
+
+    return {
+      id: question.id,
+
+      title: question.title,
+
+      description: question.description || null,
+
+      type: question.type,
+
+      marks: question.marks,
+
+      shuffleOptions: question.shuffleOptions,
+
+      options: Array.isArray(question.options)
+        ? question.options.map((option) => ({
+            id: option.id,
+            text: option.optionText || option.text,
+            sequence: option.sequence,
+          }))
+        : [],
     };
   }
 }
 
 module.exports = {
   QuestionDto,
+  CandidateQuestionDto,
 };

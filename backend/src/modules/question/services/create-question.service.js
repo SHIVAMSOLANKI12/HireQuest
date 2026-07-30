@@ -1,139 +1,89 @@
-const {
-  ConflictError,
-  NotFoundError,
-  ValidationError,
-} = require("../../../common/exceptions");
-
+const { BadRequestError, ConflictError } = require("../../../common/exceptions");
 const { runTransaction } = require("../../../common/prisma/transaction");
-const { sanitizeQuestionSnapshot } = require("../../../common/utils/sanitize-snapshot");
-const { AUDIT_ACTIONS } = require("../../../common/constants/audit.constants");
 const logger = require("../../../config/logger");
 
 const questionRepository = require("../repository/question.repository");
 const { QuestionMapper } = require("../mapper/question.mapper");
 const { QuestionDto } = require("../dto/question.dto");
-const { QUESTION_MESSAGES } = require("../question.constants");
+const { QUESTION_MESSAGES, QUESTION_ERRORS } = require("../question.constants");
 
 /**
  * ==========================================================
- * Enterprise Refactored Create Question Service
+ * Enterprise Create Question Service
  * ==========================================================
- * Executes ACID transaction, custom exception handling,
- * option & tag batch creation, sanitized version snapshots,
- * audit logging, and response DTO formatting.
+ * Handles category validation, tag batch validation, duplicate title check,
+ * ACID transaction execution (Question + Options + QuestionTag junction),
+ * and client-safe DTO response formatting.
  * ==========================================================
  */
 class CreateQuestionService {
   async execute(payload, userId) {
-    logger.info({ userId, title: payload.title, type: payload.type }, "Initiating enterprise question creation");
+    const title = payload.title.trim();
+    logger.info({ userId, title, categoryId: payload.categoryId }, "Initiating question creation");
 
     /**
-     * 1. Duplicate Question Title Validation
+     * 1. Validate Category Existence & Active Status
      */
-    const duplicate = await questionRepository.findDuplicateQuestion(payload.title);
-
-    if (duplicate) {
-      logger.warn({ title: payload.title }, "Duplicate question title detected");
-      throw new ConflictError(
-        "Question already exists.",
-        "QUESTION_ALREADY_EXISTS"
-      );
-    }
-
-    /**
-     * 2. Category Existence & Active Status Validation
-     */
-    const category = await questionRepository.findCategoryById(payload.categoryId);
-
-    if (!category) {
-      logger.warn({ categoryId: payload.categoryId }, "Invalid or inactive category ID provided");
-      throw new NotFoundError(
-        "Question category not found.",
-        "QUESTION_CATEGORY_NOT_FOUND"
-      );
-    }
-
-    /**
-     * 3. Tags Existence & Active Status Validation
-     */
-    if (Array.isArray(payload.tagIds) && payload.tagIds.length > 0) {
-      const existingTags = await questionRepository.findTagsByIds(payload.tagIds);
-
-      if (existingTags.length !== payload.tagIds.length) {
-        logger.warn({ providedTagIds: payload.tagIds, foundCount: existingTags.length }, "One or more tag IDs are invalid or inactive");
-        throw new ValidationError(
-          "Invalid question tags.",
-          [
-            {
-              field: "tagIds",
-              message: "One or more tags are invalid.",
-            },
-          ],
-          "QUESTION_INVALID_TAGS"
+    if (payload.categoryId) {
+      const categoryExists = await questionRepository.validateCategoryExists(payload.categoryId);
+      if (!categoryExists) {
+        logger.warn({ categoryId: payload.categoryId }, "Selected category does not exist or is inactive");
+        throw new BadRequestError(
+          "Selected category does not exist or is inactive.",
+          QUESTION_ERRORS.INVALID_CATEGORY || "INVALID_CATEGORY"
         );
       }
+    }
+
+    /**
+     * 2. Validate Tag IDs Batch Existence & Active Status
+     */
+    if (Array.isArray(payload.tagIds) && payload.tagIds.length > 0) {
+      const tagsExist = await questionRepository.validateTagsExist(payload.tagIds);
+      if (!tagsExist) {
+        logger.warn({ tagIds: payload.tagIds }, "One or more selected tags do not exist or are inactive");
+        throw new BadRequestError(
+          "One or more selected tags do not exist or are inactive.",
+          QUESTION_ERRORS.INVALID_TAGS || "INVALID_TAGS"
+        );
+      }
+    }
+
+    /**
+     * 3. Case-Insensitive Duplicate Title Check
+     */
+    const existingQuestion = await questionRepository.findByTitle(title);
+    if (existingQuestion) {
+      logger.warn({ title }, "Duplicate question title detected");
+      throw new ConflictError(
+        "A question with this title already exists.",
+        QUESTION_ERRORS.ALREADY_EXISTS || "QUESTION_ALREADY_EXISTS"
+      );
     }
 
     /**
      * 4. ACID Database Transaction Execution
      */
     const createdQuestion = await runTransaction(async (tx) => {
-      // 4a. Map and Create Question entity
-      const questionEntityData = QuestionMapper.toCreateQuestion(payload, userId);
-      const question = await questionRepository.createQuestion(tx, questionEntityData);
+      const questionData = QuestionMapper.toCreateEntity(payload, userId);
+      const optionsData = QuestionMapper.toOptionEntities(payload.options);
 
-      // 4b. Batch Create Options (if objective question)
-      if (Array.isArray(payload.options) && payload.options.length > 0) {
-        const optionEntities = QuestionMapper.toQuestionOptions(question.id, payload.options);
-        await questionRepository.createOptions(tx, optionEntities);
-      }
-
-      // 4c. Batch Create Tags Junction Records
-      if (Array.isArray(payload.tagIds) && payload.tagIds.length > 0) {
-        const tagJunctionEntities = QuestionMapper.toQuestionTags(question.id, payload.tagIds);
-        await questionRepository.createQuestionTags(tx, tagJunctionEntities);
-      }
-
-      // 4d. Create Sanitized Initial Version Snapshot (v1)
-      const sanitizedSnapshot = sanitizeQuestionSnapshot({
-        ...question,
-        options: payload.options || [],
-        tags: payload.tagIds ? payload.tagIds.map((id) => ({ tagId: id })) : [],
-      });
-
-      const versionPayload = QuestionMapper.toQuestionVersion(
-        { ...question, version: 1, snapshot: sanitizedSnapshot },
-        userId
+      return questionRepository.create(
+        tx,
+        questionData,
+        optionsData,
+        payload.tagIds || []
       );
-      versionPayload.snapshot = sanitizedSnapshot;
-      await questionRepository.createVersion(tx, versionPayload);
-
-      // 4e. Record Audit Log Entry
-      const auditPayload = QuestionMapper.toAuditLog(
-        question.id,
-        userId,
-        AUDIT_ACTIONS.CREATE,
-        sanitizedSnapshot,
-        `Question "${question.title}" created successfully.`
-      );
-      await questionRepository.createAuditLog(tx, auditPayload);
-
-      return question;
     });
 
-    /**
-     * 5. Fetch Full Created Question with Relations
-     */
-    const completeQuestion = await questionRepository.findQuestionWithRelations(createdQuestion.id);
-
-    logger.info({ questionId: createdQuestion.id, userId }, "Question created successfully");
+    logger.info({ questionId: createdQuestion.id, title: createdQuestion.title }, "Question created successfully");
 
     /**
-     * 6. Format and Return Client-Safe DTO
+     * 5. Format and Return Client-Safe DTO Response
      */
     return {
-      message: QUESTION_MESSAGES.CREATE_SUCCESS,
-      data: QuestionDto.toResponse(completeQuestion),
+      message: QUESTION_MESSAGES.CREATE_SUCCESS || "Question created successfully.",
+      data: QuestionDto.toResponse(createdQuestion),
     };
   }
 }

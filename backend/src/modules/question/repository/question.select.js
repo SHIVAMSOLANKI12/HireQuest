@@ -6,18 +6,29 @@
  * ==========================================================
  */
 
-const QUESTION_SUMMARY_SELECT = Object.freeze({
+const QUESTION_OPTION_SELECT = Object.freeze({
   id: true,
-  title: true,
-  type: true,
-  difficulty: true,
-  status: true,
-  marks: true,
-  createdAt: true,
-  updatedAt: true,
+  optionText: true,
+  isCorrect: true,
+  sequence: true,
+  explanation: true,
 });
 
-const QUESTION_DETAIL_SELECT = Object.freeze({
+const QUESTION_CATEGORY_SELECT = Object.freeze({
+  id: true,
+  name: true,
+});
+
+const QUESTION_TAG_SELECT = Object.freeze({
+  tag: {
+    select: {
+      id: true,
+      name: true,
+    },
+  },
+});
+
+const QUESTION_DEFAULT_SELECT = Object.freeze({
   id: true,
   title: true,
   description: true,
@@ -30,51 +41,60 @@ const QUESTION_DETAIL_SELECT = Object.freeze({
   estimatedTime: true,
   shuffleOptions: true,
   version: true,
+  isActive: true,
   publishedAt: true,
   createdAt: true,
   updatedAt: true,
   createdById: true,
   updatedById: true,
+  categoryId: true,
   category: {
-    select: {
-      id: true,
-      name: true,
-    },
+    select: QUESTION_CATEGORY_SELECT,
   },
   options: {
-    select: {
-      id: true,
-      optionText: true,
-      isCorrect: true,
-      sequence: true,
-      explanation: true,
-    },
+    select: QUESTION_OPTION_SELECT,
     orderBy: {
       sequence: "asc",
     },
   },
   tags: {
-    select: {
-      tag: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
-    },
+    select: QUESTION_TAG_SELECT,
   },
-  attachments: {
+});
+
+const QUESTION_LIST_SELECT = Object.freeze({
+  id: true,
+  title: true,
+  type: true,
+  difficulty: true,
+  status: true,
+  marks: true,
+  negativeMarks: true,
+  estimatedTime: true,
+  version: true,
+  isActive: true,
+  publishedAt: true,
+  createdAt: true,
+  updatedAt: true,
+  categoryId: true,
+  category: {
+    select: QUESTION_CATEGORY_SELECT,
+  },
+  tags: {
+    select: QUESTION_TAG_SELECT,
+  },
+  _count: {
     select: {
-      id: true,
-      type: true,
-      fileName: true,
-      originalName: true,
-      fileUrl: true,
+      options: true,
+      assessments: true,
     },
   },
 });
 
 module.exports = {
-  QUESTION_SUMMARY_SELECT,
-  QUESTION_DETAIL_SELECT,
+  QUESTION_OPTION_SELECT,
+  QUESTION_CATEGORY_SELECT,
+  QUESTION_TAG_SELECT,
+  QUESTION_DEFAULT_SELECT,
+  QUESTION_LIST_SELECT,
 };
