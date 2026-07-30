@@ -9,3 +9,4 @@ export { default as ResultTimeline } from "./ResultTimeline";
 export { default as DecisionBadge } from "./DecisionBadge";
 export { default as CandidateDecision } from "./CandidateDecision";
 export { default as BulkResultActions } from "./BulkResultActions";
+export { default as IntegritySummary } from "./IntegritySummary";

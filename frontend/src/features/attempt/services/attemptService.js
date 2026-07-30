@@ -4,6 +4,7 @@ import {
 } from "@/lib/api/assessmentWorkflow";
 import {
   getAttemptByAssignmentId,
+  recordIntegrityEvent,
   saveAttemptProgress,
   saveQuizResponse,
 } from "@/lib/api/attempts";
@@ -19,4 +20,6 @@ export const attemptService = {
   saveResponse: async (payload) => saveQuizResponse(payload),
 
   submit: async (payload) => submitAssessmentWorkflow(payload),
+
+  recordIntegrityEvent: async (payload) => recordIntegrityEvent(payload),
 };

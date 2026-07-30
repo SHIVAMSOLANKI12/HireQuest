@@ -276,6 +276,11 @@ export const createAssessmentResult = async ({ attempt, assignment, score }) => 
     startedAt: attempt.startedAt,
     submittedAt: attempt.submittedAt || new Date().toISOString(),
     sections: attempt.sectionScores ?? [],
+    integrity: {
+      tabSwitchCount: attempt?.integrity?.tabSwitchCount ?? 0,
+      windowBlurCount: attempt?.integrity?.windowBlurCount ?? 0,
+      fullscreenExitCount: attempt?.integrity?.fullscreenExitCount ?? 0,
+    },
   };
 
   results.push(result);

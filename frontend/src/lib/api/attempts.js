@@ -2,6 +2,8 @@ import { calculateAssessmentScore } from "@/lib/scoring";
 
 let attempts = [];
 
+const MAX_INTEGRITY_EVENTS = 100;
+
 const delay = (ms = 500) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -71,6 +73,12 @@ export const startAttempt = async ({
     gameResults: {},
     score: null,
     lastSavedAt: null,
+    integrity: {
+      tabSwitchCount: 0,
+      windowBlurCount: 0,
+      fullscreenExitCount: 0,
+      events: [],
+    },
   };
 
   attempts.push(attempt);
@@ -78,6 +86,71 @@ export const startAttempt = async ({
 };
 
 export const createAttempt = startAttempt;
+
+export const recordIntegrityEvent = async ({ attemptId, type }) => {
+  await delay(100);
+
+  const index = attempts.findIndex(
+    (attempt) => String(attempt.id) === String(attemptId)
+  );
+
+  if (index === -1) {
+    throw new Error("Attempt not found.");
+  }
+
+  const attempt = attempts[index];
+
+  if (attempt.status !== "In Progress") {
+    return { ...attempt };
+  }
+
+  const currentIntegrity = attempt.integrity ?? {
+    tabSwitchCount: 0,
+    windowBlurCount: 0,
+    fullscreenExitCount: 0,
+    events: [],
+  };
+
+  const existingEvents = currentIntegrity.events ?? [];
+  const lastEvent = existingEvents[existingEvents.length - 1];
+  const now = Date.now();
+
+  const isDuplicate =
+    lastEvent &&
+    lastEvent.type === type &&
+    now - new Date(lastEvent.timestamp).getTime() < 500;
+
+  if (isDuplicate) {
+    return { ...attempts[index] };
+  }
+
+  const event = {
+    id: crypto.randomUUID(),
+    type,
+    timestamp: new Date().toISOString(),
+  };
+
+  const updatedEvents = [...existingEvents, event].slice(-MAX_INTEGRITY_EVENTS);
+
+  const integrity = {
+    ...currentIntegrity,
+    events: updatedEvents,
+    tabSwitchCount:
+      (currentIntegrity.tabSwitchCount ?? 0) + (type === "TAB_HIDDEN" ? 1 : 0),
+    windowBlurCount:
+      (currentIntegrity.windowBlurCount ?? 0) + (type === "WINDOW_BLUR" ? 1 : 0),
+    fullscreenExitCount:
+      (currentIntegrity.fullscreenExitCount ?? 0) +
+      (type === "FULLSCREEN_EXIT" ? 1 : 0),
+  };
+
+  attempts[index] = {
+    ...attempt,
+    integrity,
+  };
+
+  return { ...attempts[index] };
+};
 
 export const updateAttemptProgress = async ({
   attemptId,
@@ -212,37 +285,6 @@ export const saveGameResult = async ({
   };
 
   return { ...attempts[index] };
-};
-
-const isAttemptComplete = ({ assessment, attempt }) => {
-  const sections =
-    assessment?.sections ?? [
-      ...(assessment?.games ?? []),
-      ...(assessment?.quizzes ?? []),
-    ];
-
-  if (sections.length === 0) {
-    const hasAnyResponse =
-      Object.keys(attempt?.responses ?? {}).length > 0 ||
-      Object.keys(attempt?.gameResults ?? {}).length > 0;
-    return hasAnyResponse;
-  }
-
-  return sections.every((section) => {
-    if (section.type === "quiz") {
-      const questions = section.questions ?? [];
-      if (questions.length === 0) return true;
-
-      const responses = attempt?.responses?.[section.id] ?? {};
-      return questions.every((q) => responses[q.id] != null);
-    }
-
-    if (section.type === "game") {
-      return Boolean(attempt?.gameResults?.[section.id]);
-    }
-
-    return false;
-  });
 };
 
 export const completeAttempt = async ({ attemptId, assessment, responses }) => {
