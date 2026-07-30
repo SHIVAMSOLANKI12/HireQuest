@@ -218,3 +218,41 @@ export const attachAssignmentToCandidateRound = async ({
 
   return { ...pipelineCandidates[candidateIndex] };
 };
+
+export const updateCandidateRoundStatus = async ({
+  hiringProcessId,
+  candidateId,
+  roundId,
+  status,
+  resultId,
+}) => {
+  const candidateIndex = pipelineCandidates.findIndex(
+    (item) =>
+      String(item.hiringProcessId) === String(hiringProcessId) &&
+      String(item.candidateId) === String(candidateId)
+  );
+
+  if (candidateIndex === -1) {
+    throw new Error("Pipeline candidate not found.");
+  }
+
+  const candidate = pipelineCandidates[candidateIndex];
+
+  pipelineCandidates[candidateIndex] = {
+    ...candidate,
+    rounds: candidate.rounds.map((round) => {
+      if (String(round.roundId) !== String(roundId)) {
+        return round;
+      }
+
+      return {
+        ...round,
+        status,
+        ...(resultId ? { resultId } : {}),
+        ...(status === "Completed" ? { completedAt: new Date().toISOString() } : {}),
+      };
+    }),
+  };
+
+  return { ...pipelineCandidates[candidateIndex] };
+};

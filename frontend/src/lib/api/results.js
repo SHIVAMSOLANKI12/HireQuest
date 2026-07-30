@@ -239,6 +239,49 @@ export const getResultById = async ({ assessmentId, resultId }) => {
   return { ...result };
 };
 
+export const createAssessmentResult = async ({ attempt, assignment, score }) => {
+  await delay(300);
+
+  const existing = results.find(
+    (result) => String(result.attemptId) === String(attempt.id)
+  );
+
+  if (existing) {
+    return { ...existing };
+  }
+
+  const result = {
+    id: crypto.randomUUID(),
+    attemptId: attempt.id,
+    assignmentId: assignment.id,
+    candidateId: assignment.candidateId,
+    assessmentId: assignment.assessmentId,
+    hiringProcessId: assignment.hiringProcessId,
+    roundId: assignment.roundId,
+    candidate: {
+      id: assignment.candidateId,
+      name: "Candidate",
+      email: "candidate@example.com",
+    },
+    assessment: {
+      id: assignment.assessmentId,
+      title: "Assessment",
+    },
+    status: "Completed",
+    score: score?.score ?? score?.percentage ?? score ?? 0,
+    quizScore: score?.quizScore ?? 80,
+    gameScore: score?.gameScore ?? 85,
+    decision: "Pending",
+    decisionAt: null,
+    startedAt: attempt.startedAt,
+    submittedAt: attempt.submittedAt || new Date().toISOString(),
+    sections: attempt.sectionScores ?? [],
+  };
+
+  results.push(result);
+  return { ...result };
+};
+
 export const updateCandidateDecision = async ({ resultId, decision }) => {
   await delay(400);
 
@@ -314,4 +357,3 @@ export const updateCandidateDecisions = async ({ resultIds, decision }) => {
 
   return updatedResults;
 };
-
