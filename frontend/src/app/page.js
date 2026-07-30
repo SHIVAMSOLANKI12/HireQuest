@@ -45,6 +45,24 @@ export default function Home() {
   // Contact form submission feedback
   const [contactSubmitted, setContactSubmitted] = useState(false);
 
+  // Smooth scroll handler accounting for sticky header offset
+  const handleScrollTo = (e, id) => {
+    e.preventDefault();
+    setMobileMenuOpen(false);
+
+    const element = document.getElementById(id);
+    if (element) {
+      const headerOffset = 90;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth",
+      });
+    }
+  };
+
   // Typewriter effect loop
   useEffect(() => {
     const handleTyping = () => {
@@ -165,16 +183,32 @@ export default function Home() {
 
           {/* Navigation Links (Desktop) */}
           <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-semibold text-slate-600">
-            <a href="#about" className="hover:text-blue-600 transition-colors">
+            <a
+              href="#about"
+              onClick={(e) => handleScrollTo(e, "about")}
+              className="hover:text-blue-600 transition-colors"
+            >
               ABOUT US
             </a>
-            <a href="#services" className="hover:text-blue-600 transition-colors">
+            <a
+              href="#services"
+              onClick={(e) => handleScrollTo(e, "services")}
+              className="hover:text-blue-600 transition-colors"
+            >
               SERVICES
             </a>
-            <a href="#faq" className="hover:text-blue-600 transition-colors">
+            <a
+              href="#faq"
+              onClick={(e) => handleScrollTo(e, "faq")}
+              className="hover:text-blue-600 transition-colors"
+            >
               FAQ
             </a>
-            <a href="#contact" className="hover:text-blue-600 transition-colors">
+            <a
+              href="#contact"
+              onClick={(e) => handleScrollTo(e, "contact")}
+              className="hover:text-blue-600 transition-colors"
+            >
               CONTACT
             </a>
           </nav>
@@ -222,28 +256,28 @@ export default function Home() {
           <div className="md:hidden mt-2 p-4 rounded-2xl bg-white/95 backdrop-blur-md border border-blue-100 shadow-lg space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
             <a
               href="#about"
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={(e) => handleScrollTo(e, "about")}
               className="block font-semibold text-sm text-slate-700 hover:text-blue-600 py-1.5 px-2 rounded-lg hover:bg-blue-50"
             >
               ABOUT US
             </a>
             <a
               href="#services"
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={(e) => handleScrollTo(e, "services")}
               className="block font-semibold text-sm text-slate-700 hover:text-blue-600 py-1.5 px-2 rounded-lg hover:bg-blue-50"
             >
               SERVICES
             </a>
             <a
               href="#faq"
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={(e) => handleScrollTo(e, "faq")}
               className="block font-semibold text-sm text-slate-700 hover:text-blue-600 py-1.5 px-2 rounded-lg hover:bg-blue-50"
             >
               FAQ
             </a>
             <a
               href="#contact"
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={(e) => handleScrollTo(e, "contact")}
               className="block font-semibold text-sm text-slate-700 hover:text-blue-600 py-1.5 px-2 rounded-lg hover:bg-blue-50"
             >
               CONTACT
@@ -571,10 +605,34 @@ export default function Home() {
           <p>© {new Date().getFullYear()} HireQuest Technologies. All rights reserved.</p>
 
           <div className="flex items-center gap-4 sm:gap-6 text-xs">
-            <a href="#about" className="hover:text-white transition-colors">About Us</a>
-            <a href="#services" className="hover:text-white transition-colors">Services</a>
-            <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
-            <a href="#contact" className="hover:text-white transition-colors">Contact</a>
+            <a
+              href="#about"
+              onClick={(e) => handleScrollTo(e, "about")}
+              className="hover:text-white transition-colors"
+            >
+              About Us
+            </a>
+            <a
+              href="#services"
+              onClick={(e) => handleScrollTo(e, "services")}
+              className="hover:text-white transition-colors"
+            >
+              Services
+            </a>
+            <a
+              href="#faq"
+              onClick={(e) => handleScrollTo(e, "faq")}
+              className="hover:text-white transition-colors"
+            >
+              FAQ
+            </a>
+            <a
+              href="#contact"
+              onClick={(e) => handleScrollTo(e, "contact")}
+              className="hover:text-white transition-colors"
+            >
+              Contact
+            </a>
           </div>
         </div>
       </footer>
