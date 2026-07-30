@@ -12,10 +12,12 @@ import {
   Gamepad2,
   Mail,
   MapPin,
+  Menu,
   MessageSquare,
   Send,
   ShieldAlert,
   Sparkles,
+  X,
   Zap,
 } from "lucide-react";
 
@@ -36,6 +38,9 @@ export default function Home() {
 
   // FAQ Accordion state
   const [openFaq, setOpenFaq] = useState(0);
+
+  // Mobile navigation menu state
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Contact form submission feedback
   const [contactSubmitted, setContactSubmitted] = useState(false);
@@ -146,20 +151,20 @@ export default function Home() {
       <div className="absolute top-1/2 left-1/3 w-32 h-32 bg-[#e0efff] rounded-full filter blur-lg opacity-80 -z-10" />
 
       {/* Main Header Container */}
-      <div className="mx-auto max-w-7xl px-6 py-4 md:px-8">
-        <header className="sticky top-0 z-50 flex items-center justify-between py-4 backdrop-blur-md bg-[#e8f2fe]/80 rounded-2xl px-4 border border-blue-100/50 shadow-sm">
+      <div className="mx-auto max-w-7xl px-3 sm:px-6 py-3 sm:py-4 md:px-8">
+        <header className="sticky top-0 z-50 flex items-center justify-between py-2.5 sm:py-3.5 backdrop-blur-md bg-[#e8f2fe]/90 rounded-2xl px-3 sm:px-6 border border-blue-100/60 shadow-sm gap-2">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white font-extrabold text-xl shadow-md">
+          <Link href="/" className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+            <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-blue-600 text-white font-extrabold text-base sm:text-xl shadow-md">
               H
             </div>
-            <span className="text-xl font-bold tracking-tight text-slate-900">
+            <span className="text-base sm:text-xl font-bold tracking-tight text-slate-900">
               HireQuest
             </span>
           </Link>
 
-          {/* Navigation Links */}
-          <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
+          {/* Navigation Links (Desktop) */}
+          <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-semibold text-slate-600">
             <a href="#about" className="hover:text-blue-600 transition-colors">
               ABOUT US
             </a>
@@ -174,13 +179,14 @@ export default function Home() {
             </a>
           </nav>
 
-          {/* Action trigger button */}
-          <div className="flex items-center gap-3">
+          {/* Right Action buttons */}
+          <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
             <Link
               href="/login"
               className={buttonVariants({
                 variant: "outline",
-                className: "border-blue-600 text-blue-600 hover:bg-blue-50 rounded-md font-semibold px-4",
+                size: "sm",
+                className: "border-blue-600 text-blue-600 hover:bg-blue-50 rounded-md font-semibold px-2.5 sm:px-4 text-xs sm:text-sm h-8 sm:h-10",
               })}
             >
               Sign In
@@ -190,24 +196,71 @@ export default function Home() {
               href={ROUTES.DASHBOARD}
               className={buttonVariants({
                 variant: "default",
-                className: "bg-blue-600 hover:bg-blue-700 text-white rounded-md px-5 shadow-md font-semibold",
+                size: "sm",
+                className: "bg-blue-600 hover:bg-blue-700 text-white rounded-md px-3 sm:px-5 shadow-md font-semibold text-xs sm:text-sm h-8 sm:h-10",
               })}
             >
               Dashboard
             </Link>
+
+            {/* Mobile Menu Toggle Button */}
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="md:hidden h-8 w-8 text-slate-700"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle Mobile Menu"
+            >
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
           </div>
         </header>
 
+        {/* Mobile Navigation Dropdown */}
+        {mobileMenuOpen && (
+          <div className="md:hidden mt-2 p-4 rounded-2xl bg-white/95 backdrop-blur-md border border-blue-100 shadow-lg space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+            <a
+              href="#about"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block font-semibold text-sm text-slate-700 hover:text-blue-600 py-1.5 px-2 rounded-lg hover:bg-blue-50"
+            >
+              ABOUT US
+            </a>
+            <a
+              href="#services"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block font-semibold text-sm text-slate-700 hover:text-blue-600 py-1.5 px-2 rounded-lg hover:bg-blue-50"
+            >
+              SERVICES
+            </a>
+            <a
+              href="#faq"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block font-semibold text-sm text-slate-700 hover:text-blue-600 py-1.5 px-2 rounded-lg hover:bg-blue-50"
+            >
+              FAQ
+            </a>
+            <a
+              href="#contact"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block font-semibold text-sm text-slate-700 hover:text-blue-600 py-1.5 px-2 rounded-lg hover:bg-blue-50"
+            >
+              CONTACT
+            </a>
+          </div>
+        )}
+
         {/* Hero split-layout */}
-        <main className="grid gap-12 lg:grid-cols-2 items-center min-h-[calc(100vh-140px)] py-8">
+        <main className="grid gap-8 lg:gap-12 lg:grid-cols-2 items-center min-h-[calc(100vh-140px)] py-8">
           {/* Left Column */}
-          <div className="space-y-6 max-w-xl">
-            <h2 className="text-blue-600 text-lg md:text-xl font-bold tracking-wide uppercase flex items-center gap-2">
-              <Sparkles className="h-5 w-5" />
+          <div className="space-y-4 sm:space-y-6 max-w-xl">
+            <h2 className="text-blue-600 text-base sm:text-lg md:text-xl font-bold tracking-wide uppercase flex items-center gap-2">
+              <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />
               Hiring Automation
             </h2>
 
-            <h1 className="text-4xl md:text-6xl font-black tracking-tight text-slate-900 leading-tight">
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-slate-900 leading-tight">
               RECRUIT <br />
               <span className="inline-flex text-blue-600 select-none">
                 {smarterWord.split("").map((letter, index) => (
@@ -225,8 +278,8 @@ export default function Home() {
             </h1>
 
             {/* Top-aligned paragraph height locker wrapper */}
-            <div className="min-h-[150px] sm:min-h-[120px] md:min-h-[85px] block">
-              <p className="text-base md:text-lg text-slate-600 font-medium leading-relaxed">
+            <div className="min-h-[140px] sm:min-h-[120px] md:min-h-[85px] block">
+              <p className="text-sm sm:text-base md:text-lg text-slate-600 font-medium leading-relaxed">
                 Streamline your hiring workflow with HireQuest. Automate candidate screening by creating interactive assessments, sending test links directly to applicants&apos; emails, and tracking real-time analytics in a unified HR dashboard. Identify top talent instantly without the manual{" "}
                 <br className="sm:hidden" />
                 <span className="block sm:inline font-bold text-blue-600 select-none min-h-[1.5em] sm:min-h-0">
@@ -235,13 +288,13 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="pt-4 flex flex-wrap items-center gap-4">
+            <div className="pt-2 sm:pt-4 flex flex-wrap items-center gap-4">
               <Link
                 href={ROUTES.DASHBOARD}
                 className={buttonVariants({
                   variant: "default",
                   size: "lg",
-                  className: "bg-blue-600 hover:bg-blue-700 text-white font-bold tracking-wide text-sm px-8 py-6 rounded-full shadow-lg hover:shadow-blue-500/20 transition-all hover:scale-105",
+                  className: "w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold tracking-wide text-xs sm:text-sm px-6 sm:px-8 py-5 sm:py-6 rounded-full shadow-lg hover:shadow-blue-500/20 transition-all hover:scale-105 justify-center",
                 })}
               >
                 GET STARTED AS HR
@@ -251,7 +304,7 @@ export default function Home() {
 
           {/* Right Column */}
           <div className="relative flex justify-center items-center py-4">
-            <div className="relative w-full max-w-md h-[300px] sm:h-[400px] drop-shadow-xl hover:scale-102 transition-transform duration-500">
+            <div className="relative w-full max-w-md h-[260px] sm:h-[380px] md:h-[400px] drop-shadow-xl hover:scale-102 transition-transform duration-500">
               <Image
                 src={hiringHero}
                 alt="HR hiring automation team illustration"
@@ -265,38 +318,38 @@ export default function Home() {
       </div>
 
       {/* ── Services Section ── */}
-      <section id="services" className="bg-white/80 py-20 border-t border-blue-100">
-        <div className="mx-auto max-w-7xl px-6 md:px-8 space-y-12">
+      <section id="services" className="bg-white/80 py-14 sm:py-20 border-t border-blue-100">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 space-y-8 sm:space-y-12">
           <div className="text-center max-w-2xl mx-auto space-y-3">
-            <span className="text-xs font-bold uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
               Our Capabilities
             </span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
               Comprehensive Hiring Services
             </h2>
-            <p className="text-slate-600 text-sm md:text-base">
+            <p className="text-slate-600 text-xs sm:text-sm md:text-base">
               Everything you need to screen, evaluate, and advance candidates in a single unified platform.
             </p>
           </div>
 
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-6 sm:gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {services.map((item, idx) => {
               const Icon = item.icon;
               return (
                 <div
                   key={idx}
-                  className="rounded-2xl border bg-card p-6 shadow-sm hover:shadow-md transition-shadow space-y-4 flex flex-col justify-between"
+                  className="rounded-2xl border bg-card p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow space-y-4 flex flex-col justify-between"
                 >
                   <div className="space-y-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 border border-blue-100">
-                      <Icon className="h-6 w-6" />
+                    <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 border border-blue-100">
+                      <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
                     </div>
 
                     <div>
-                      <span className="text-[11px] font-semibold text-blue-600 uppercase tracking-wider">
+                      <span className="text-[10px] sm:text-[11px] font-semibold text-blue-600 uppercase tracking-wider">
                         {item.tag}
                       </span>
-                      <h3 className="text-lg font-bold text-slate-900 mt-1">
+                      <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-1">
                         {item.title}
                       </h3>
                       <p className="mt-2 text-xs text-slate-600 leading-relaxed">
@@ -312,51 +365,51 @@ export default function Home() {
       </section>
 
       {/* ── About Us Section ── */}
-      <section id="about" className="py-20 bg-[#e8f2fe]/60 border-t border-blue-100">
-        <div className="mx-auto max-w-7xl px-6 md:px-8">
-          <div className="rounded-3xl border bg-white p-8 md:p-12 shadow-sm grid gap-8 lg:grid-cols-2 items-center">
+      <section id="about" className="py-14 sm:py-20 bg-[#e8f2fe]/60 border-t border-blue-100">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
+          <div className="rounded-3xl border bg-white p-6 sm:p-8 md:p-12 shadow-sm grid gap-8 lg:grid-cols-2 items-center">
             <div className="space-y-4">
-              <span className="text-xs font-bold uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
+              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
                 About HireQuest
               </span>
-              <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
                 Replacing Resume Noise with Unbiased Cognitive Talent Signals
               </h2>
-              <p className="text-slate-600 text-sm leading-relaxed">
+              <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
                 HireQuest is a next-generation hiring automation platform built for modern engineering and recruiter teams. We replace static resume screening with interactive cognitive games, objective technical MCQs, and automated multi-round pipeline workflows.
               </p>
-              <div className="space-y-2 pt-2 text-sm text-slate-700 font-medium">
+              <div className="space-y-2 pt-2 text-xs sm:text-sm text-slate-700 font-medium">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                  <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0" />
                   <span>Automated token invitation links & 3-day expiry management</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                  <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0" />
                   <span>Real-time candidate leaderboard with percentile ranking</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                  <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0" />
                   <span>Seamless single-action candidate advancement across hiring rounds</span>
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 text-center">
-              <div className="rounded-2xl bg-blue-50/70 border border-blue-100 p-6 space-y-2">
-                <p className="text-3xl md:text-4xl font-black text-blue-600 tabular-nums">98%</p>
-                <p className="text-xs font-semibold text-slate-600">Screening Accuracy</p>
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 text-center">
+              <div className="rounded-2xl bg-blue-50/70 border border-blue-100 p-4 sm:p-6 space-y-1 sm:space-y-2">
+                <p className="text-2xl sm:text-3xl md:text-4xl font-black text-blue-600 tabular-nums">98%</p>
+                <p className="text-[10px] sm:text-xs font-semibold text-slate-600">Screening Accuracy</p>
               </div>
-              <div className="rounded-2xl bg-blue-50/70 border border-blue-100 p-6 space-y-2">
-                <p className="text-3xl md:text-4xl font-black text-blue-600 tabular-nums">5x</p>
-                <p className="text-xs font-semibold text-slate-600">Faster Hiring Cycle</p>
+              <div className="rounded-2xl bg-blue-50/70 border border-blue-100 p-4 sm:p-6 space-y-1 sm:space-y-2">
+                <p className="text-2xl sm:text-3xl md:text-4xl font-black text-blue-600 tabular-nums">5x</p>
+                <p className="text-[10px] sm:text-xs font-semibold text-slate-600">Faster Hiring Cycle</p>
               </div>
-              <div className="rounded-2xl bg-blue-50/70 border border-blue-100 p-6 space-y-2">
-                <p className="text-3xl md:text-4xl font-black text-blue-600 tabular-nums">10k+</p>
-                <p className="text-xs font-semibold text-slate-600">Assessments Completed</p>
+              <div className="rounded-2xl bg-blue-50/70 border border-blue-100 p-4 sm:p-6 space-y-1 sm:space-y-2">
+                <p className="text-2xl sm:text-3xl md:text-4xl font-black text-blue-600 tabular-nums">10k+</p>
+                <p className="text-[10px] sm:text-xs font-semibold text-slate-600">Assessments Completed</p>
               </div>
-              <div className="rounded-2xl bg-blue-50/70 border border-blue-100 p-6 space-y-2">
-                <p className="text-3xl md:text-4xl font-black text-blue-600 tabular-nums">100%</p>
-                <p className="text-xs font-semibold text-slate-600">Proctoring Transparency</p>
+              <div className="rounded-2xl bg-blue-50/70 border border-blue-100 p-4 sm:p-6 space-y-1 sm:space-y-2">
+                <p className="text-2xl sm:text-3xl md:text-4xl font-black text-blue-600 tabular-nums">100%</p>
+                <p className="text-[10px] sm:text-xs font-semibold text-slate-600">Proctoring Transparency</p>
               </div>
             </div>
           </div>
@@ -364,21 +417,21 @@ export default function Home() {
       </section>
 
       {/* ── FAQ Section ── */}
-      <section id="faq" className="bg-white/80 py-20 border-t border-blue-100">
-        <div className="mx-auto max-w-4xl px-6 md:px-8 space-y-10">
+      <section id="faq" className="bg-white/80 py-14 sm:py-20 border-t border-blue-100">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 md:px-8 space-y-8 sm:space-y-10">
           <div className="text-center space-y-3">
-            <span className="text-xs font-bold uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
               Got Questions?
             </span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
               Frequently Asked Questions
             </h2>
-            <p className="text-slate-600 text-sm">
+            <p className="text-slate-600 text-xs sm:text-sm">
               Everything you need to know about candidate assessments and pipeline workflows.
             </p>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {faqs.map((faq, index) => {
               const isOpen = openFaq === index;
               return (
@@ -389,18 +442,18 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={() => setOpenFaq(isOpen ? null : index)}
-                    className="w-full flex items-center justify-between p-5 text-left font-bold text-slate-900 hover:text-blue-600"
+                    className="w-full flex items-center justify-between p-4 sm:p-5 text-left font-bold text-xs sm:text-sm md:text-base text-slate-900 hover:text-blue-600 gap-3"
                   >
                     <span>{faq.question}</span>
                     <ChevronDown
-                      className={`h-5 w-5 text-slate-400 transition-transform ${
+                      className={`h-4 w-4 sm:h-5 sm:w-5 text-slate-400 flex-shrink-0 transition-transform ${
                         isOpen ? "rotate-180 text-blue-600" : ""
                       }`}
                     />
                   </button>
 
                   {isOpen && (
-                    <div className="px-5 pb-5 pt-1 text-sm text-slate-600 border-t border-slate-100 leading-relaxed">
+                    <div className="px-4 sm:px-5 pb-4 sm:pb-5 pt-1 text-xs sm:text-sm text-slate-600 border-t border-slate-100 leading-relaxed">
                       {faq.answer}
                     </div>
                   )}
@@ -412,62 +465,62 @@ export default function Home() {
       </section>
 
       {/* ── Contact Section ── */}
-      <section id="contact" className="py-20 bg-[#e8f2fe]/70 border-t border-blue-100">
-        <div className="mx-auto max-w-7xl px-6 md:px-8 space-y-12">
+      <section id="contact" className="py-14 sm:py-20 bg-[#e8f2fe]/70 border-t border-blue-100">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 space-y-8 sm:space-y-12">
           <div className="text-center max-w-2xl mx-auto space-y-3">
-            <span className="text-xs font-bold uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
               Get in Touch
             </span>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
               Contact Our HR Support Team
             </h2>
-            <p className="text-slate-600 text-sm">
+            <p className="text-slate-600 text-xs sm:text-sm">
               Have questions about enterprise custom pipelines or onboarding? Reach out to us anytime.
             </p>
           </div>
 
-          <div className="grid gap-8 lg:grid-cols-3">
+          <div className="grid gap-6 sm:gap-8 lg:grid-cols-3">
             {/* Contact Info Cards */}
-            <div className="space-y-4">
-              <div className="rounded-2xl border bg-white p-6 shadow-sm space-y-3 flex items-start gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 border border-blue-100 flex-shrink-0">
-                  <Mail className="h-5 w-5" />
+            <div className="space-y-3 sm:space-y-4">
+              <div className="rounded-2xl border bg-white p-4 sm:p-6 shadow-sm space-y-2 sm:space-y-3 flex items-start gap-3 sm:gap-4">
+                <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 border border-blue-100 flex-shrink-0">
+                  <Mail className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-900 text-sm">Email Us</h4>
-                  <p className="text-xs text-slate-600 mt-0.5">support@hirequest.com</p>
-                  <p className="text-xs text-slate-600">hr@hirequest.com</p>
+                  <h4 className="font-bold text-slate-900 text-xs sm:text-sm">Email Us</h4>
+                  <p className="text-[11px] sm:text-xs text-slate-600 mt-0.5">support@hirequest.com</p>
+                  <p className="text-[11px] sm:text-xs text-slate-600">hr@hirequest.com</p>
                 </div>
               </div>
 
-              <div className="rounded-2xl border bg-white p-6 shadow-sm space-y-3 flex items-start gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 border border-blue-100 flex-shrink-0">
-                  <MessageSquare className="h-5 w-5" />
+              <div className="rounded-2xl border bg-white p-4 sm:p-6 shadow-sm space-y-2 sm:space-y-3 flex items-start gap-3 sm:gap-4">
+                <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 border border-blue-100 flex-shrink-0">
+                  <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-900 text-sm">Live Assistance</h4>
-                  <p className="text-xs text-slate-600 mt-0.5">Available Mon-Fri 9:00 AM - 6:00 PM IST</p>
+                  <h4 className="font-bold text-slate-900 text-xs sm:text-sm">Live Assistance</h4>
+                  <p className="text-[11px] sm:text-xs text-slate-600 mt-0.5">Available Mon-Fri 9:00 AM - 6:00 PM IST</p>
                 </div>
               </div>
 
-              <div className="rounded-2xl border bg-white p-6 shadow-sm space-y-3 flex items-start gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 border border-blue-100 flex-shrink-0">
-                  <MapPin className="h-5 w-5" />
+              <div className="rounded-2xl border bg-white p-4 sm:p-6 shadow-sm space-y-2 sm:space-y-3 flex items-start gap-4">
+                <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 border border-blue-100 flex-shrink-0">
+                  <MapPin className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-900 text-sm">Location</h4>
-                  <p className="text-xs text-slate-600 mt-0.5">HireQuest Technologies, Tech Park</p>
+                  <h4 className="font-bold text-slate-900 text-xs sm:text-sm">Location</h4>
+                  <p className="text-[11px] sm:text-xs text-slate-600 mt-0.5">HireQuest Technologies, Tech Park</p>
                 </div>
               </div>
             </div>
 
             {/* Contact Form */}
-            <div className="lg:col-span-2 rounded-3xl border bg-white p-8 shadow-sm">
+            <div className="lg:col-span-2 rounded-3xl border bg-white p-6 sm:p-8 shadow-sm">
               {contactSubmitted ? (
-                <div className="flex flex-col items-center justify-center text-center py-12 space-y-3">
-                  <CheckCircle2 className="h-12 w-12 text-green-600" />
-                  <h3 className="text-xl font-bold text-slate-900">Message Sent Successfully!</h3>
-                  <p className="text-sm text-slate-600">
+                <div className="flex flex-col items-center justify-center text-center py-10 space-y-3">
+                  <CheckCircle2 className="h-10 w-10 sm:h-12 sm:w-12 text-green-600" />
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-900">Message Sent Successfully!</h3>
+                  <p className="text-xs sm:text-sm text-slate-600">
                     Thank you for reaching out. Our HR support team will get back to you within 24 hours.
                   </p>
                 </div>
@@ -491,7 +544,7 @@ export default function Home() {
 
                   <div className="space-y-2">
                     <label className="text-xs font-semibold text-slate-700">Message</label>
-                    <Textarea placeholder="How can we help your team?" className="min-h-[120px]" required />
+                    <Textarea placeholder="How can we help your team?" className="min-h-[100px] sm:min-h-[120px]" required />
                   </div>
 
                   <Button type="submit" className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold">
@@ -506,8 +559,8 @@ export default function Home() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="bg-slate-900 text-slate-400 py-12 border-t border-slate-800 text-xs">
-        <div className="mx-auto max-w-7xl px-6 md:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <footer className="bg-slate-900 text-slate-400 py-10 sm:py-12 border-t border-slate-800 text-xs">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white font-bold text-sm">
               H
@@ -517,7 +570,7 @@ export default function Home() {
 
           <p>© {new Date().getFullYear()} HireQuest Technologies. All rights reserved.</p>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 sm:gap-6 text-xs">
             <a href="#about" className="hover:text-white transition-colors">About Us</a>
             <a href="#services" className="hover:text-white transition-colors">Services</a>
             <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
