@@ -1,17 +1,28 @@
-const assessmentRepository = require('./assessment.repository');
+const createAssessment = require("./services/create-assessment.service");
+const updateAssessment = require("./services/update-assessment.service");
+const getAssessmentById = require("./services/get-assessment.service");
+const listAssessments = require("./services/list-assessments.service");
+const publishAssessment = require("./services/publish-assessment.service");
+const archiveAssessment = require("./services/archive-assessment.service");
+const duplicateAssessment = require("./services/duplicate-assessment.service");
+const deleteAssessment = require("./services/delete-assessment.service");
 
-class AssessmentService {
-  async getAllAssessments() {
-    return assessmentRepository.findAll();
-  }
+/**
+ * ==========================================================
+ * Assessment Service Aggregator Facade
+ * ==========================================================
+ * Centralized entry point re-exporting modular assessment services.
+ * ==========================================================
+ */
 
-  async getAssessmentById(id) {
-    return assessmentRepository.findById(id);
-  }
-
-  async createAssessment(data) {
-    return assessmentRepository.create(data);
-  }
-}
-
-module.exports = new AssessmentService();
+module.exports = {
+  createAssessment,
+  updateAssessment,
+  getAssessmentById,
+  getAssessment: getAssessmentById,
+  listAssessments,
+  publishAssessment,
+  archiveAssessment,
+  duplicateAssessment,
+  deleteAssessment,
+};
