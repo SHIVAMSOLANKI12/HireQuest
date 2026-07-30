@@ -9,3 +9,4 @@ export * from "./questions";
 export * from "./results";
 export * from "./assessmentWorkflow";
 export * from "./hiringWorkflow";
+export * from "./auth";
