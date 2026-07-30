@@ -4,23 +4,40 @@ const ApiError = require("../utils/ApiError");
  * ==========================================================
  * Zod Schema Validation Middleware Generator
  * ==========================================================
- * Parses req.body, req.query, req.params, and req.cookies
- * against provided Zod schema. Formats validation failures
- * into structured ApiError(400) responses.
+ * Parses req.body, req.query, req.params against Zod schema.
+ * Supports both wrapped ({ body, query, params }) and direct body schemas.
  * ==========================================================
  */
 const validate = (schema) => async (req, res, next) => {
   try {
-    const parsed = await schema.parseAsync({
-      body: req.body,
-      query: req.query,
-      params: req.params,
-      cookies: req.cookies,
-    });
+    let targetSchema = schema;
+    while (targetSchema._def && targetSchema._def.schema) {
+      targetSchema = targetSchema._def.schema;
+    }
 
-    if (parsed.body) req.body = parsed.body;
-    if (parsed.query) req.query = parsed.query;
-    if (parsed.params) req.params = parsed.params;
+    const shape = targetSchema.shape || {};
+    const isWrappedSchema = Boolean(shape.body || shape.query || shape.params);
+
+    const dataToParse = isWrappedSchema
+      ? {
+          body: req.body,
+          query: req.query,
+          params: req.params,
+          cookies: req.cookies,
+        }
+      : req.body;
+
+    const parsed = await schema.parseAsync(dataToParse);
+
+    if (isWrappedSchema) {
+      if (parsed.body) req.body = parsed.body;
+      if (parsed.query) req.query = parsed.query;
+      if (parsed.params) req.params = parsed.params;
+      req.validatedData = parsed.body || parsed.query || parsed.params || parsed;
+    } else {
+      req.body = parsed;
+      req.validatedData = parsed;
+    }
 
     return next();
   } catch (error) {
