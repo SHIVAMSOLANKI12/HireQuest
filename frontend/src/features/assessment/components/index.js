@@ -33,5 +33,5 @@ export { default as QuizRenderer } from "./QuizRenderer";
 export { default as GameRuntime } from "./GameRuntime";
 export { default as SubmitAssessmentDialog } from "./SubmitAssessmentDialog";
 export { default as AssessmentCompleted } from "./AssessmentCompleted";
-
-
+export { default as AssessmentPreStart } from "./AssessmentPreStart";
+export { default as AssessmentUnavailable } from "./AssessmentUnavailable";

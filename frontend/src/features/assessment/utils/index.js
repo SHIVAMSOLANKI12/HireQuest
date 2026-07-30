@@ -11,4 +11,4 @@ export * from "./getQuizCompletion";
 export * from "./getGameCompletion";
 export * from "./getSectionCompletion";
 export * from "./getAssessmentReview";
-
+export * from "./validateAssessmentStart";
